@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Printer App</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#333">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+    <h1>My Receipt Printer</h1>
+
+    <p id="status-label">Status: Disconnected</p>
+
+    <button id="btn-connect" class="button">Connect to Printer</button>
+
+    <textarea id="receipt-text" rows="10" placeholder="Type your receipt text here..."></textarea>
+
+    <button id="btn-print" class="button" disabled>Print</button>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+
+</html>

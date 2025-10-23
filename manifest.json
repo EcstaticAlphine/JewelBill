@@ -1,0 +1,15 @@
+{
+  "short_name": "Printer",
+  "name": "My Printer App",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#007aff",
+  "background_color": "#ffffff"
+}
