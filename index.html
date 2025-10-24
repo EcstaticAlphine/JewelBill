@@ -107,13 +107,11 @@
       <h2 class="text-xl font-bold mb-4 border-b pb-2">Shop Details for Invoice</h2>
       <form id="shop-details-form" class="space-y-4">
         <div>
-
           <label for="shop-name" class="block text-sm font-medium text-gray-600 mb-1">Shop Name</label>
           <input type="text" id="shop-name" class="w-full p-2 border border-gray-300 rounded-md"
             placeholder="e.g., Your Jewellery Store">
         </div>
         <div>
-
           <label for="shop-address" class="block text-sm font-medium text-gray-600 mb-1">Address / Contact Info</label>
           <input type="text" id="shop-address" class="w-full p-2 border border-gray-300 rounded-md"
             placeholder="e.g., 123 Gold St, City, Phone: 9876543210">
@@ -128,8 +126,41 @@
         </div>
         <button type="submit"
           class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700">Save Details</button>
-
       </form>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Today's Rates (per gram)</h2>
+      <div id="rates-display" class="hidden grid grid-cols-2 gap-4 text-center">
+        <div>
+          <p class="text-sm text-gray-500">Gold (22K)</p>
+          <p id="gold-rate-display" class="text-2xl font-bold text-green-600"></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Silver</p>
+          <p id="silver-rate-display" class="text-2xl font-bold text-green-600"></p>
+        </div>
+        <div class="col-span-2 text-center">
+          <button id="edit-rates-btn" class="text-xs text-blue-500 hover:underline">Edit Rates</button>
+        </div>
+      </div>
+      <div id="rates-input-container">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="gold-rate-input" class="block text-sm font-medium text-gray-600 mb-1">Gold Rate (22K)</label>
+            <input type="number" id="gold-rate-input" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="e.g., 6655">
+          </div>
+          <div>
+            <label for="silver-rate-input" class="block text-sm font-medium text-gray-600 mb-1">Silver Rate</label>
+            <input type="number" id="silver-rate-input" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="e.g., 90">
+          </div>
+        </div>
+        <button id="set-rates-btn"
+          class="mt-4 w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-300">Set
+          Rates</button>
+      </div>
     </div>
 
     <div id="app-body" class="hidden">
@@ -151,8 +182,221 @@
         </div>
       </div>
 
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6 no-print">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">Add New Gold Jewellery</h2>
+        <form id="item-form" class="space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label for="item-name" class="block text-sm font-medium text-gray-600 mb-1">Item Name</label>
+              <input type="text" id="item-name" class="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Necklace">
+            </div>
+            <div>
+              <label for="gross-weight" class="block text-sm font-medium text-gray-600 mb-1">Gross Wt. (g)</label>
+              <input type="number" id="gross-weight" step="0.001" class="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="10.500">
+            </div>
+            <div>
+              <label for="stone-weight" class="block text-sm font-medium text-gray-600 mb-1">Stone Wt. (g)</label>
+              <input type="number" id="stone-weight" step="0.001" class="w-full p-2 border border-gray-300 rounded-md"
+                value="0">
+            </div>
+            <div>
+              <label for="karat" class="block text-sm font-medium text-gray-600 mb-1">Purity</label>
+              <select id="karat" class="w-full p-2 border border-gray-300 rounded-md bg-white">
+                <option value="22">22 Karat (91.6%)</option>
+                <option value="24">24 Karat (99.9%)</option>
+                <option value="18">18 Karat (75.0%)</option>
+                <option value="14">14 Karat (58.3%)</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 items-end bg-gray-50 p-3 rounded-md">
+            <div>
+              <label for="making-charge-type" class="block text-sm font-medium text-gray-600 mb-1">Making Charge</label>
+              <select id="making-charge-type" class="w-full p-2 border border-gray-300 rounded-md bg-white">
+                <option value="perGram">Per Gram</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+            <div>
+              <label for="making-charge-value" class="block text-sm font-medium text-gray-600 mb-1">Value</label>
+              <input type="number" id="making-charge-value" step="0.01"
+                class="w-full p-2 border border-gray-300 rounded-md" placeholder="e.g., 450">
+            </div>
+          </div>
+          <div class="pt-2">
+            <input type="hidden" id="editing-gold-item-id">
+            <button type="submit" id="add-gold-item-btn"
+              class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded-md hover:bg-yellow-600 transition duration-300">Add
+              Gold Item</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6 no-print">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">Add New Silver Item</h2>
+        <form id="silver-item-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div class="md:col-span-1">
+            <label for="silver-item-name" class="block text-sm font-medium text-gray-600 mb-1">Item Name</label>
+            <input type="text" id="silver-item-name" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Anklet">
+          </div>
+          <div>
+            <label for="silver-item-weight" class="block text-sm font-medium text-gray-600 mb-1">Weight (g)</label>
+            <input type="number" id="silver-item-weight" step="0.01"
+              class="w-full p-2 border border-gray-300 rounded-md" placeholder="50.00">
+          </div>
+          <div class="md:col-span-1">
+            <input type="hidden" id="editing-silver-item-id">
+            <button type="submit" id="add-silver-item-btn"
+              class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-700 transition duration-300">Add
+              Silver Item</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6 no-print">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">Old Gold Exchange</h2>
+        <form id="old-gold-form" class="grid grid-cols-2 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label for="old-item-name" class="block text-sm font-medium text-gray-600 mb-1">Item Name</label>
+            <input type="text" id="old-item-name" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Old Chain">
+          </div>
+          <div>
+            <label for="old-item-weight" class="block text-sm font-medium text-gray-600 mb-1">Net Wt. (g)</label>
+            <input type="number" id="old-item-weight" step="0.01" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="8.75">
+          </div>
+          <div>
+            <label for="old-item-purity" class="block text-sm font-medium text-gray-600 mb-1">Purity (%)</label>
+            <input type="number" id="old-item-purity" step="0.1" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="e.g., 85.5">
+          </div>
+          <div class="col-span-2 md:col-span-1 mt-4 md:mt-0">
+            <input type="hidden" id="editing-old-gold-item-id">
+            <button type="submit" id="add-old-gold-btn"
+              class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">Add
+              Old Gold</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="billing-container" class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">Estimation Details</h2>
+
+        <div id="items-list" class="mb-4"></div>
+        <div id="silver-items-list" class="mb-4"></div>
+        <div id="old-gold-list" class="mb-4"></div>
+
+        <div id="charges-config" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end no-print hidden">
+          <div>
+            <label for="wastage" class="block text-sm font-medium text-gray-600 mb-1">Gold Wastage (%)</label>
+            <input type="number" id="wastage" step="0.1" value="12"
+              class="w-full p-2 border border-gray-300 rounded-md">
+          </div>
+          <div>
+            <label for="gst" class="block text-sm font-medium text-gray-600 mb-1">GST (%)</label>
+            <input type="number" id="gst" value="3" step="0.1" class="w-full p-2 border border-gray-300 rounded-md">
+          </div>
+          <div>
+            <button id="recalculate-btn"
+              class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">Recalculate
+              Totals</button>
+          </div>
+        </div>
+
+        <div id="summary-section" class="border-t pt-4 hidden"></div>
+      </div>
+
+      <div id="payment-section" class="bg-white p-6 rounded-lg shadow-md mb-6 no-print hidden">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2">Payments</h2>
+        <form id="payment-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label for="payment-mode" class="block text-sm font-medium text-gray-600 mb-1">Mode</label>
+            <select id="payment-mode" class="w-full p-2 border border-gray-300 rounded-md bg-white">
+              <option>Cash</option>
+              <option>Card</option>
+              <option>UPI</option>
+              <option>Bank Transfer</option>
+            </select>
+          </div>
+          <div>
+            <label for="payment-amount" class="block text-sm font-medium text-gray-600 mb-1">Amount</label>
+            <input type="number" id="payment-amount" step="0.01" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="0.00">
+          </div>
+          <div>
+            <label for="payment-ref" class="block text-sm font-medium text-gray-600 mb-1">Reference</label>
+            <input type="text" id="payment-ref" class="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Transaction ID, etc.">
+          </div>
+          <div>
+            <button type="submit"
+              class="w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-600">Add
+              Payment</button>
+          </div>
+        </form>
+        <div id="payment-list" class="mt-4"></div>
+      </div>
+
+      <div id="action-buttons" class="flex gap-4 no-print hidden">
+        <button id="print-estimate-btn"
+          class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300">
+          Print Estimate
+        </button>
+        <button id="generate-bill-btn"
+          class="flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-300">
+          Generate Final Bill
+        </button>
+        <button id="reset-btn"
+          class="flex-1 bg-red-500 text-white font-bold py-3 px-4 rounded-md hover:bg-red-600 transition duration-300">
+          New Bill
+        </button>
+      </div>
     </div>
   </div>
+
+  <div class="bill-section p-8 bg-white">
+    <div class="text-center mb-8">
+      <h1 id="shop-name-print" class="text-2xl font-bold text-gray-800">JewelBill</h1>
+      <p id="shop-address-print" class="text-xs text-gray-500"></p>
+    </div>
+
+    <div class="text-center mb-6">
+      <h2 id="invoice-title-print" class="text-xl font-bold underline">ESTIMATE</h2>
+    </div>
+
+    <div class="flex justify-between border-y py-2 mb-4 text-xs">
+      <div>
+        <p><strong>Bill No:</strong> <span id="bill-no-print"></span></p>
+        <p><strong>Date:</strong> <span id="bill-date-print"></span></p>
+      </div>
+      <div>
+        <p><strong>Customer:</strong> <span id="customer-name-print"></span></p>
+        <p><strong>Phone:</strong> <span id="customer-phone-print"></span></p>
+      </div>
+    </div>
+
+    <div id="items-list-print" class="mb-4"></div>
+    <div id="silver-items-list-print" class="mb-4"></div>
+    <div id="old-gold-list-print" class="mb-4"></div>
+
+    <div class="flex justify-end mt-6">
+      <div id="summary-section-print" class="w-1/2"></div>
+    </div>
+
+    <div id="payment-list-print" class="mt-4"></div>
+
+    <div class="mt-12 text-center text-xs text-gray-500">
+      <p>Thank you for your business!</p>
+      <p>This is a computer-generated document.</p>
+    </div>
+  </div>
+
+  <div id="thermal-receipt-section" class="thermal-receipt"></div>
+
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -233,13 +477,16 @@
         localStorage.setItem('jewelBillState', JSON.stringify(state));
       };
 
-      // ... (Your loadState, showToast, and other functions are all perfect) ...
-      // ... (renderAllLists, updateRateDisplay, recalculateAllItemValues) ...
-      // ... (renderItems, renderSilverItems, renderOldGoldItems, renderPayments) ...
-
       const loadState = () => {
         const savedState = localStorage.getItem('jewelBillState');
-        if (!savedState) return;
+
+        // *** THIS IS THE NEW LOGIC ***
+        // If there is no saved state, just show the rate inputs
+        if (!savedState) {
+          updateRateDisplay(true); // Show rate inputs, hide app body
+          return;
+        }
+
         const state = JSON.parse(savedState);
         goldRate22k = state.goldRate22k || 0;
         silverRate = state.silverRate || 0;
@@ -256,10 +503,13 @@
         shopDetails = state.shopDetails || {};
         shopNameInput.value = shopDetails.name || '';
         shopAddressInput.value = shopDetails.address || '';
+
         if (state.ratesSet) {
-          updateRateDisplay(false);
+          updateRateDisplay(false); // Hide rate inputs, show app body
           renderAllLists();
           showToast('restore-toast');
+        } else {
+          updateRateDisplay(true); // Show rate inputs, hide app body
         }
       };
 
@@ -452,8 +702,6 @@
           statusLabel.textContent = 'Scanning...';
 
           const device = await navigator.bluetooth.requestDevice({
-            // This filter is common for generic thermal printers
-            // You may need to change 'namePrefix' if your printer is different
             filters: [{ namePrefix: 'Bluetooth' }],
             optionalServices: ['generic_attribute', '00001101-0000-1000-8000-00805f9b34fb']
           });
@@ -462,12 +710,10 @@
           bluetoothDevice = device;
           const server = await device.gatt.connect();
 
-          // This is the standard "Serial Port Profile" UUID
           const serviceUUID = '00001101-0000-1000-8000-00805f9b34fb';
           const service = await server.getPrimaryService(serviceUUID);
 
           const characteristics = await service.getCharacteristics();
-          // Find the "write" characteristic
           printerCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
 
           if (printerCharacteristic) {
@@ -500,9 +746,6 @@
       });
 
       editRatesBtn.addEventListener('click', () => updateRateDisplay(true));
-
-      // ... (Your itemForm, silverItemForm, oldGoldForm, paymentForm submit listeners) ...
-      // ... (They are all correct) ...
 
       itemForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -608,7 +851,6 @@
         renderAllLists();
       });
 
-      // ... (Your 'click' listener for edit/delete is correct) ...
       document.body.addEventListener('click', (e) => {
         const actionBtn = e.target.closest('button[data-id]');
         if (!actionBtn) return;
@@ -654,7 +896,6 @@
         }
       });
 
-      // --- ADDED BLUETOOTH LISTENER ---
       connectButton.addEventListener('click', connectToPrinter);
 
       recalculateBtn.addEventListener('click', calculateTotals);
@@ -662,7 +903,6 @@
         input.addEventListener('input', calculateTotals);
       });
 
-      // ... (Your prepareA4Print function is correct) ...
       const prepareA4Print = (isFinalBill) => {
         document.getElementById('shop-name-print').textContent = shopDetails.name || 'JewelBill';
         document.getElementById('invoice-title-print').textContent = isFinalBill ? 'FINAL INVOICE' : 'ESTIMATE';
@@ -723,8 +963,6 @@
         window.print();
       };
 
-      // --- *** MODIFIED THERMAL PRINT FUNCTION *** ---
-      // This function now just *returns* the HTML string
       const prepareThermalPrint = () => {
         let thermalHTML = `
                     <div style="text-align: center; margin-bottom: 10px;">
@@ -799,56 +1037,41 @@
         return thermalHTML;
       };
 
-      // --- *** NEW BLUETOOTH PRINT FUNCTION *** ---
       const sendBluetoothPrint = () => {
         if (!printerCharacteristic) {
           alert('Printer is not connected. Please connect in Settings.');
           return;
         }
 
-        // 1. Get the receipt HTML from your existing function
         const thermalHTML = prepareThermalPrint();
-
-        // 2. Convert the HTML to plain text
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = thermalHTML;
 
-        // --- This is a simple HTML-to-text conversion ---
-        // It replaces <p> and <div> with newlines
-        tempDiv.querySelectorAll('p, div').forEach(el => {
+        tempDiv.querySelectorAll('p, div, h1').forEach(el => {
           el.prepend(document.createTextNode('\n'));
         });
         let plainText = tempDiv.textContent || tempDiv.innerText || "";
-        // --- End of conversion ---
 
-        // Add extra newlines at the end to feed the paper
         plainText += '\n\n\n\n';
 
-        // 3. Convert text to bytes
         const encoder = new TextEncoder();
         const data = encoder.encode(plainText);
 
-        // 4. Send the data to the printer
         statusLabel.textContent = 'Printing...';
         printerCharacteristic.writeValue(data)
           .then(() => {
             statusLabel.textContent = 'Printing complete!';
           })
           .catch(error => {
-            statusLabel.textContent = 'Print Failed: Example'; + error.message
+            statusLabel.textContent = 'Print Failed: ' + error.message;
             console.error('Print failed!', error);
           });
       };
 
 
-      // --- *** MODIFIED EVENT LISTENER *** ---
-      // This now calls our new Bluetooth function
       printEstimateBtn.addEventListener('click', sendBluetoothPrint);
-
-      // This listener for A4 printing is unchanged and correct
       generateBillBtn.addEventListener('click', () => prepareA4Print(true));
 
-      // ... (Your resetBtn, settingsBtn, and shopDetailsForm listeners are correct) ...
       resetBtn.addEventListener('click', () => {
         if (confirm('Are you sure you want to start a new bill? All current data will be cleared.')) {
           items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
