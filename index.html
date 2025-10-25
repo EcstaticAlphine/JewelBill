@@ -74,6 +74,61 @@
         #settings-panel {
             transition: transform 0.3s ease-in-out;
         }
+
+        /* Style for Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 90%;
+            /* Responsive width */
+            width: 500px;
+            /* Max width */
+            max-height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            flex-grow: 1;
+            /* Allows body to take remaining space */
+        }
+
+        .modal-close-btn {
+            color: #6b7280;
+            /* gray-500 */
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close-btn:hover {
+            color: #111827;
+            /* gray-900 */
+        }
     </style>
 </head>
 
@@ -95,20 +150,19 @@
                 <p class="text-yellow-100 mt-1 text-sm">Jewellery Estimation & Billing</p>
             </div>
 
-            {/* */}
             <div class="flex items-center gap-2">
-                {/* */}
                 <button id="history-btn"
-                    class="no-print p-2 rounded-full hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-white">
+                    class="no-print p-2 rounded-full hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-white"
+                    aria-label="Bill History">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </button>
-                {/* */}
                 <button id="settings-btn"
-                    class="no-print p-2 rounded-full hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-white">
+                    class="no-print p-2 rounded-full hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-white"
+                    aria-label="Settings">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -161,8 +215,8 @@
                     <p class="text-sm text-gray-500">Silver</p>
                     <p id="silver-rate-display" class="text-2xl font-bold text-green-600"></p>
                 </div>
-                <div class="col-span-2 text-center">
-                    <button id="edit-rates-btn" class="text-xs text-blue-500 hover:underline">Edit Rates</button>
+                <div class="col-span-2 text-center mt-2"> <button id="edit-rates-btn"
+                        class="text-xs text-blue-500 hover:underline">Edit Rates</button>
                 </div>
             </div>
             <div id="rates-input-container">
@@ -193,12 +247,12 @@
                     <div>
                         <label for="customer-name" class="block text-sm font-medium text-gray-600 mb-1">Customer
                             Name</label>
-                        <div class="flex items-center gap-2"> {/* Added flex container */}
+                        <div class="flex items-center gap-2">
                             <input type="text" id="customer-name"
                                 class="flex-grow p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                                 placeholder="e.g., Suresh Kumar">
-                            {/* Select Customer Button */}
-                            <button id="select-customer-btn" class="p-2 bg-gray-200 rounded-md hover:bg-gray-300">
+                            <button id="select-customer-btn" class="p-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                                aria-label="Select Customer">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -215,12 +269,11 @@
                             placeholder="e.g., 9876543210">
                     </div>
                 </div>
-                {/* Save Customer Checkbox */}
                 <div class="mt-4">
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="save-customer-checkbox"
-                            class="form-checkbox h-5 w-5 text-yellow-600">
-                        <span class="ml-2 text-sm text-gray-600">Save new customer details</span>
+                            class="form-checkbox h-5 w-5 text-yellow-600 rounded"> <span
+                            class="ml-2 text-sm text-gray-600">Save new/updated customer details</span>
                     </label>
                 </div>
             </div>
@@ -397,31 +450,29 @@
                 <div id="payment-list" class="mt-4"></div>
             </div>
 
-            <div id="action-buttons" class="flex gap-4 no-print hidden">
+            <div id="action-buttons" class="flex flex-col sm:flex-row gap-4 no-print hidden">
                 <button id="print-estimate-btn"
                     class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300">
-                    Print Estimate
+                    Print Thermal Estimate
                 </button>
                 <button id="generate-bill-btn"
                     class="flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-300">
-                    Generate Final Bill
+                    Generate & Print A4 Bill
                 </button>
                 <button id="reset-btn"
                     class="flex-1 bg-red-500 text-white font-bold py-3 px-4 rounded-md hover:bg-red-600 transition duration-300">
-                    New Bill
+                    New Bill (Clear Items)
                 </button>
             </div>
         </div>
     </div>
-    <div id="customer-modal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div class="p-4 border-b flex justify-between items-center">
+    <div id="customer-modal" class="modal hidden no-print">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h2 class="text-lg font-semibold">Select Customer</h2>
-                <button id="close-customer-modal"
-                    class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+                <button id="close-customer-modal" class="modal-close-btn" aria-label="Close">&times;</button>
             </div>
-            <div class="p-4">
+            <div class="modal-body">
                 <input type="text" id="customer-search" class="w-full p-2 border border-gray-300 rounded-md mb-4"
                     placeholder="Search customers...">
                 <ul id="customer-list-modal" class="space-y-2">
@@ -430,15 +481,13 @@
         </div>
     </div>
 
-    <div id="history-modal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <div class="p-4 border-b flex justify-between items-center">
+    <div id="history-modal" class="modal hidden no-print">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h2 class="text-lg font-semibold">Bill History</h2>
-                <button id="close-history-modal"
-                    class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+                <button id="close-history-modal" class="modal-close-btn" aria-label="Close">&times;</button>
             </div>
-            <div class="p-4">
+            <div class="modal-body">
                 <ul id="history-list-modal" class="space-y-3">
                 </ul>
             </div>
@@ -450,11 +499,9 @@
             <h1 id="shop-name-print" class="text-2xl font-bold text-gray-800">JewelBill</h1>
             <p id="shop-address-print" class="text-xs text-gray-500"></p>
         </div>
-
         <div class="text-center mb-6">
             <h2 id="invoice-title-print" class="text-xl font-bold underline">ESTIMATE</h2>
         </div>
-
         <div class="flex justify-between border-y py-2 mb-4 text-xs">
             <div>
                 <p><strong>Bill No:</strong> <span id="bill-no-print"></span></p>
@@ -465,17 +512,13 @@
                 <p><strong>Phone:</strong> <span id="customer-phone-print"></span></p>
             </div>
         </div>
-
         <div id="items-list-print" class="mb-4"></div>
         <div id="silver-items-list-print" class="mb-4"></div>
         <div id="old-gold-list-print" class="mb-4"></div>
-
         <div class="flex justify-end mt-6">
             <div id="summary-section-print" class="w-1/2"></div>
         </div>
-
         <div id="payment-list-print" class="mt-4"></div>
-
         <div class="mt-12 text-center text-xs text-gray-500">
             <p>Thank you for your business!</p>
             <p>This is a computer-generated document.</p>
@@ -488,7 +531,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // Element selectors
+            // --- Element Selectors ---
             const goldRateInput = document.getElementById('gold-rate-input');
             const silverRateInput = document.getElementById('silver-rate-input');
             const setRatesBtn = document.getElementById('set-rates-btn');
@@ -523,8 +566,8 @@
             const paymentSection = document.getElementById('payment-section');
             const paymentForm = document.getElementById('payment-form');
             const paymentList = document.getElementById('payment-list');
-            const thermalReceiptSection = document.getElementById('thermal-receipt-section');
-            const billSection = document.querySelector('.bill-section');
+            const thermalReceiptSection = document.getElementById('thermal-receipt-section'); // For CSS styling
+            const billSection = document.querySelector('.bill-section'); // For A4 print
 
             // Bluetooth selectors
             const connectButton = document.getElementById('btn-connect');
@@ -542,7 +585,7 @@
             const closeHistoryModal = document.getElementById('close-history-modal');
             const historyListModal = document.getElementById('history-list-modal');
 
-            // Data arrays and variables
+            // --- Data Variables ---
             let items = [];
             let silverItems = [];
             let oldGoldItems = [];
@@ -557,30 +600,27 @@
             let bluetoothDevice = null;
             let printerCharacteristic = null;
 
+            // --- Helper Functions ---
+            const formatCurrency = (value) => `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
             // --- State Management (LocalStorage) ---
             const saveState = () => {
                 // Save the *current* bill details
                 const currentBillState = {
-                    goldRate22k,
-                    silverRate,
+                    goldRate22k, silverRate, // Include rates for consistency check on load
                     customerName: customerNameInput.value,
                     customerPhone: customerPhoneInput.value,
-                    items,
-                    silverItems,
-                    oldGoldItems,
-                    paymentDetails,
-                    wastage: wastageInput.value,
-                    gst: gstInput.value,
+                    items, silverItems, oldGoldItems, paymentDetails,
+                    wastage: wastageInput.value, gst: gstInput.value,
                     ratesSet: goldRate22k > 0 && silverRate > 0,
-                    // shopDetails are saved separately now
                     discount: document.getElementById('discount-input')?.value || 0
                 };
                 localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentBillState));
 
-                // Save customers and history separately
+                // Save persistent data
                 localStorage.setItem('jewelBillCustomers', JSON.stringify(customers));
                 localStorage.setItem('jewelBillHistory', JSON.stringify(billHistory));
-                // Note: Rates and ShopDetails are saved in their respective functions
+                // Rates and ShopDetails saved separately via saveRates() / saveShopDetails()
             };
 
             const loadState = () => {
@@ -595,8 +635,8 @@
                 if (savedRates) {
                     goldRate22k = savedRates.goldRate22k || 0;
                     silverRate = savedRates.silverRate || 0;
-                    goldRateInput.value = goldRate22k || ''; // Keep input populated
-                    silverRateInput.value = silverRate || ''; // Keep input populated
+                    goldRateInput.value = goldRate22k || '';
+                    silverRateInput.value = silverRate || '';
                 }
 
                 // Load the current bill state
@@ -605,16 +645,18 @@
                 if (!savedCurrentState) {
                     // No current state, decide view based on rates
                     if (goldRate22k > 0 && silverRate > 0) {
-                        updateRateDisplay(false); // Show app body if rates exist
+                        updateRateDisplay(false);
                     } else {
-                        updateRateDisplay(true); // Show rate inputs if no rates
+                        updateRateDisplay(true);
                     }
-                    return; // No current bill to restore details from
+                    return;
                 }
 
                 // Restore current bill state if it exists
                 const state = JSON.parse(savedCurrentState);
-                // Rates are already loaded, just verify
+
+                // Check if restored rates match current saved rates - if not, maybe warn?
+                // For now, prioritize the explicitly loaded rates above.
                 goldRate22k = state.goldRate22k || goldRate22k;
                 silverRate = state.silverRate || silverRate;
 
@@ -626,28 +668,34 @@
                 paymentDetails = state.paymentDetails || [];
                 wastageInput.value = state.wastage || '12';
                 gstInput.value = state.gst || '3';
+                // Discount will be set during calculateTotals if input exists
 
                 // Decide view based on rates existence from the restored state
                 if (state.ratesSet && goldRate22k > 0 && silverRate > 0) {
-                    updateRateDisplay(false); // Hide rate inputs, show app body
-                    renderAllLists(); // Render the restored items
+                    updateRateDisplay(false);
+                    renderAllLists();
                     showToast('restore-toast');
                 } else {
-                    updateRateDisplay(true); // Show rate inputs, hide app body
+                    updateRateDisplay(true);
                 }
             };
 
             const saveRates = () => {
                 localStorage.setItem('jewelBillRates', JSON.stringify({ goldRate22k, silverRate }));
+                // Also update current state if it exists
+                const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
+                currentState.goldRate22k = goldRate22k;
+                currentState.silverRate = silverRate;
+                currentState.ratesSet = goldRate22k > 0 && silverRate > 0;
+                localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
             }
             const saveShopDetails = () => {
                 localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
-                // Don't call saveState() here, let it happen naturally on calculation or bill generation
             }
 
             const showToast = (id) => {
                 const toast = document.getElementById(id);
-                if (!toast) return; // Add check
+                if (!toast) return;
                 toast.style.opacity = '1';
                 toast.style.transform = 'translateY(0)';
                 setTimeout(() => {
@@ -656,47 +704,29 @@
                 }, 3000);
             };
 
-            // --- UI Rendering and Calculation ---
+            // --- UI Rendering ---
             const renderAllLists = () => {
                 renderItems();
                 renderSilverItems();
                 renderOldGoldItems();
                 renderPayments();
-                calculateTotals(); // This implicitly calls saveState for the current bill
+                calculateTotals(); // Saves current state implicitly
             }
 
             const updateRateDisplay = (isEditing) => {
-                if (!ratesInputContainer || !ratesDisplay || !appBody) return; // Add checks
+                if (!ratesInputContainer || !ratesDisplay || !appBody || !goldRateDisplay || !silverRateDisplay) return;
 
                 if (isEditing) {
                     ratesInputContainer.style.display = 'block';
                     ratesDisplay.classList.add('hidden');
-                    appBody.classList.add('hidden');
+                    appBody.classList.add('hidden'); // Hide main app when editing rates
                 } else {
-                    goldRateDisplay.textContent = `₹${goldRate22k.toLocaleString('en-IN')}`;
-                    silverRateDisplay.textContent = `₹${silverRate.toLocaleString('en-IN')}`;
+                    goldRateDisplay.textContent = formatCurrency(goldRate22k);
+                    silverRateDisplay.textContent = formatCurrency(silverRate);
                     ratesInputContainer.style.display = 'none';
                     ratesDisplay.classList.remove('hidden');
-                    appBody.classList.remove('hidden');
+                    appBody.classList.remove('hidden'); // Show main app when rates are set
                 }
-            };
-
-            const recalculateAllItemValues = () => {
-                items.forEach(item => {
-                    const netWeight = item.grossWeight - item.stoneWeight;
-                    const purityAdjustedWeight = netWeight * (item.karat / 22);
-                    item.netWeight = netWeight;
-                    item.purityAdjustedWeight = purityAdjustedWeight;
-                    item.goldValue = purityAdjustedWeight * goldRate22k;
-                });
-                silverItems.forEach(item => {
-                    item.value = item.weight * silverRate;
-                });
-                oldGoldItems.forEach(item => {
-                    const purityAdjustedWeight = item.netWeight * (item.purityPercent / 91.6);
-                    item.purityAdjustedWeight = purityAdjustedWeight;
-                    item.goldValue = purityAdjustedWeight * goldRate22k;
-                });
             };
 
             const renderItems = () => {
@@ -710,9 +740,8 @@
                         const makingChargeValue = item.makingCharge.type === 'perGram'
                             ? item.grossWeight * item.makingCharge.value
                             : item.makingCharge.value;
-
                         return `
-                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-2 text-right">₹${item.goldValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-2 text-right">₹${makingChargeValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="gold" data-action="edit"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="gold" data-action="delete"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
+                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-2 text-right">${formatCurrency(item.goldValue)}</td><td class="p-2 text-right">${formatCurrency(makingChargeValue)}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="gold" data-action="edit" aria-label="Edit Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="gold" data-action="delete" aria-label="Delete Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
                     `}).join('');
                     itemsList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
@@ -726,7 +755,7 @@
                     const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mb-2">Silver Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Weight</th><th class="p-2 text-right">Value</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = silverItems.map((item) => `
-                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.weight.toFixed(2)}g</td><td class="p-2 text-right">₹${item.value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="silver" data-action="edit"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="silver" data-action="delete"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
+                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.weight.toFixed(2)}g</td><td class="p-2 text-right">${formatCurrency(item.value)}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="silver" data-action="edit" aria-label="Edit Silver Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="silver" data-action="delete" aria-label="Delete Silver Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
                     `).join('');
                     silverItemsList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
@@ -740,7 +769,7 @@
                     const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th><th class="p-2 text-right">Value</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = oldGoldItems.map((item) => `
-                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(2)}g (${item.purityPercent}%)</td><td class="p-2 text-right">₹${item.goldValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="oldGold" data-action="edit"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="oldGold" data-action="delete"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
+                        <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(2)}g (${item.purityPercent}%)</td><td class="p-2 text-right">${formatCurrency(item.goldValue)}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="oldGold" data-action="edit" aria-label="Edit Old Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="oldGold" data-action="delete" aria-label="Delete Old Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
                     `).join('');
                     oldGoldList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
@@ -754,16 +783,20 @@
                     const tableHeader = `<div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Mode</th><th class="p-2">Reference</th><th class="p-2 text-right">Amount</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = paymentDetails.map(p => `
-                        <tr class="border-b"><td class="p-2 font-medium">${p.mode}</td><td class="p-2 text-gray-600">${p.ref || '-'}</td><td class="p-2 text-right">₹${p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-2 text-right no-print"><button class="icon-btn text-red-500 hover:text-red-700" data-id="${p.id}" data-type="payment" data-action="delete"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
+                        <tr class="border-b"><td class="p-2 font-medium">${p.mode}</td><td class="p-2 text-gray-600">${p.ref || '-'}</td><td class="p-2 text-right">${formatCurrency(p.amount)}</td><td class="p-2 text-right no-print"><button class="icon-btn text-red-500 hover:text-red-700" data-id="${p.id}" data-type="payment" data-action="delete" aria-label="Delete Payment"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
                     `).join('');
                     paymentList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
             };
 
+            // --- Calculation Logic ---
             const calculateTotals = () => {
-                if (!summarySection || !chargesConfig || !actionButtons || !paymentSection) return;
+                if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) {
+                    console.error("CalculateTotals: Missing essential elements.");
+                    return;
+                };
 
-                const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {}; // Load current state for discount fallback
+                const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
                 const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
 
                 if (totalItemsInBill === 0) {
@@ -771,7 +804,7 @@
                     chargesConfig.classList.add('hidden');
                     actionButtons.classList.add('hidden');
                     paymentSection.classList.add('hidden');
-                    saveState(); // Save the empty state
+                    saveState();
                     return;
                 }
 
@@ -796,11 +829,10 @@
                 const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
 
                 let discount = 0;
-                const discountInput = document.getElementById('discount-input'); // Get ref inside function
+                const discountInput = document.getElementById('discount-input');
                 if (discountInput) {
                     discount = parseFloat(discountInput.value) || 0;
                 } else {
-                    // Fallback to saved discount if input not rendered yet
                     discount = savedState.discount || 0;
                 }
 
@@ -808,32 +840,48 @@
                 const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0);
                 const balanceDue = netPayable - totalPaid;
 
-                // Build summary HTML (same as before)
-                const summaryHTML = `
-                    <div class="space-y-2 text-sm">
-                        ${goldSubtotal > 0 ? `...` : ''} 
-                        ${silverSubtotal > 0 ? `...` : ''}
-                        {/* ... rest of summary lines ... */}
-                         <div class="grid grid-cols-1 gap-4 pt-4 no-print">
-                            <div>
-                                <label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label>
-                                <input type="number" id="discount-input" value="${discount.toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00">
-                            </div>
+                // Build summary HTML dynamically
+                let summaryHTML = `<div class="space-y-2 text-sm">`;
+                if (goldSubtotal > 0) {
+                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`;
+                }
+                if (silverSubtotal > 0) {
+                    summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`;
+                }
+                summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div>`;
+                summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div>`;
+                summaryHTML += `<div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`;
+                if (oldGoldTotal > 0) {
+                    summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`;
+                }
+                // Add Discount Input
+                summaryHTML += `
+                    <div class="grid grid-cols-1 gap-4 pt-4 no-print">
+                        <div>
+                            <label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label>
+                            <input type="number" id="discount-input" value="${discount.toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00">
                         </div>
-                         ${discount > 0 ? `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ₹${discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span></div>` : ''}
-                        {/* ... Net Payable, Total Paid, Balance Due ... */}
                     </div>`;
+                if (discount > 0) {
+                    summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`;
+                }
+                summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div>`;
+                summaryHTML += `<div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div>`;
+                summaryHTML += `<div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div>`;
+                summaryHTML += `</div>`; // Close space-y-2
 
                 summarySection.innerHTML = summaryHTML;
                 summarySection.classList.remove('hidden');
 
-                // Add listener AFTER the element has been created by innerHTML
+                // Add listener to the NEWLY CREATED discount input
                 const newDiscountInput = document.getElementById('discount-input');
                 if (newDiscountInput) {
                     newDiscountInput.addEventListener('input', calculateTotals);
                 }
 
-                saveState(); // Save current bill state after calculation
+                saveState(); // Save current bill state after every calculation
             };
 
 
@@ -842,23 +890,23 @@
                 if (!customerModal || !customerListModal) return;
                 renderCustomerListModal();
                 customerModal.classList.remove('hidden');
+                if (customerSearch) customerSearch.focus();
             };
-
             const closeCustomerModalHandler = () => {
                 if (!customerModal) return;
                 customerModal.classList.add('hidden');
             };
-
             const renderCustomerListModal = (searchTerm = '') => {
                 if (!customerListModal) return;
-                customerListModal.innerHTML = ''; // Clear existing list
+                customerListModal.innerHTML = '';
+                const lowerSearchTerm = searchTerm.toLowerCase();
                 const filteredCustomers = customers.filter(c =>
-                    (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (c.phone && c.phone.includes(searchTerm))
+                    (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
+                    (c.phone && c.phone.includes(searchTerm)) // Search phone without converting to lower
                 );
 
                 if (filteredCustomers.length === 0) {
-                    customerListModal.innerHTML = '<li class="text-gray-500 text-center">No customers found.</li>';
+                    customerListModal.innerHTML = '<li class="text-gray-500 text-center py-4">No customers found.</li>';
                     return;
                 }
 
@@ -866,11 +914,12 @@
                     const li = document.createElement('li');
                     li.className = 'p-2 border-b hover:bg-gray-100 cursor-pointer flex justify-between items-center';
                     li.innerHTML = `
-                        <div>
-                            <span class="font-medium">${customer.name}</span><br>
+                        <div class="flex-grow mr-2"> <span class="font-medium">${customer.name}</span><br>
                             <span class="text-sm text-gray-500">${customer.phone || 'No phone'}</span>
                         </div>
-                        <button class="text-xs text-red-500 hover:text-red-700 p-1" data-id="${customer.id}">Delete</button>
+                        <button class="icon-btn text-red-500 hover:text-red-700 p-1" data-id="${customer.id}" aria-label="Delete Customer">
+                            <svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg>
+                         </button>
                     `;
                     // Select customer
                     li.querySelector('div').addEventListener('click', () => {
@@ -878,13 +927,14 @@
                         customerPhoneInput.value = customer.phone || '';
                         saveCustomerCheckbox.checked = false;
                         closeCustomerModalHandler();
+                        saveState(); // Save state after selecting customer
                     });
                     // Delete customer
                     li.querySelector('button').addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (confirm(`Delete ${customer.name}?`)) {
+                        if (confirm(`Delete ${customer.name}? This cannot be undone.`)) {
                             customers = customers.filter(c => c.id !== customer.id);
-                            saveState();
+                            saveState(); // Save updated customer list
                             renderCustomerListModal(customerSearch.value);
                         }
                     });
@@ -898,19 +948,17 @@
                 renderHistoryListModal();
                 historyModal.classList.remove('hidden');
             };
-
             const closeHistoryModalHandler = () => {
                 if (!historyModal) return;
                 historyModal.classList.add('hidden');
             };
-
             const renderHistoryListModal = () => {
                 if (!historyListModal) return;
-                historyListModal.innerHTML = ''; // Clear existing list
+                historyListModal.innerHTML = '';
                 const sortedHistory = [...billHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 if (sortedHistory.length === 0) {
-                    historyListModal.innerHTML = '<li class="text-gray-500 text-center">No past bills found.</li>';
+                    historyListModal.innerHTML = '<li class="text-gray-500 text-center py-4">No past bills found.</li>';
                     return;
                 }
 
@@ -918,7 +966,7 @@
                     const li = document.createElement('li');
                     li.className = 'p-3 border rounded-md hover:bg-gray-50 cursor-pointer';
                     const billDate = new Date(bill.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    const netPayable = bill.totals?.netPayable ?? 0; // Handle potential missing totals
+                    const netPayable = bill.totals?.netPayable ?? 0;
 
                     li.innerHTML = `
                         <div class="flex justify-between items-center mb-1">
@@ -927,28 +975,49 @@
                         </div>
                         <div class="text-sm mb-1">
                             Customer: <span class="font-medium">${bill.customer?.name || 'N/A'}</span>
+                             ${bill.customer?.phone ? `<span class="text-gray-500 text-xs"> (${bill.customer.phone})</span>` : ''}
                         </div>
                         <div class="text-sm text-right font-bold">
-                            Total: ₹${netPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            Total: ${formatCurrency(netPayable)}
                         </div>
                     `;
-                    // TODO: Implement a proper bill view/restore function
+                    // Add listener to view/restore bill details
                     li.addEventListener('click', () => {
-                        alert(`Bill: ${bill.billNumber}\nCustomer: ${bill.customer?.name || 'N/A'}\nTotal: ₹${netPayable.toLocaleString('en-IN')}\n\n(Detailed view/restore not yet implemented)`);
-                        // Example of restore (Needs careful implementation)
+                        // Simple alert for now
+                        alert(`Bill: ${bill.billNumber}\nCustomer: ${bill.customer?.name || 'N/A'}\nTotal: ${formatCurrency(netPayable)}\n\n(Restore/Detailed View not implemented)`);
+
+                        // --- Example Restore Logic (Use with caution!) ---
                         /*
-                        if (confirm(`Restore bill ${bill.billNumber}? This will replace current unsaved items.`)) {
+                        if (confirm(`Restore bill ${bill.billNumber}? This will replace the current unsaved items.`)) {
+                            // Check if rates match?
+                            if (goldRate22k !== bill.goldRate22k || silverRate !== bill.silverRate) {
+                                alert("Warning: Rates in this bill differ from current rates. Values may recalculate.");
+                            }
+
                             items = bill.items || [];
                             silverItems = bill.silverItems || [];
                             oldGoldItems = bill.oldGoldItems || [];
                             paymentDetails = bill.paymentDetails || [];
                             customerNameInput.value = bill.customer?.name || '';
                             customerPhoneInput.value = bill.customer?.phone || '';
-                            // Make sure rates match or alert user?
-                            // wastageInput.value = bill.totals?.wastagePercent ?? '12';
-                            // gstInput.value = bill.totals?.gstPercent ?? '3';
-                            renderAllLists();
+                            wastageInput.value = bill.totals?.wastagePercent ?? '12';
+                            gstInput.value = bill.totals?.gstPercent ?? '3';
+                            // Discount needs careful handling as input might not exist initially
+                            
+                            // Close modal and re-render everything
                             closeHistoryModalHandler();
+                            renderAllLists(); 
+                            
+                            // Set discount value AFTER renderAllLists ensures input exists
+                            const discountInput = document.getElementById('discount-input');
+                            if(discountInput) {
+                                discountInput.value = bill.totals?.discount ?? 0;
+                                calculateTotals(); // Recalculate with restored discount
+                            } else {
+                                saveState(); // Save without discount if input missing
+                            }
+                            
+                            showToast('restore-toast'); // Indicate bill was restored
                         }
                         */
                     });
@@ -959,290 +1028,90 @@
             // --- Bluetooth Logic ---
             const connectToPrinter = async () => {
                 if (!navigator.bluetooth) {
-                    alert('Web Bluetooth API is not available on this browser/device.');
+                    alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android.');
                     return;
                 }
                 try {
                     statusLabel.textContent = 'Scanning...';
 
                     const device = await navigator.bluetooth.requestDevice({
-                        // Try filtering by common thermal printer services first
                         filters: [
-                            { services: ['00001101-0000-1000-8000-00805f9b34fb'] } // Serial Port Profile
+                            // Add filters for known printer names or services if possible
+                            // { namePrefix: 'MPT-' }, // Example for some models
+                            // { services: ['specific-printer-service-uuid'] } 
                         ],
-                        // Fallback to name prefix if service filter finds nothing
-                        // optionalServices can include potential custom service UUIDs if known
-                        optionalServices: ['generic_attribute']
+                        // Standard Serial Port Profile is crucial
+                        optionalServices: ['generic_attribute', '00001101-0000-1000-8000-00805f9b34fb']
                     });
 
                     statusLabel.textContent = 'Connecting to ' + device.name + '...';
                     bluetoothDevice = device;
-                    // Add listener for disconnects
                     device.addEventListener('gattserverdisconnected', onDisconnected);
 
                     const server = await device.gatt.connect();
 
-                    // Try the standard Serial Port Profile service
-                    const serviceUUID = '00001101-0000-1000-8000-00805f9b34fb';
                     let service;
                     try {
-                        service = await server.getPrimaryService(serviceUUID);
-                    } catch (error) {
-                        console.warn(`Standard SPP service (${serviceUUID}) not found. Trying generic attribute...`);
-                        // Fallback to generic attribute or the first available service
-                        const services = await server.getPrimaryServices();
-                        if (!services.length) throw new Error("No services found on device.");
-                        service = services[0]; // Or try 'generic_attribute' if available
-                        console.log("Using service:", service.uuid);
+                        // Try standard SPP first
+                        service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+                    } catch (sppError) {
+                        console.warn("Standard SPP service not found. Trying generic attribute...");
+                        try {
+                            service = await server.getPrimaryService('generic_attribute');
+                        } catch (gaError) {
+                            console.warn("Generic Attribute service not found. Trying first available service...");
+                            const services = await server.getPrimaryServices();
+                            if (!services.length) throw new Error("No Bluetooth services found on device.");
+                            service = services[0];
+                        }
                     }
+                    console.log("Using service:", service.uuid);
 
                     const characteristics = await service.getCharacteristics();
-                    // Find a characteristic that supports 'write' or 'writeWithoutResponse'
-                    printerCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+                    // Prefer write without response for speed if available, else use write
+                    printerCharacteristic = characteristics.find(c => c.properties.writeWithoutResponse) ||
+                        characteristics.find(c => c.properties.write);
 
                     if (printerCharacteristic) {
                         statusLabel.textContent = 'Connected: ' + device.name;
                         statusLabel.style.color = 'green';
                     } else {
-                        statusLabel.textContent = 'Error: Could not find write characteristic.';
-                        server.disconnect(); // Disconnect if unusable
+                        statusLabel.textContent = 'Error: No suitable write characteristic found.';
+                        server.disconnect();
                     }
                 } catch (error) {
-                    statusLabel.textContent = 'Connection Failed: ' + error.message.split('.')[0]; // Shorter error
+                    statusLabel.textContent = 'Connection Failed: ' + error.message.split('.')[0];
                     console.error('Connection failed!', error);
-                    // Reset state if connection failed
                     bluetoothDevice = null;
                     printerCharacteristic = null;
                 }
             };
 
             const onDisconnected = () => {
-                statusLabel.textContent = 'Status: Disconnected';
-                statusLabel.style.color = 'inherit'; // Reset color
+                if (statusLabel) { // Check if element exists
+                    statusLabel.textContent = 'Status: Disconnected';
+                    statusLabel.style.color = 'inherit';
+                }
                 bluetoothDevice = null;
                 printerCharacteristic = null;
                 console.log('> Bluetooth Device disconnected');
             };
 
-            // --- Event Listeners ---
-            if (setRatesBtn) setRatesBtn.addEventListener('click', () => {
-                const goldRate = parseFloat(goldRateInput.value);
-                const silverR = parseFloat(silverRateInput.value);
-
-                if (!isNaN(goldRate) && goldRate > 0 && !isNaN(silverR) && silverR > 0) {
-                    goldRate22k = goldRate;
-                    silverRate = silverR;
-                    saveRates(); // Save rates immediately
-                    recalculateAllItemValues();
-                    renderAllLists(); // This calls calculateTotals which calls saveState
-                    updateRateDisplay(false);
-                } else {
-                    alert('Please enter valid rates for both gold and silver.');
-                }
-            });
-
-            if (editRatesBtn) editRatesBtn.addEventListener('click', () => updateRateDisplay(true));
-
-            if (itemForm) itemForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = document.getElementById('item-name').value;
-                if (!name) { alert('Please enter gold item name.'); return; }
-                const grossWeight = parseFloat(document.getElementById('gross-weight').value);
-                const stoneWeight = parseFloat(document.getElementById('stone-weight').value) || 0;
-                const karat = parseInt(document.getElementById('karat').value);
-                const makingChargeType = document.getElementById('making-charge-type').value;
-                const makingChargeValue = parseFloat(document.getElementById('making-charge-value').value);
-                const editingId = document.getElementById('editing-gold-item-id').value;
-                if (isNaN(grossWeight) || grossWeight <= 0 || stoneWeight < 0 || grossWeight < stoneWeight) {
-                    alert('Please enter valid weights for the gold item.'); return;
-                }
-                if (isNaN(makingChargeValue) || makingChargeValue < 0) {
-                    alert('Please enter a valid making charge value.'); return;
-                }
-                const netWeight = grossWeight - stoneWeight;
-                const purityAdjustedWeight = netWeight * (karat / 22);
-                const goldValue = purityAdjustedWeight * goldRate22k;
-                const itemData = {
-                    name, grossWeight, stoneWeight, karat, netWeight, purityAdjustedWeight, goldValue,
-                    makingCharge: { type: makingChargeType, value: makingChargeValue }
-                };
-                if (editingId) {
-                    const index = items.findIndex(item => item.id == editingId);
-                    if (index > -1) items[index] = { ...items[index], ...itemData };
-                } else {
-                    itemData.id = Date.now();
-                    items.push(itemData);
-                }
-                itemForm.reset(); // Reset form fields
-                document.getElementById('karat').value = '22'; // Reset purity to default
-                document.getElementById('making-charge-type').value = 'perGram'; // Reset MC type
-                document.getElementById('stone-weight').value = '0'; // Reset stone weight
-                document.getElementById('editing-gold-item-id').value = '';
-                document.getElementById('add-gold-item-btn').textContent = 'Add Gold Item';
-                document.getElementById('item-name').focus();
-                renderAllLists();
-            });
-
-            if (silverItemForm) silverItemForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = document.getElementById('silver-item-name').value;
-                if (!name) { alert('Please enter silver item name.'); return; }
-                const weight = parseFloat(document.getElementById('silver-item-weight').value);
-                const editingId = document.getElementById('editing-silver-item-id').value;
-                if (isNaN(weight) || weight <= 0) {
-                    alert('Please enter a valid weight for the silver item.'); return;
-                }
-                const value = weight * silverRate;
-                const itemData = { name, weight, value };
-                if (editingId) {
-                    const index = silverItems.findIndex(item => item.id == editingId);
-                    if (index > -1) silverItems[index] = { ...silverItems[index], ...itemData };
-                } else {
-                    itemData.id = Date.now();
-                    silverItems.push(itemData);
-                }
-                silverItemForm.reset();
-                document.getElementById('editing-silver-item-id').value = '';
-                document.getElementById('add-silver-item-btn').textContent = 'Add Silver Item';
-                document.getElementById('silver-item-name').focus();
-                renderAllLists();
-            });
-
-            if (oldGoldForm) oldGoldForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = document.getElementById('old-item-name').value;
-                if (!name) { alert('Please enter old gold item name.'); return; }
-                const netWeight = parseFloat(document.getElementById('old-item-weight').value);
-                const purityPercent = parseFloat(document.getElementById('old-item-purity').value);
-                const editingId = document.getElementById('editing-old-gold-item-id').value;
-                if (isNaN(netWeight) || netWeight <= 0 || isNaN(purityPercent) || purityPercent <= 0 || purityPercent > 100) {
-                    alert('Please enter a valid weight and purity (1-100%) for old gold.'); return;
-                }
-                const purityAdjustedWeight = netWeight * (purityPercent / 91.6);
-                const goldValue = purityAdjustedWeight * goldRate22k;
-                const itemData = { name, netWeight, purityPercent, purityAdjustedWeight, goldValue };
-                if (editingId) {
-                    const index = oldGoldItems.findIndex(item => item.id == editingId);
-                    if (index > -1) oldGoldItems[index] = { ...oldGoldItems[index], ...itemData };
-                } else {
-                    itemData.id = Date.now();
-                    oldGoldItems.push(itemData);
-                }
-                oldGoldForm.reset();
-                document.getElementById('editing-old-gold-item-id').value = '';
-                document.getElementById('add-old-gold-btn').textContent = 'Add Old Gold';
-                document.getElementById('old-item-name').focus();
-                renderAllLists();
-            });
-
-            if (paymentForm) paymentForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const mode = document.getElementById('payment-mode').value;
-                const amount = parseFloat(document.getElementById('payment-amount').value);
-                const ref = document.getElementById('payment-ref').value;
-                if (isNaN(amount) || amount <= 0) {
-                    alert('Please enter a valid payment amount.');
-                    return;
-                }
-                paymentDetails.push({ id: Date.now(), mode, amount, ref });
-                paymentForm.reset();
-                document.getElementById('payment-mode').value = 'Cash'; // Reset mode
-                document.getElementById('payment-amount').focus();
-                renderAllLists();
-            });
-
-            // Item List Actions (Edit/Delete) - Event Delegation
-            document.body.addEventListener('click', (e) => {
-                const actionBtn = e.target.closest('button[data-id][data-action]');
-                if (!actionBtn) return;
-
-                const id = actionBtn.dataset.id;
-                const type = actionBtn.dataset.type;
-                const action = actionBtn.dataset.action;
-
-                if (action === 'delete') {
-                    if (confirm('Are you sure you want to delete this item?')) {
-                        if (type === 'gold') items = items.filter(i => i.id != id);
-                        else if (type === 'silver') silverItems = silverItems.filter(i => i.id != id);
-                        else if (type === 'oldGold') oldGoldItems = oldGoldItems.filter(i => i.id != id);
-                        else if (type === 'payment') paymentDetails = paymentDetails.filter(p => p.id != id);
-                        renderAllLists();
-                    }
-                } else if (action === 'edit') {
-                    // Scroll relevant form into view
-                    let targetForm;
-                    if (type === 'gold') {
-                        const item = items.find(i => i.id == id);
-                        if (!item) return;
-                        document.getElementById('item-name').value = item.name;
-                        document.getElementById('gross-weight').value = item.grossWeight;
-                        document.getElementById('stone-weight').value = item.stoneWeight;
-                        document.getElementById('karat').value = item.karat;
-                        document.getElementById('making-charge-type').value = item.makingCharge.type;
-                        document.getElementById('making-charge-value').value = item.makingCharge.value;
-                        document.getElementById('editing-gold-item-id').value = id;
-                        document.getElementById('add-gold-item-btn').textContent = 'Update Gold Item';
-                        targetForm = itemForm;
-                        targetForm.querySelector('input').focus();
-                    } else if (type === 'silver') {
-                        const item = silverItems.find(i => i.id == id);
-                        if (!item) return;
-                        document.getElementById('silver-item-name').value = item.name;
-                        document.getElementById('silver-item-weight').value = item.weight;
-                        document.getElementById('editing-silver-item-id').value = id;
-                        document.getElementById('add-silver-item-btn').textContent = 'Update Silver Item';
-                        targetForm = silverItemForm;
-                        targetForm.querySelector('input').focus();
-                    } else if (type === 'oldGold') {
-                        const item = oldGoldItems.find(i => i.id == id);
-                        if (!item) return;
-                        document.getElementById('old-item-name').value = item.name;
-                        document.getElementById('old-item-weight').value = item.netWeight;
-                        document.getElementById('old-item-purity').value = item.purityPercent;
-                        document.getElementById('editing-old-gold-item-id').value = id;
-                        document.getElementById('add-old-gold-btn').textContent = 'Update Old Gold';
-                        targetForm = oldGoldForm;
-                        targetForm.querySelector('input').focus();
-                    }
-                    if (targetForm) {
-                        targetForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            });
-
-            // Bluetooth Connect Button
-            if (connectButton) connectButton.addEventListener('click', connectToPrinter);
-
-            // Recalculate Button
-            if (recalculateBtn) recalculateBtn.addEventListener('click', calculateTotals);
-
-            // Input listeners for live calculation (using event delegation on app-body for inputs added later like discount)
-            if (appBody) appBody.addEventListener('input', (e) => {
-                // Check if the input is relevant for recalculation
-                if (['customer-name', 'customer-phone', 'wastage', 'gst', 'discount-input'].includes(e.target.id)) {
-                    calculateTotals(); // Recalculate only if relevant inputs change
-                } else if (e.target.closest('#item-form, #silver-item-form, #old-gold-form, #payment-form')) {
-                    // Do nothing on form input changes, calculation happens on submit/render
-                }
-            });
-
             // --- Print Functions ---
 
-            // A4 Print Function (Modified)
+            // A4 Print Function (Modified to accept billData)
             const prepareA4Print = (isFinalBill, billData = null) => {
                 // Use saved bill data if provided, otherwise use current state
                 const displayData = billData || {
                     billNumber: `EST${Date.now().toString().slice(-6)}`,
                     date: new Date().toISOString(),
                     customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
-                    items: items,
-                    silverItems: silverItems,
-                    oldGoldItems: oldGoldItems,
-                    paymentDetails: paymentDetails,
-                    totals: {}, // Will be populated by summary section clone
+                    items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails,
+                    totals: {}, // Populated by summary clone
                     shopDetails: shopDetails
                 };
 
+                // Get references inside the function for safety
                 const shopNamePrint = document.getElementById('shop-name-print');
                 const invoiceTitlePrint = document.getElementById('invoice-title-print');
                 const shopAddressPrint = document.getElementById('shop-address-print');
@@ -1255,20 +1124,20 @@
                 const oldGoldListPrint = document.getElementById('old-gold-list-print');
                 const summarySectionPrint = document.getElementById('summary-section-print');
                 const paymentListPrint = document.getElementById('payment-list-print');
+                const billSectionTarget = document.querySelector('.bill-section'); // Use target selector
 
                 if (!shopNamePrint || !invoiceTitlePrint || !shopAddressPrint || !billNoPrint || !billDatePrint ||
                     !customerNamePrint || !customerPhonePrint || !itemsListPrint || !silverItemsListPrint ||
-                    !oldGoldListPrint || !summarySectionPrint || !paymentListPrint || !billSection) {
-                    console.error("One or more print elements not found!");
+                    !oldGoldListPrint || !summarySectionPrint || !paymentListPrint || !billSectionTarget) {
+                    console.error("prepareA4Print: One or more print elements not found!");
                     return;
                 }
-
 
                 shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill';
                 invoiceTitlePrint.textContent = isFinalBill ? 'FINAL INVOICE' : 'ESTIMATE';
                 shopAddressPrint.textContent = displayData.shopDetails?.address || '';
                 billNoPrint.textContent = displayData.billNumber;
-                billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN');
+                billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                 customerNamePrint.textContent = displayData.customer?.name || 'N/A';
                 customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
 
@@ -1277,7 +1146,7 @@
                     const tableHeader = `<h3 class="text-md font-bold mb-2">GOLD ITEMS</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Gross Wt.</th><th class="p-1 text-right">Stone Wt.</th><th class="p-1 text-right">Net Wt.</th><th class="p-1 text-right">Value</th><th class="p-1 text-right">MC</th></tr></thead><tbody>`;
                     const tableRows = displayData.items.map(item => {
                         const mc = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value;
-                        return `<tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.grossWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.stoneWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-1 text-right">₹${item.goldValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td><td class="p-1 text-right">₹${mc.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>`;
+                        return `<tr class="border-b"><td class="p-1">${item.name} (${item.karat}K)</td><td class="p-1 text-right">${item.grossWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.stoneWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td><td class="p-1 text-right">${formatCurrency(mc)}</td></tr>`;
                     }).join('');
                     itemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>';
                 } else {
@@ -1287,7 +1156,7 @@
                 if (displayData.silverItems?.length > 0) {
                     const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">SILVER ITEMS</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Weight</th><th class="p-1 text-right">Value</th></tr></thead><tbody>`;
                     const tableRows = displayData.silverItems.map(item => `
-                        <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.weight.toFixed(2)}g</td><td class="p-1 text-right">₹${item.value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.weight.toFixed(2)}g</td><td class="p-1 text-right">${formatCurrency(item.value)}</td></tr>
                     `).join('');
                     silverItemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>';
                 } else {
@@ -1297,7 +1166,7 @@
                 if (displayData.oldGoldItems?.length > 0) {
                     const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">OLD GOLD EXCHANGE</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Net Wt.</th><th class="p-1 text-right">Purity</th><th class="p-1 text-right">Value</th></tr></thead><tbody>`;
                     const tableRows = displayData.oldGoldItems.map(item => `
-                        <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.netWeight.toFixed(2)}g</td><td class="p-1 text-right">${item.purityPercent}%</td><td class="p-1 text-right">₹${item.goldValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.netWeight.toFixed(2)}g</td><td class="p-1 text-right">${item.purityPercent}%</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td></tr>
                     `).join('');
                     oldGoldListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>';
                 } else {
@@ -1305,10 +1174,12 @@
                 }
 
                 // Clone summary section, remove non-print elements
-                summarySectionPrint.innerHTML = ''; // Clear previous
+                summarySectionPrint.innerHTML = '';
+                // Ensure summarySection itself is up-to-date before cloning
+                calculateTotals(); // Recalculate if not already done
                 const summaryClone = summarySection.cloneNode(true);
                 summaryClone.querySelectorAll('.no-print').forEach(el => el.remove());
-                summaryClone.querySelectorAll('div, span').forEach(el => { el.style.fontSize = '11px'; }); // Adjust font size
+                summaryClone.querySelectorAll('div, span, label').forEach(el => { el.style.fontSize = '11px'; });
                 summarySectionPrint.appendChild(summaryClone);
 
                 // Render payments if it's a final bill
@@ -1316,44 +1187,41 @@
                     if (displayData.paymentDetails?.length > 0) {
                         const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">PAYMENTS</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Mode</th><th class="p-1">Reference</th><th class="p-1 text-right">Amount</th></tr></thead><tbody>`;
                         const tableRows = displayData.paymentDetails.map(p => `
-                            <tr class="border-b"><td class="p-1">${p.mode}</td><td class="p-1">${p.ref || '-'}</td><td class="p-1 text-right">₹${p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                            <tr class="border-b"><td class="p-1">${p.mode}</td><td class="p-1">${p.ref || '-'}</td><td class="p-1 text-right">${formatCurrency(p.amount)}</td></tr>
                         `).join('');
                         paymentListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>';
                     } else {
-                        paymentListPrint.innerHTML = '<p class="text-xs mt-4">No payments recorded.</p>';
+                        paymentListPrint.innerHTML = '<p class="text-xs mt-4 font-semibold">No payments recorded.</p>';
                     }
                 } else {
-                    paymentListPrint.innerHTML = ''; // No payments on estimate
+                    paymentListPrint.innerHTML = '';
                 }
 
-                // Prepare print view
+                // Prepare print view (ensure thermal is hidden)
                 if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible');
-                billSection.classList.add('print-visible');
+                billSectionTarget.classList.add('print-visible');
 
-                // Timeout allows DOM to update before printing
                 setTimeout(() => {
                     window.print();
-                    // Optional: Hide after printing - might interfere with print preview closing
-                    // setTimeout(() => billSection.classList.remove('print-visible'), 500); 
                 }, 100);
             };
 
             // Thermal Print - Prepare HTML (Returns String)
             const prepareThermalPrint = () => {
-                if (!customerNameInput || !wastageInput || !gstInput) return ''; // Add checks
+                if (!customerNameInput || !wastageInput || !gstInput) return '';
 
                 // Use current live data for estimate
                 let thermalHTML = `
-                    <div style="text-align: center; margin-bottom: 10px;">
+                    <div style="text-align: center; margin-bottom: 5px;">
                         <h1 style="font-size: 16px; font-weight: bold; margin:0;">${shopDetails.name || 'JewelBill'}</h1>
-                        <p style="font-size: 10px; margin:0;">${shopDetails.address || ''}</p>
-                        <p style="margin: 5px 0; font-weight: bold;">ESTIMATE</p>
+                        <p style="font-size: 10px; margin:0; line-height: 1.2;">${shopDetails.address || ''}</p>
+                        <p style="margin: 5px 0; font-weight: bold; font-size: 14px; border-top: 1px dashed; border-bottom: 1px dashed; padding: 2px 0;">ESTIMATE</p>
                     </div>
-                    <div style="font-size: 10px;">
-                        <p>Date: ${new Date().toLocaleDateString('en-IN')}</p>
-                         <p>Customer: ${customerNameInput.value || 'N/A'}</p>
+                    <div style="font-size: 10px; margin-bottom: 5px;">
+                        <p>Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                         <p>Cust: ${customerNameInput.value || 'N/A'}</p>
                     </div>
-                    <hr style="border-top: 1px dashed; margin: 10px 0;">
+                    <hr style="border: none; border-top: 1px dashed; margin: 5px 0;">
                 `;
 
                 // Recalculate totals needed for the estimate print
@@ -1371,52 +1239,63 @@
                 const discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
                 const netPayable = grandTotal - oldGoldTotal - discount;
 
-                const formatCurrency = (value) => `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-                const line = (label, valueStr) => `<div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;"><span>${label}</span><span>${valueStr}</span></div>`;
+                // Thermal print line helper - attempts basic alignment
+                // Adjust col1Width and totalWidth based on your printer (usually 32 or 48 chars wide)
+                const totalWidth = 32;
+                const col1Width = 18;
+                const line = (label, valueStr) => {
+                    const valStr = valueStr.toString(); // Ensure string
+                    const labelPart = label.slice(0, col1Width).padEnd(col1Width);
+                    const valuePart = valStr.slice(0, totalWidth - col1Width - 1).padStart(totalWidth - col1Width - 1);
+                    return `<div style="font-size: 11px; white-space: pre; margin-bottom: 1px;">${labelPart} ${valuePart}</div>`;
+                };
+
 
                 if (items.length > 0) {
-                    thermalHTML += `<div><strong>Gold Items</strong></div><hr style="border-top: 1px dashed; margin: 5px 0;">`;
+                    thermalHTML += `<div><strong>Gold Items</strong></div><hr style="border: none; border-top: 1px dashed; margin: 2px 0;">`;
                     items.forEach(item => {
                         const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
                         thermalHTML += `
-                            <div style="margin-bottom: 5px;">
-                                <strong style="font-size: 12px;">${item.name} (${item.karat}K)</strong>
-                                ${line(`Net Wt: ${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue))}
-                                ${line(`Making Charge:`, formatCurrency(makingCharge))}
+                            <div style="margin-bottom: 3px;">
+                                <strong style="font-size: 11px;">${item.name} (${item.karat}K)</strong>
+                                ${line(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue))}
+                                ${line(` Making Charge:`, formatCurrency(makingCharge))}
                             </div>
                         `;
                     });
-                    thermalHTML += `<hr style="border-top: 1px dashed; margin: 5px 0;">`;
+                    thermalHTML += `<hr style="border: none; border-top: 1px dashed; margin: 2px 0;">`;
                 }
 
                 if (silverItems.length > 0) {
-                    thermalHTML += `<div><strong>Silver Items</strong></div><hr style="border-top: 1px dashed; margin: 5px 0;">`;
+                    thermalHTML += `<div><strong>Silver Items</strong></div><hr style="border: none; border-top: 1px dashed; margin: 2px 0;">`;
                     silverItems.forEach(item => {
                         thermalHTML += `
-                            <div style="margin-bottom: 5px;">
-                                <strong style="font-size: 12px;">${item.name}</strong>
-                                 ${line(`Weight: ${item.weight.toFixed(2)}g`, formatCurrency(item.value))}
+                            <div style="margin-bottom: 3px;">
+                                <strong style="font-size: 11px;">${item.name}</strong>
+                                 ${line(` Weight:${item.weight.toFixed(2)}g`, formatCurrency(item.value))}
                             </div>
                          `;
                     });
-                    thermalHTML += `<hr style="border-top: 1px dashed; margin: 5px 0;">`;
+                    thermalHTML += `<hr style="border: none; border-top: 1px dashed; margin: 2px 0;">`;
                 }
 
-                thermalHTML += `<div style="margin-top: 10px;">`;
+                thermalHTML += `<div style="margin-top: 5px;">`;
                 if (goldSubtotal > 0) thermalHTML += line('Gold Value:', formatCurrency(goldSubtotal));
                 if (wastageValue > 0) thermalHTML += line('Wastage:', formatCurrency(wastageValue));
                 if (goldMakingCharges > 0) thermalHTML += line('Making Charges:', formatCurrency(goldMakingCharges));
                 if (silverSubtotal > 0) thermalHTML += line('Silver Value:', formatCurrency(silverSubtotal));
+                thermalHTML += line('Total Before GST:', formatCurrency(totalBeforeGst));
                 if (gstValue > 0) thermalHTML += line(`GST (${gstPercent}%):`, formatCurrency(gstValue));
+                thermalHTML += line('Bill Total:', formatCurrency(grandTotal));
                 if (oldGoldTotal > 0) thermalHTML += line('Old Gold (-):', formatCurrency(oldGoldTotal));
                 if (discount > 0) thermalHTML += line('Discount (-):', formatCurrency(discount));
                 thermalHTML += `</div>`;
-                thermalHTML += `<hr style="border-top: 1px solid; margin: 10px 0;">`;
+                thermalHTML += `<hr style="border: none; border-top: 1px solid black; margin: 5px 0;">`;
                 thermalHTML += `<div style="font-weight: bold; font-size: 14px;">${line('NET PAYABLE:', formatCurrency(netPayable))}</div>`;
-                thermalHTML += `<hr style="border-top: 1px solid; margin: 5px 0;">`;
+                thermalHTML += `<hr style="border: none; border-top: 1px solid black; margin: 2px 0;">`;
                 thermalHTML += `<div style="text-align: center; font-size: 10px; margin-top: 10px;">Thank You!</div>`;
 
-                return thermalHTML; // Return the HTML string
+                return thermalHTML;
             };
 
             // Send to Bluetooth Printer
@@ -1432,71 +1311,64 @@
                     return;
                 }
 
-                // Convert HTML to a plain text representation suitable for thermal printers
+                // Convert HTML to plain text suitable for thermal printers
                 const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = thermalHTML;
+                // Use a simple parser to approximate thermal layout
+                tempDiv.innerHTML = thermalHTML.replace(/<hr[^>]*>/g, '\n--------------------------------\n'); // Replace HRs
 
                 let plainText = "";
-                // Simple conversion - assumes basic structure from prepareThermalPrint
-                tempDiv.querySelectorAll('h1, p, div > strong, div > span').forEach(el => {
-                    let text = el.textContent.trim();
-                    let parentStyle = el.parentElement.style;
-                    let style = el.style;
-
-                    if (el.tagName === 'H1' || style.fontWeight === 'bold' || parentStyle.fontWeight === 'bold') {
-                        // Maybe add printer commands for bold? For now, just text.
-                        plainText += text + '\n';
-                    } else if (el.tagName === 'P') {
-                        plainText += text + '\n';
-                    } else if (parentStyle.display === 'flex') {
-                        // Handle label/value lines
-                        const label = el.textContent.trim();
-                        const valueEl = el.nextElementSibling;
-                        const value = valueEl ? valueEl.textContent.trim() : '';
-                        plainText += label.padEnd(20) + value.padStart(12) + '\n';
-                        // Basic alignment attempt - adjust padding as needed
-                    } else if (el.tagName === 'STRONG') {
-                        // Handled by parent check usually, but add newline just in case
-                        plainText += text + '\n';
-                    } else {
-                        // Default div content
-                        // plainText += text + '\n'; // Avoid duplicating flex lines
-                    }
+                const lines = tempDiv.innerText.split('\n');
+                lines.forEach(line => {
+                    plainText += line.trim() + '\n'; // Add each line with newline
                 });
-                // Add HR lines manually
-                plainText = plainText.replace(/<hr[^>]*>/g, '--------------------------------\n');
 
-                // Clean up potential extra blank lines
-                plainText = plainText.replace(/\n{3,}/g, '\n\n');
+                // Clean up excessive blank lines
+                plainText = plainText.replace(/\n{3,}/g, '\n\n').trim();
 
                 plainText += '\n\n\n\n'; // Feed paper at the end
 
-                console.log("Plain Text for Printer:\n", plainText); // For debugging
+                console.log("Plain Text for Printer:\n--START--\n", plainText, "\n--END--"); // Debugging
 
-                const encoder = new TextEncoder();
-                const data = encoder.encode(plainText);
+                const encoder = new TextEncoder(); // Use default UTF-8
+                let data = encoder.encode(plainText);
+
+                // --- Optional: Add ESC/POS Initialization ---
+                const initCmd = new Uint8Array([0x1B, 0x40]); // ESC @ (Initialize printer)
+                data = new Uint8Array([...initCmd, ...data]);
+                // --- End Optional Init ---
 
                 statusLabel.textContent = 'Printing...';
 
-                // Send data in chunks if necessary (some printers have limits)
-                const chunkSize = 100; // Adjust as needed (e.g., 20, 64, 128)
+                // Send data in chunks
+                const chunkSize = 64; // Common safe chunk size
                 let offset = 0;
 
-                function writeChunk() {
+                async function writeChunk() {
                     if (offset >= data.length) {
                         statusLabel.textContent = 'Printing complete!';
                         console.log('Print complete');
-                        return Promise.resolve();
+                        return; // Done
                     }
                     const chunk = data.slice(offset, offset + chunkSize);
                     offset += chunkSize;
-                    return printerCharacteristic.writeValue(chunk).then(writeChunk);
+                    try {
+                        // Use writeValueWithResponse or writeValueWithoutResponse based on characteristic
+                        if (printerCharacteristic.properties.write) {
+                            await printerCharacteristic.writeValue(chunk);
+                        } else {
+                            await printerCharacteristic.writeValueWithoutResponse(chunk);
+                        }
+                        // Small delay between chunks might help some printers
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                        await writeChunk(); // Write next chunk
+                    } catch (error) {
+                        statusLabel.textContent = 'Print Failed: ' + error.message;
+                        console.error('Print chunk failed!', error);
+                        // Don't continue if a chunk fails
+                    }
                 }
 
-                writeChunk().catch(error => {
-                    statusLabel.textContent = 'Print Failed: ' + error.message;
-                    console.error('Print failed!', error);
-                });
+                writeChunk(); // Start writing chunks
             };
 
 
@@ -1504,11 +1376,13 @@
             if (printEstimateBtn) printEstimateBtn.addEventListener('click', sendBluetoothPrint);
 
             if (generateBillBtn) generateBillBtn.addEventListener('click', () => {
+                // Ensure there's something to bill
                 if (items.length === 0 && silverItems.length === 0) {
                     alert("Cannot generate a bill with no items.");
                     return;
                 }
 
+                // --- Save Bill Logic ---
                 const billNumber = `INV-${Date.now().toString().slice(-8)}`;
                 const billDate = new Date().toISOString();
                 const currentCustomer = {
@@ -1516,9 +1390,9 @@
                     phone: customerPhoneInput.value.trim()
                 };
 
-                calculateTotals(); // Ensure totals are up-to-date
+                calculateTotals(); // Ensure totals are up-to-date before saving
 
-                // Recalculate totals specifically for saving history
+                // Recalculate totals specifically for saving history (avoids relying on DOM)
                 const wastagePercent = parseFloat(wastageInput.value) || 0;
                 const gstPercent = parseFloat(gstInput.value) || 0;
                 const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0);
@@ -1542,6 +1416,7 @@
 
                 const billData = {
                     billNumber, date: billDate, customer: currentCustomer,
+                    // Deep copy item arrays to freeze their state in history
                     items: JSON.parse(JSON.stringify(items)),
                     silverItems: JSON.parse(JSON.stringify(silverItems)),
                     oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)),
@@ -1552,29 +1427,42 @@
 
                 billHistory.push(billData);
 
+                // Save new customer if checkbox is checked
                 if (saveCustomerCheckbox.checked && currentCustomer.name) {
-                    const existingCustomer = customers.find(c => c.name === currentCustomer.name || (c.phone && c.phone === currentCustomer.phone));
+                    // Avoid duplicates based on name OR phone
+                    const existingCustomer = customers.find(c =>
+                        c.name.toLowerCase() === currentCustomer.name.toLowerCase() ||
+                        (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)
+                    );
                     if (!existingCustomer) {
                         customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone });
+                        console.log("New customer saved:", currentCustomer.name);
+                    } else {
+                        console.log("Customer already exists:", currentCustomer.name);
                     }
                 }
 
-                saveState(); // Save updated history & customers
+                saveState(); // Save updated history & customers & potentially current state (though it should be reset)
 
-                prepareA4Print(true, billData); // Pass billData for printing
+                // --- Trigger A4 Print ---
+                prepareA4Print(true, billData);
 
                 alert(`Bill ${billNumber} saved successfully!`);
 
-                // Optional: Ask to reset after saving final bill
-                if (confirm("Bill saved and print dialog opened. Start a new bill?")) {
+                // Ask to reset the form after successful save and print prompt
+                if (confirm("Bill saved to history. Start a new bill now?")) {
                     resetFormLogic();
                 }
 
             });
 
             if (resetBtn) resetBtn.addEventListener('click', () => {
-                if (confirm('Start a new bill? Current items, customer, and payments will be cleared.')) {
-                    resetFormLogic();
+                if (items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0 || paymentDetails.length > 0 || customerNameInput.value || customerPhoneInput.value) {
+                    if (confirm('Start a new bill? Current items, customer details, and payments will be cleared.')) {
+                        resetFormLogic();
+                    }
+                } else {
+                    resetFormLogic(); // Reset even if empty, might be stuck
                 }
             });
 
@@ -1582,24 +1470,35 @@
             const resetFormLogic = () => {
                 items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
                 customerNameInput.value = ''; customerPhoneInput.value = '';
-                saveCustomerCheckbox.checked = false; // Uncheck save customer
+                saveCustomerCheckbox.checked = false;
+
+                // Clear only the current bill state from localStorage
                 localStorage.removeItem('jewelBillCurrentState');
+
+                // Re-render empty lists and recalculate (hides sections)
                 renderAllLists();
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                customerNameInput.focus();
+                // Focus customer name if app body is visible, otherwise focus gold rate
+                if (!appBody.classList.contains('hidden')) {
+                    customerNameInput.focus();
+                } else {
+                    goldRateInput.focus();
+                }
+                console.log("Form reset for new bill.");
             }
 
             if (settingsBtn) settingsBtn.addEventListener('click', () => {
-                settingsPanel.classList.toggle('hidden');
+                if (settingsPanel) settingsPanel.classList.toggle('hidden');
             });
 
             if (shopDetailsForm) shopDetailsForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                shopDetails.name = shopNameInput.value;
-                shopDetails.address = shopAddressInput.value;
-                saveShopDetails(); // Use specific save function
+                shopDetails.name = shopNameInput.value.trim();
+                shopDetails.address = shopAddressInput.value.trim();
+                saveShopDetails();
                 showToast('settings-toast');
-                settingsPanel.classList.add('hidden');
+                if (settingsPanel) settingsPanel.classList.add('hidden');
             });
 
             // Customer Modal Listeners
@@ -1612,7 +1511,7 @@
             if (closeHistoryModal) closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
 
 
-            // Register the Service Worker for PWA
+            // Register the Service Worker for PWA Offline Capability
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('sw.js')
@@ -1622,7 +1521,7 @@
             }
 
             // --- Initial Load ---
-            loadState(); // Load all saved data (customers, history, shop details, rates, current bill)
+            loadState(); // Load all saved data 
 
         }); // End DOMContentLoaded
     </script>
