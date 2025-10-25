@@ -3,7 +3,7 @@ const CACHE_NAME = 'my-printer-app-v1';
 const urlsToCache = [
   '/',
   'index.html',
-  'icon-192.png'
+  //'icon-192.png'
 ];
 
 // 1. Install the service worker and cache files
