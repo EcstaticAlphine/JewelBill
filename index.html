@@ -713,21 +713,38 @@
                 calculateTotals(); // Saves current state implicitly
             }
 
+            // --- REPLACEMENT for updateRateDisplay ---
             const updateRateDisplay = (isEditing) => {
-                if (!ratesInputContainer || !ratesDisplay || !appBody || !goldRateDisplay || !silverRateDisplay) return;
+                // Ensure elements exist
+                if (!ratesInputContainer || !ratesDisplay || !appBody || !goldRateDisplay || !silverRateDisplay) {
+                    console.error("updateRateDisplay: One or more rate display elements not found!");
+                    return;
+                }
 
                 if (isEditing) {
-                    ratesInputContainer.style.display = 'block';
-                    ratesDisplay.classList.add('hidden');
-                    appBody.classList.add('hidden'); // Hide main app when editing rates
+                    ratesInputContainer.classList.remove('hidden'); // Show the input fields container
+                    ratesDisplay.classList.add('hidden');       // Hide the rate display area
+                    appBody.classList.add('hidden');            // Hide the main application body
+
+                    // Optional: Focus the first input field when editing starts
+                    if (goldRateInput) goldRateInput.focus();
                 } else {
+                    // Update the displayed rates (using formatCurrency helper)
                     goldRateDisplay.textContent = formatCurrency(goldRate22k);
                     silverRateDisplay.textContent = formatCurrency(silverRate);
-                    ratesInputContainer.style.display = 'none';
-                    ratesDisplay.classList.remove('hidden');
-                    appBody.classList.remove('hidden'); // Show main app when rates are set
+
+                    ratesInputContainer.classList.add('hidden');    // Hide the input fields container
+                    ratesDisplay.classList.remove('hidden');    // Show the rate display area
+
+                    // Only show the app body if rates are actually set (> 0)
+                    if (goldRate22k > 0 && silverRate > 0) {
+                        appBody.classList.remove('hidden');         // Show the main application body
+                    } else {
+                        appBody.classList.add('hidden'); // Keep hidden if rates are somehow zero
+                    }
                 }
             };
+            // --- End REPLACEMENT ---
 
             const renderItems = () => {
                 if (!itemsList) return;
