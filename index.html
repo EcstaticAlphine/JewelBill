@@ -535,11 +535,13 @@
             const goldRateInput = document.getElementById('gold-rate-input');
             const silverRateInput = document.getElementById('silver-rate-input');
             const setRatesBtn = document.getElementById('set-rates-btn');
+            console.log("Found setRatesBtn:", setRatesBtn);
             const ratesInputContainer = document.getElementById('rates-input-container');
             const ratesDisplay = document.getElementById('rates-display');
             const goldRateDisplay = document.getElementById('gold-rate-display');
             const silverRateDisplay = document.getElementById('silver-rate-display');
             const editRatesBtn = document.getElementById('edit-rates-btn');
+            console.log("Found editRatesBtn:", editRatesBtn);
             const appBody = document.getElementById('app-body');
             const itemForm = document.getElementById('item-form');
             const itemsList = document.getElementById('items-list');
@@ -1390,6 +1392,33 @@
 
 
             // --- Assign Final Event Listeners ---
+            // ***** ADD THIS BLOCK for "Set Rates" *****
+            if (setRatesBtn) setRatesBtn.addEventListener('click', () => {
+                console.log("Set Rates Button Clicked!");
+                const goldRate = parseFloat(goldRateInput.value);
+                const silverR = parseFloat(silverRateInput.value);
+
+                if (!isNaN(goldRate) && goldRate > 0 && !isNaN(silverR) && silverR > 0) {
+                    goldRate22k = goldRate;
+                    silverRate = silverR;
+                    saveRates(); // Save rates immediately
+                    recalculateAllItemValues(); // Recalculate item values based on new rates
+                    renderAllLists(); // Re-render lists and totals
+                    updateRateDisplay(false); // Hide inputs, show display and app body
+                } else {
+                    alert('Please enter valid positive rates for both gold and silver.');
+                }
+            });
+            // ***** END of "Set Rates" block *****
+
+
+            // ***** ADD THIS BLOCK for "Edit Rates" *****
+            if (editRatesBtn) editRatesBtn.addEventListener('click', () => {
+                console.log("Edit Rates Button Clicked!");
+                updateRateDisplay(true); // Show inputs, hide display and app body
+            });
+            // ***** END of "Edit Rates" block *****
+
             if (printEstimateBtn) printEstimateBtn.addEventListener('click', sendBluetoothPrint);
 
             if (generateBillBtn) generateBillBtn.addEventListener('click', () => {
