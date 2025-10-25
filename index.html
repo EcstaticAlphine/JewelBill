@@ -746,6 +746,24 @@
                     }
                 }
             };
+
+            const recalculateAllItemValues = () => {
+                items.forEach(item => {
+                    const netWeight = item.grossWeight - item.stoneWeight;
+                    const purityAdjustedWeight = netWeight * (item.karat / 22);
+                    item.netWeight = netWeight;
+                    item.purityAdjustedWeight = purityAdjustedWeight;
+                    item.goldValue = purityAdjustedWeight * goldRate22k;
+                });
+                silverItems.forEach(item => {
+                    item.value = item.weight * silverRate;
+                });
+                oldGoldItems.forEach(item => {
+                    const purityAdjustedWeight = item.netWeight * (item.purityPercent / 91.6);
+                    item.purityAdjustedWeight = purityAdjustedWeight;
+                    item.goldValue = purityAdjustedWeight * goldRate22k;
+                });
+            };
             // --- End REPLACEMENT ---
 
             const renderItems = () => {
