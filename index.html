@@ -1025,8 +1025,19 @@
                 }
 
                 // --- Prepare for Print ---
-                if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible');
-                billSectionTarget.classList.add('print-visible');
+                if (thermalReceiptSection) {
+                thermalReceiptSection.classList.remove('print-visible');
+            } else {
+                console.error("prepareA4Print: thermalReceiptSection element not found!");
+            }
+
+            if (billSectionTarget) {
+                 billSectionTarget.classList.add('print-visible');
+            } else {
+                 console.error("prepareA4Print: billSectionTarget element not found!");
+                 // If the main bill section isn't found, we probably shouldn't try to print
+                 return; 
+            }
                 setTimeout(() => { window.print(); }, 150); // Slightly longer timeout
             };
             // Thermal Print - Prepare HTML (Returns String)
