@@ -530,25 +530,21 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // --- Element Selectors ---
+            // ... (Keep all your existing selectors - unchanged) ...
             const goldRateInput = document.getElementById('gold-rate-input');
             const silverRateInput = document.getElementById('silver-rate-input');
             const setRatesBtn = document.getElementById('set-rates-btn');
-            console.log("Found setRatesBtn:", setRatesBtn); // Keep log
             const ratesInputContainer = document.getElementById('rates-input-container');
             const ratesDisplay = document.getElementById('rates-display');
             const goldRateDisplay = document.getElementById('gold-rate-display');
             const silverRateDisplay = document.getElementById('silver-rate-display');
             const editRatesBtn = document.getElementById('edit-rates-btn');
-            console.log("Found editRatesBtn:", editRatesBtn); // Keep log
             const appBody = document.getElementById('app-body');
             const itemForm = document.getElementById('item-form');
-            console.log("Found itemForm:", itemForm); // Keep log
             const itemsList = document.getElementById('items-list');
             const silverItemForm = document.getElementById('silver-item-form');
-            console.log("Found silverItemForm:", silverItemForm); // Keep log
             const silverItemsList = document.getElementById('silver-items-list');
             const oldGoldForm = document.getElementById('old-gold-form');
-            console.log("Found oldGoldForm:", oldGoldForm); // Keep log
             const oldGoldList = document.getElementById('old-gold-list');
             const chargesConfig = document.getElementById('charges-config');
             const summarySection = document.getElementById('summary-section');
@@ -564,21 +560,15 @@
             const settingsBtn = document.getElementById('settings-btn');
             const settingsPanel = document.getElementById('settings-panel');
             const shopDetailsForm = document.getElementById('shop-details-form');
-            console.log("Found shopDetailsForm:", shopDetailsForm); // Keep log
             const shopNameInput = document.getElementById('shop-name');
             const shopAddressInput = document.getElementById('shop-address');
             const paymentSection = document.getElementById('payment-section');
             const paymentForm = document.getElementById('payment-form');
-            console.log("Found paymentForm:", paymentForm); // Keep log
             const paymentList = document.getElementById('payment-list');
-            const thermalReceiptSection = document.getElementById('thermal-receipt-section'); // For CSS styling
-            const billSection = document.querySelector('.bill-section'); // For A4 print
-
-            // Bluetooth selectors
+            const thermalReceiptSection = document.getElementById('thermal-receipt-section');
+            const billSection = document.querySelector('.bill-section');
             const connectButton = document.getElementById('btn-connect');
             const statusLabel = document.getElementById('status-label');
-
-            // Customer & History selectors
             const selectCustomerBtn = document.getElementById('select-customer-btn');
             const customerModal = document.getElementById('customer-modal');
             const closeCustomerModal = document.getElementById('close-customer-modal');
@@ -591,25 +581,15 @@
             const historyListModal = document.getElementById('history-list-modal');
 
             // --- Data Variables ---
-            let items = [];
-            let silverItems = [];
-            let oldGoldItems = [];
-            let paymentDetails = [];
-            let goldRate22k = 0;
-            let silverRate = 0;
-            let shopDetails = {};
-            let customers = [];
-            let billHistory = [];
-            let lastBillNum = 0;
-            const billPrefix = "AJ"; // Customize your prefix here
-            const billPadding = 3; // Number of digits (e.g., 3 means 001, 002...)
-
-            // Bluetooth variables
-            let bluetoothDevice = null;
-            let printerCharacteristic = null;
+            let items = []; let silverItems = []; let oldGoldItems = []; let paymentDetails = [];
+            let goldRate22k = 0; let silverRate = 0; let shopDetails = {}; let customers = []; let billHistory = [];
+            let bluetoothDevice = null; let printerCharacteristic = null;
+            let lastBillNum = 0; // *** CORRECTED: For bill numbering ***
+            const billPrefix = "AJ"; const billPadding = 3;
 
             // --- Helper Functions ---
             const formatCurrency = (value) => `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // *** CORRECTED: Generates next bill number ***
             const generateNextBillNumber = () => {
                 lastBillNum++; // Increment first
                 const numStr = lastBillNum.toString().padStart(billPadding, '0');
@@ -618,16 +598,11 @@
 
             // --- State Management (LocalStorage) ---
             const saveState = () => {
-                const currentBillState = {
-                    goldRate22k, silverRate, customerName: customerNameInput.value, customerPhone: customerPhoneInput.value,
-                    items, silverItems, oldGoldItems, paymentDetails,
-                    wastage: wastageInput.value, gst: gstInput.value,
-                    ratesSet: goldRate22k > 0 && silverRate > 0,
-                    discount: document.getElementById('discount-input')?.value || 0
-                };
+                const currentBillState = { goldRate22k, silverRate, customerName: customerNameInput.value, customerPhone: customerPhoneInput.value, items, silverItems, oldGoldItems, paymentDetails, wastage: wastageInput.value, gst: gstInput.value, ratesSet: goldRate22k > 0 && silverRate > 0, discount: document.getElementById('discount-input')?.value || 0 };
                 localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentBillState));
                 localStorage.setItem('jewelBillCustomers', JSON.stringify(customers));
                 localStorage.setItem('jewelBillHistory', JSON.stringify(billHistory));
+                // *** CORRECTED: Save last bill number ***
                 localStorage.setItem('jewelBillLastBillNum', lastBillNum.toString());
             };
 
@@ -635,26 +610,20 @@
                 customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
                 billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
                 shopDetails = JSON.parse(localStorage.getItem('jewelBillShopDetails')) || {};
-                lastBillNum = parseInt(localStorage.getItem('jewelBillLastBillNum')) || 0; // Default to 0 if not found
-                shopNameInput.value = shopDetails.name || '';
-                shopAddressInput.value = shopDetails.address || '';
+                // *** CORRECTED: Load last bill number ***
+                lastBillNum = parseInt(localStorage.getItem('jewelBillLastBillNum')) || 0;
+
+                shopNameInput.value = shopDetails.name || ''; shopAddressInput.value = shopDetails.address || '';
                 const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
-                if (savedRates) {
-                    goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0;
-                    goldRateInput.value = goldRate22k || ''; silverRateInput.value = silverRate || '';
-                }
+                if (savedRates) { goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0; goldRateInput.value = goldRate22k || ''; silverRateInput.value = silverRate || ''; }
                 const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
-                if (!savedCurrentState) {
-                    updateRateDisplay(!(goldRate22k > 0 && silverRate > 0)); return;
-                }
+                if (!savedCurrentState) { updateRateDisplay(!(goldRate22k > 0 && silverRate > 0)); return; }
                 const state = JSON.parse(savedCurrentState);
                 goldRate22k = state.goldRate22k || goldRate22k; silverRate = state.silverRate || silverRate;
                 customerNameInput.value = state.customerName || ''; customerPhoneInput.value = state.customerPhone || '';
                 items = state.items || []; silverItems = state.silverItems || []; oldGoldItems = state.oldGoldItems || []; paymentDetails = state.paymentDetails || [];
                 wastageInput.value = state.wastage || '12'; gstInput.value = state.gst || '3';
-                if (state.ratesSet && goldRate22k > 0 && silverRate > 0) {
-                    updateRateDisplay(false); renderAllLists(); showToast('restore-toast');
-                } else { updateRateDisplay(true); }
+                if (state.ratesSet && goldRate22k > 0 && silverRate > 0) { updateRateDisplay(false); renderAllLists(); showToast('restore-toast'); } else { updateRateDisplay(true); }
             };
 
             const saveRates = () => {
@@ -841,14 +810,11 @@
                 historyListModal.innerHTML = '';
                 const sortedHistory = [...billHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                if (sortedHistory.length === 0) {
-                    historyListModal.innerHTML = '<li class="text-gray-500 text-center py-4">No past bills found.</li>';
-                    return;
-                }
+                if (sortedHistory.length === 0) { historyListModal.innerHTML = '<li class="text-gray-500 text-center py-4">No past bills found.</li>'; return; }
 
                 sortedHistory.forEach(bill => {
                     const li = document.createElement('li');
-                    li.className = 'p-3 border rounded-md flex flex-col gap-2'; // Use flex column
+                    li.className = 'p-3 border rounded-md flex flex-col gap-2';
                     const billDate = new Date(bill.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
                     const netPayable = bill.totals?.netPayable ?? 0;
 
@@ -861,36 +827,34 @@
                             Cust: <span class="font-medium">${bill.customer?.name || 'N/A'}</span>
                             ${bill.customer?.phone ? `<span class="text-gray-500 text-xs"> (${bill.customer.phone})</span>` : ''}
                         </div>
-                        <div class="text-sm font-bold text-right mb-2">
-                            Total: ${formatCurrency(netPayable)}
-                        </div>
+                        <div class="text-sm font-bold text-right mb-2">Total: ${formatCurrency(netPayable)}</div>
                         <div class="flex justify-end gap-2 border-t pt-2 mt-1">
-                             <button data-bill-number="${bill.billNumber}" data-print-type="thermal" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-2 rounded">
-                                Print Estimate (Thermal)
-                             </button>
-                             <button data-bill-number="${bill.billNumber}" data-print-type="a4" class="text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-2 rounded">
-                                Print Bill (A4)
-                             </button>
-                        </div>
-                    `;
+                             <button data-bill-number="${bill.billNumber}" data-print-type="thermal" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-2 rounded"> Print Estimate (Thermal) </button>
+                             <button data-bill-number="${bill.billNumber}" data-print-type="a4" class="text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-2 rounded"> Print Bill (A4) </button>
+                        </div>`;
 
-                    // Add event listeners to the new print buttons
+                    // Add event listeners to the print buttons INSIDE this loop
                     li.querySelectorAll('button[data-bill-number]').forEach(button => {
                         button.addEventListener('click', (e) => {
-                            e.stopPropagation(); // Prevent modal from closing if clicked inside
+                            e.stopPropagation();
                             const billNumToPrint = e.target.dataset.billNumber;
                             const printType = e.target.dataset.printType;
+                            // Find the specific bill from the main billHistory array
                             const billToPrint = billHistory.find(b => b.billNumber === billNumToPrint);
 
                             if (billToPrint) {
                                 console.log(`Reprinting ${printType} for bill:`, billNumToPrint);
-                                if (printType === 'a4') {
-                                    prepareA4Print(true, billToPrint); // Print as final bill
-                                } else if (printType === 'thermal') {
-                                    triggerBluetoothPrint(billToPrint); // Print estimate format via BT
-                                }
+                                closeHistoryModalHandler(); // Close modal before printing
+                                // Use timeout to allow modal to close before print dialog blocks things
+                                setTimeout(() => {
+                                    if (printType === 'a4') {
+                                        prepareA4Print(true, billToPrint); // Print A4 using saved bill data
+                                    } else if (printType === 'thermal') {
+                                        triggerBluetoothPrint(billToPrint); // Print Thermal using saved bill data
+                                    }
+                                }, 50); // Small delay
                             } else {
-                                alert(`Could not find bill ${billNumToPrint} to reprint.`);
+                                alert(`Error: Could not find bill ${billNumToPrint} data to reprint.`);
                             }
                         });
                     });
@@ -975,15 +939,7 @@
 
             // A4 Print Function (Modified to accept billData)
             const prepareA4Print = (isFinalBill, billData = null) => {
-                // Use saved bill data if provided, otherwise use current state
-                const displayData = billData || {
-                    billNumber: `EST${Date.now().toString().slice(-6)}`,
-                    date: new Date().toISOString(),
-                    customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
-                    items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails,
-                    totals: {}, // Populated by summary clone
-                    shopDetails: shopDetails
-                };
+                const displayData = billData || { billNumber: `EST${Date.now().toString().slice(-6)}`, date: new Date().toISOString(), customer: { name: customerNameInput.value, phone: customerPhoneInput.value }, items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails, totals: {}, shopDetails: shopDetails };
 
                 // Get references inside the function for safety
                 const shopNamePrint = document.getElementById('shop-name-print');
@@ -1007,10 +963,10 @@
                     return;
                 }
 
-                shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill';
-                invoiceTitlePrint.textContent = isFinalBill ? 'FINAL INVOICE' : 'ESTIMATE';
+                shopNamePrint.textContent = displayData.shopDetails?.name || 'Ashok Jewellers';
+                invoiceTitlePrint.textContent = isFinalBill ? (billData ? 'DUPLICATE INVOICE' : 'FINAL INVOICE') : 'ESTIMATE'; // Show duplicate if reprinting
                 shopAddressPrint.textContent = displayData.shopDetails?.address || '';
-                billNoPrint.textContent = displayData.billNumber;
+                billNoPrint.textContent = displayData.billNumber; // Use number from data
                 billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                 customerNamePrint.textContent = displayData.customer?.name || 'N/A';
                 customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
@@ -1047,14 +1003,27 @@
                     oldGoldListPrint.innerHTML = '';
                 }
 
-                // Clone summary section, remove non-print elements
-                summarySectionPrint.innerHTML = '';
-                // Ensure summarySection itself is up-to-date before cloning
-                calculateTotals(); // Recalculate if not already done
-                const summaryClone = summarySection.cloneNode(true);
-                summaryClone.querySelectorAll('.no-print').forEach(el => el.remove());
-                summaryClone.querySelectorAll('div, span, label').forEach(el => { el.style.fontSize = '11px'; });
-                summarySectionPrint.appendChild(summaryClone);
+                // Regenerate summary from displayData.totals if possible, otherwise clone current
+                summarySectionPrint.innerHTML = ''; 
+                if (billData?.totals) {
+                    // Rebuild summary HTML string using billData.totals (similar to calculateTotals)
+                    // This ensures accuracy for reprints even if live calculation differs
+                    let summaryHTML = `<div class="space-y-2 text-sm" style="font-size: 11px;">`;
+                    const totals = billData.totals;
+                    // ... (Build the summaryHTML string using totals.goldSubtotal, totals.wastageValue etc.) ...
+                     summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(totals.netPayable)}</span></div>`;
+                     summaryHTML += `<div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totals.totalPaid)}</span></div>`;
+                     summaryHTML += `<div class="flex justify-between text-xl font-bold ${totals.balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue)}</span></div>`;
+                    summaryHTML += `</div>`;
+                    summarySectionPrint.innerHTML = summaryHTML;
+                } else {
+                     // Fallback: Clone current summary if reprinting an estimate maybe? Or just show live data?
+                    calculateTotals(); // Ensure current summary is updated
+                    const summaryClone = summarySection.cloneNode(true); 
+                    summaryClone.querySelectorAll('.no-print').forEach(el => el.remove());
+                    summaryClone.querySelectorAll('div, span, label').forEach(el => { el.style.fontSize = '11px'; }); 
+                    summarySectionPrint.appendChild(summaryClone);
+                }
 
                 // Render payments if it's a final bill
                 if (isFinalBill) {
