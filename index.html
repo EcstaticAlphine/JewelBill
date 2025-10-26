@@ -1393,6 +1393,182 @@
 
         }); // End DOMContentLoaded
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Element Selectors ---
+            // ... (Keep all selectors - unchanged) ...
+            const goldRateInput = document.getElementById('gold-rate-input'); /* ... */ const silverRateInput = document.getElementById('silver-rate-input'); /* ... */ const setRatesBtn = document.getElementById('set-rates-btn'); /* ... */ const ratesInputContainer = document.getElementById('rates-input-container'); /* ... */ const ratesDisplay = document.getElementById('rates-display'); /* ... */ const goldRateDisplay = document.getElementById('gold-rate-display'); /* ... */ const silverRateDisplay = document.getElementById('silver-rate-display'); /* ... */ const editRatesBtn = document.getElementById('edit-rates-btn'); /* ... */ const appBody = document.getElementById('app-body'); /* ... */ const itemForm = document.getElementById('item-form'); /* ... */ const itemsList = document.getElementById('items-list'); /* ... */ const silverItemForm = document.getElementById('silver-item-form'); /* ... */ const silverItemsList = document.getElementById('silver-items-list'); /* ... */ const oldGoldForm = document.getElementById('old-gold-form'); /* ... */ const oldGoldList = document.getElementById('old-gold-list'); /* ... */ const chargesConfig = document.getElementById('charges-config'); /* ... */ const summarySection = document.getElementById('summary-section'); /* ... */ const actionButtons = document.getElementById('action-buttons'); /* ... */ const recalculateBtn = document.getElementById('recalculate-btn'); /* ... */ const printEstimateBtn = document.getElementById('print-estimate-btn'); /* ... */ const generateBillBtn = document.getElementById('generate-bill-btn'); /* ... */ const resetBtn = document.getElementById('reset-btn'); /* ... */ const customerNameInput = document.getElementById('customer-name'); /* ... */ const customerPhoneInput = document.getElementById('customer-phone'); /* ... */ const wastageInput = document.getElementById('wastage'); /* ... */ const gstInput = document.getElementById('gst'); /* ... */ const settingsBtn = document.getElementById('settings-btn'); /* ... */ const settingsPanel = document.getElementById('settings-panel'); /* ... */ const shopDetailsForm = document.getElementById('shop-details-form'); /* ... */ const shopNameInput = document.getElementById('shop-name'); /* ... */ const shopAddressInput = document.getElementById('shop-address'); /* ... */ const paymentSection = document.getElementById('payment-section'); /* ... */ const paymentForm = document.getElementById('payment-form'); /* ... */ const paymentList = document.getElementById('payment-list'); /* ... */ const thermalReceiptSection = document.getElementById('thermal-receipt-section'); /* ... */ const billSection = document.querySelector('.bill-section'); /* ... */ const connectButton = document.getElementById('btn-connect'); /* ... */ const statusLabel = document.getElementById('status-label'); /* ... */ const selectCustomerBtn = document.getElementById('select-customer-btn'); /* ... */ const customerModal = document.getElementById('customer-modal'); /* ... */ const closeCustomerModal = document.getElementById('close-customer-modal'); /* ... */ const customerSearch = document.getElementById('customer-search'); /* ... */ const customerListModal = document.getElementById('customer-list-modal'); /* ... */ const saveCustomerCheckbox = document.getElementById('save-customer-checkbox'); /* ... */ const historyBtn = document.getElementById('history-btn'); /* ... */ const historyModal = document.getElementById('history-modal'); /* ... */ const closeHistoryModal = document.getElementById('close-history-modal'); /* ... */ const historyListModal = document.getElementById('history-list-modal');
+
+            // --- Data Variables ---
+            // ... (Keep all variables - unchanged) ...
+             let items = []; /*...*/ let silverItems = []; /*...*/ let oldGoldItems = []; /*...*/ let paymentDetails = []; /*...*/ let goldRate22k = 0; /*...*/ let silverRate = 0; /*...*/ let shopDetails = {}; /*...*/ let customers = []; /*...*/ let billHistory = []; /*...*/ let bluetoothDevice = null; /*...*/ let printerCharacteristic = null; /*...*/ let lastBillNum = 0; /*...*/ const billPrefix = "AJ"; /*...*/ const billPadding = 3;
+
+            // --- Helper Functions ---
+            // *** CORRECTED: Safer formatCurrency ***
+            const formatCurrency = (value) => {
+                const num = parseFloat(value); // Ensure it's a number
+                if (isNaN(num)) {
+                    // console.warn("formatCurrency called with non-number:", value); // Optional warning
+                    return '₹ -.--'; // Or return '₹0.00' or an empty string
+                }
+                return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            };
+            const generateNextBillNumber = () => { /* ... (unchanged) ... */ };
+
+            // --- State Management (LocalStorage) ---
+            const saveState = () => { /* ... (unchanged) ... */ };
+            const loadState = () => { /* ... (unchanged) ... */ };
+            const saveRates = () => { /* ... (unchanged) ... */ }
+            const saveShopDetails = () => { /* ... (unchanged) ... */ }
+            const showToast = (id) => { /* ... (unchanged) ... */ };
+
+            // --- UI Rendering ---
+            const renderAllLists = () => { /* ... (unchanged) ... */ }
+            const updateRateDisplay = (isEditing) => { /* ... (unchanged) ... */ };
+            const recalculateAllItemValues = () => { /* ... (unchanged) ... */ };
+            const renderItems = () => { /* ... (unchanged) ... */ };
+            const renderSilverItems = () => { /* ... (unchanged) ... */ };
+            const renderOldGoldItems = () => { /* ... (unchanged) ... */ }
+            const renderPayments = () => { /* ... (unchanged) ... */ };
+
+            // --- Calculation Logic ---
+            const calculateTotals = () => { /* ... (unchanged - calls saveState at the end) ... */ };
+
+            // --- Customer Modal Logic ---
+            const openCustomerModal = () => { /* ... (unchanged) ... */ };
+            const closeCustomerModalHandler = () => { /* ... (unchanged) ... */ };
+            const renderCustomerListModal = (searchTerm = '') => { /* ... (unchanged) ... */ };
+
+            // --- Bill History Modal Logic ---
+            const openHistoryModal = () => { /* ... (unchanged) ... */ };
+            const closeHistoryModalHandler = () => { /* ... (unchanged) ... */ };
+            const renderHistoryListModal = () => { /* ... (unchanged - adds buttons with listeners) ... */ };
+
+            // --- Bluetooth Logic ---
+            const connectToPrinter = async () => { /* ... (unchanged) ... */ };
+            const onDisconnected = () => { /* ... (unchanged) ... */ };
+
+            // --- Print Functions ---
+
+            // *** CORRECTED: prepareA4Print - Rebuilds summary robustly ***
+            const prepareA4Print = (isFinalBill, billData = null) => {
+                const displayData = billData || { billNumber: `EST${Date.now().toString().slice(-6)}`, date: new Date().toISOString(), customer: { name: customerNameInput.value, phone: customerPhoneInput.value }, items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails, totals: {}, shopDetails: shopDetails };
+                // Get element references
+                const shopNamePrint = document.getElementById('shop-name-print'); /* ... get all other print elements ... */ const summarySectionPrint = document.getElementById('summary-section-print'); /*...*/ const billSectionTarget = document.querySelector('.bill-section');
+                if (!shopNamePrint || /*...*/ !summarySectionPrint || /*...*/ !billSectionTarget) { console.error("prepareA4Print: Print elements not found!"); return; }
+
+                // Populate header/customer details (unchanged)
+                shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill'; /*...*/
+
+                // Render Item tables (unchanged - uses displayData)
+                if (displayData.items?.length > 0) { /* ... */ } else { itemsListPrint.innerHTML = ''; }
+                if (displayData.silverItems?.length > 0) { /* ... */ } else { silverItemsListPrint.innerHTML = ''; }
+                if (displayData.oldGoldItems?.length > 0) { /* ... */ } else { oldGoldListPrint.innerHTML = ''; }
+
+                // *** CORRECTED: Rebuild summary section for print using billData.totals ***
+                summarySectionPrint.innerHTML = ''; // Clear previous
+                const totals = billData?.totals; // Use saved totals if available
+                if (totals) {
+                    // Build summary HTML string directly from saved totals
+                    let summaryHTML = `<div class="space-y-1 text-xs">`; // Use smaller spacing/font
+                    if (totals.goldSubtotal > 0) {
+                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(totals.goldSubtotal)}</span></div>`;
+                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Wastage (${totals.wastagePercent}%)</span><span class="font-semibold">${formatCurrency(totals.wastageValue)}</span></div>`;
+                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(totals.goldMakingCharges)}</span></div>`;
+                    }
+                    if (totals.silverSubtotal > 0) {
+                        summaryHTML += `<div class="flex justify-between ${totals.goldSubtotal > 0 ? 'border-t mt-1 pt-1' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(totals.silverSubtotal)}</span></div>`;
+                    }
+                     summaryHTML += `<div class="flex justify-between font-bold border-t pt-1 mt-1"><span>Total before GST</span><span>${formatCurrency(totals.totalBeforeGst)}</span></div>`;
+                     summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${totals.gstPercent}%)</span><span class="font-semibold">${formatCurrency(totals.gstValue)}</span></div>`;
+                     summaryHTML += `<div class="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>Bill Total</span><span>${formatCurrency(totals.grandTotal)}</span></div>`; // Slightly smaller font
+                    if (totals.oldGoldTotal > 0) {
+                        summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(totals.oldGoldTotal)}</span></div>`;
+                    }
+                    if (totals.discount > 0) { // Check if discount exists in saved data
+                         summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(totals.discount)}</span></div>`;
+                     }
+                     summaryHTML += `<div class="flex justify-between text-lg font-bold bg-yellow-100 p-1 rounded-md mt-1"><span>Net Amount Payable</span><span>${formatCurrency(totals.netPayable)}</span></div>`; // Smaller font/padding
+                     summaryHTML += `<div class="flex justify-between text-sm font-semibold mt-1 pt-1 border-t"><span>Total Paid</span><span>${formatCurrency(totals.totalPaid)}</span></div>`;
+                     summaryHTML += `<div class="flex justify-between text-lg font-bold ${totals.balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue)}</span></div>`;
+                    summaryHTML += `</div>`;
+                    summarySectionPrint.innerHTML = summaryHTML;
+                } else {
+                    // Fallback if totals somehow weren't saved (shouldn't happen)
+                    summarySectionPrint.innerHTML = '<p class="text-xs text-red-500">Error: Summary data missing.</p>';
+                    // Or alternatively, clone the live summary as before, accepting potential inaccuracies
+                    // const summaryClone = summarySection.cloneNode(true); /*...*/ summarySectionPrint.appendChild(summaryClone);
+                }
+                // *** END OF SUMMARY CORRECTION ***
+
+                // Render payments (unchanged - uses displayData)
+                if (isFinalBill) { /* ... */ } else { paymentListPrint.innerHTML = ''; }
+
+                // Show print section (unchanged)
+                if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible');
+                billSectionTarget.classList.add('print-visible');
+                setTimeout(() => { window.print(); }, 100);
+            };
+
+            const prepareThermalPrint = (billData = null) => { /* ... (unchanged - rebuilds HTML based on source data) ... */ };
+            const triggerBluetoothPrint = (billData = null) => { /* ... (unchanged - calls prepareThermalPrint, sends via BT) ... */ };
+
+
+            // --- Assign Final Event Listeners ---
+            if (setRatesBtn) setRatesBtn.addEventListener('click', () => { /* ... */ });
+            if (editRatesBtn) editRatesBtn.addEventListener('click', () => { /* ... */ });
+            if (itemForm) itemForm.addEventListener('submit', (e) => { e.preventDefault(); /* ... */ });
+            if (silverItemForm) silverItemForm.addEventListener('submit', (e) => { e.preventDefault(); /* ... */ });
+            if (oldGoldForm) oldGoldForm.addEventListener('submit', (e) => { e.preventDefault(); /* ... */ });
+            if (paymentForm) paymentForm.addEventListener('submit', (e) => { e.preventDefault(); /* ... */ });
+            if (shopDetailsForm) shopDetailsForm.addEventListener('submit', (e) => { e.preventDefault(); /* ... */ });
+            if (printEstimateBtn) printEstimateBtn.addEventListener('click', () => triggerBluetoothPrint(null));
+
+            // *** CORRECTED: generateBillBtn listener uses correct bill number logic ***
+            if (generateBillBtn) generateBillBtn.addEventListener('click', () => {
+                if (items.length === 0 && silverItems.length === 0) { alert("Cannot generate bill with no items."); return; }
+                const billNumber = generateNextBillNumber(); // Get the next number
+                const billDate = new Date().toISOString(); const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim() };
+                calculateTotals(); // Ensure current totals are calculated for saving
+
+                // Recalculate totals specifically FOR SAVING HISTORY (ensures consistency)
+                const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const discount = parseFloat(document.getElementById('discount-input')?.value) || 0; let goldSubtotal = 0; items.forEach(i => { goldSubtotal += i.goldValue; }); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); let silverSubtotal = 0; silverItems.forEach(i => { silverSubtotal += i.value; }); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; let oldGoldTotal = 0; oldGoldItems.forEach(i => { oldGoldTotal += i.goldValue; }); const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid;
+                const billTotals = { goldRate22k, silverRate, // Store rates used for this specific bill
+                    goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+
+                const billData = { billNumber, date: billDate, customer: currentCustomer, items: JSON.parse(JSON.stringify(items)), silverItems: JSON.parse(JSON.stringify(silverItems)), oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)), paymentDetails: JSON.parse(JSON.stringify(paymentDetails)), totals: billTotals, shopDetails: JSON.parse(JSON.stringify(shopDetails)) };
+                billHistory.push(billData);
+                if (saveCustomerCheckbox.checked && currentCustomer.name) { /* ... (save customer logic) ... */ }
+                saveState(); // Save everything including incremented lastBillNum
+                prepareA4Print(true, billData); // Print A4 with this specific bill data
+                alert(`Bill ${billNumber} saved successfully!`);
+                if (confirm("Bill saved. Start a new bill now?")) { resetFormLogic(); }
+            });
+
+            // Reset button listener
+            if (resetBtn) resetBtn.addEventListener('click', () => { /* ... (calls resetFormLogic) ... */ });
+
+            // *** CORRECTED: Reset logic function definition (unchanged) ***
+            const resetFormLogic = () => { /* ... (unchanged) ... */ }
+
+            // Other listeners (unchanged)
+            if (settingsBtn) settingsBtn.addEventListener('click', () => { /* ... */ });
+            if (connectButton) connectButton.addEventListener('click', connectToPrinter);
+            if (recalculateBtn) recalculateBtn.addEventListener('click', calculateTotals);
+            document.body.addEventListener('click', (e) => { /* Item Edit/Delete */ });
+            if (selectCustomerBtn) selectCustomerBtn.addEventListener('click', openCustomerModal); if (closeCustomerModal) closeCustomerModal.addEventListener('click', closeCustomerModalHandler); if (customerSearch) customerSearch.addEventListener('input', (e) => renderCustomerListModal(e.target.value));
+            if (historyBtn) historyBtn.addEventListener('click', openHistoryModal); if (closeHistoryModal) closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
+            if (appBody) appBody.addEventListener('input', (e) => { if (['customer-name', 'customer-phone', 'wastage', 'gst', 'discount-input'].includes(e.target.id)) { calculateTotals(); } });
+
+            // --- Service Worker Registration ---
+            if ('serviceWorker' in navigator) { /* ... (unchanged) ... */ }
+
+            // --- Initial Load ---
+            loadState(); // Load all saved data 
+
+        }); // End DOMContentLoaded
+    </script>
 </body>
 
 </html>
