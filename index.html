@@ -1245,6 +1245,28 @@
                 writeChunk(); // Start writing chunks
             };
 
+            const resetFormLogic = () => {
+                 items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
+                 if(customerNameInput) customerNameInput.value = ''; 
+                 if(customerPhoneInput) customerPhoneInput.value = '';
+                 if(saveCustomerCheckbox) saveCustomerCheckbox.checked = false; 
+
+                 // Clear only the current bill state from localStorage
+                 localStorage.removeItem('jewelBillCurrentState'); 
+
+                 // Re-render empty lists and recalculate (hides sections)
+                 renderAllLists(); 
+
+                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                 // Focus customer name if app body is visible, otherwise focus gold rate
+                 if (appBody && !appBody.classList.contains('hidden')) {
+                     if(customerNameInput) customerNameInput.focus();
+                 } else {
+                      if(goldRateInput) goldRateInput.focus();
+                 }
+                 console.log("Form reset for new bill.");
+             };
+
 
             // --- Assign Final Event Listeners ---
 
