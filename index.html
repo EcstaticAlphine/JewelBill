@@ -22,80 +22,112 @@
             display: none;
         }
 
-       @media print {
-            /* Hide everything outside the bill section */
-            body > *:not(.bill-section) {
-                display: none !important;
+        @media print {
+            body * {
+                visibility: hidden;
             }
 
-            /* Reset body and html for printing */
-            html, body {
-                visibility: visible !important; /* Make sure body is visible */
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: auto !important; /* Allow natural height */
-                background: #fff !important; /* Force white background */
-                font-size: 10pt !important; /* Base print font size */
-                color: #000 !important; /* Force black text */
+            .print-visible,
+            .print-visible * {
+                visibility: visible;
             }
 
-            /* Force the bill section to be visible and take up space */
-            .bill-section {
+            .print-visible {
                 display: block !important;
-                visibility: visible !important;
-                position: relative !important; /* Change from static/absolute to relative */
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important; /* Use available width */
-                max-width: 100% !important; /* Override Tailwind max-width */
-                min-height: auto !important; /* Allow natural height */
-                margin: 0 !important;
-                padding: 20mm 15mm !important; /* Add typical A4 margins (approx) */
-                box-shadow: none !important;
-                border: none !important;
-                background: #fff !important; /* Ensure white background */
+                position: absolute;
+                left: 0;
+                top: 0;
             }
 
-            /* Make sure all children within the bill section are visible */
-            .bill-section * {
-                visibility: visible !important;
-                color: #000 !important; /* Ensure children have black text */
-                background: transparent !important; /* Ensure no background colors interfere */
-                 box-shadow: none !important;
-                 border: none; /* Remove most borders initially */
+            .bill-section.print-visible {
+                width: 100%;
+                font-size: 12px;
             }
-             /* Re-apply borders specifically for table */
-            .bill-section table {
-                width: 100%; /* Ensure table uses full width */
-                border-collapse: collapse; /* Standard table look */
-            }
-            .bill-section th,
-            .bill-section td {
-                 border: 1px solid #ccc; /* Apply borders */
-                 padding: 4px; /* Adjust padding */
-                 font-size: 9pt; /* Slightly smaller for table data */
-            }
-             .bill-section thead th {
-                 border-bottom: 2px solid #000; /* Header separator */
-                 background-color: #f3f4f6; /* Light gray header like Tailwind bg-gray-100 */
-             }
-             /* Ensure specific borders from template are applied */
-             .bill-section thead tr.border-pink-500 th { /* If you kept this class */
-                 border-top: 2px solid #ec4899; /* pink-500 */
-                 border-bottom: 2px solid #ec4899; /* pink-500 */
-                 color: #be185d; /* pink-700 */
-             }
-             .bill-section div.border-pink-500 { /* For the total line */
-                  border-top: 1px solid #ec4899;
-                  border-bottom: 2px solid #ec4899;
-             }
 
+            .thermal-receipt.print-visible {
+                width: 300px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                line-height: 1.4;
+                color: #000;
+                background: #fff;
+                padding: 10px;
+            }
 
-             /* Hide elements marked no-print */
             .no-print {
-                display: none !important;
+                display: none;
             }
+        }
+
+        #restore-toast,
+        #settings-toast {
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+        }
+
+        #settings-panel {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Style for Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 90%;
+            /* Responsive width */
+            width: 500px;
+            /* Max width */
+            max-height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            flex-grow: 1;
+            /* Allows body to take remaining space */
+        }
+
+        .modal-close-btn {
+            color: #6b7280;
+            /* gray-500 */
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close-btn:hover {
+            color: #111827;
+            /* gray-900 */
         }
     </style>
 </head>
@@ -470,6 +502,9 @@
             </div>
             <div class="text-right">
             <img src="AJ.png" alt="Shop Logo" class="w-32 h-auto inline-block mb-1"> 
+
+            <h2 id="shop-name-print" class="text-xl font-bold text-yellow-600">
+                </h2> 
         </div>
 
         <div class="flex justify-between items-end mb-6">
