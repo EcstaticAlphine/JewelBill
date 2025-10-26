@@ -215,8 +215,8 @@
                     <p class="text-sm text-gray-500">Silver</p>
                     <p id="silver-rate-display" class="text-2xl font-bold text-green-600"></p>
                 </div>
-                <div class="col-span-2 text-center mt-2"> <button id="edit-rates-btn"
-                        class="text-xs text-blue-500 hover:underline">Edit Rates</button>
+                <div class="col-span-2 text-center mt-2">
+                    <button id="edit-rates-btn" class="text-xs text-blue-500 hover:underline">Edit Rates</button>
                 </div>
             </div>
             <div id="rates-input-container">
@@ -230,8 +230,8 @@
                     <div>
                         <label for="silver-rate-input" class="block text-sm font-medium text-gray-600 mb-1">Silver
                             Rate</label>
-                        <input type="number" id="silver-rate-input" class="w-full p-2 border border-gray-300 rounded-md"
-                            placeholder="e.g., 90">
+                        <input type="number" id="silver-rate-input"
+                            class="w-full p-2 border border-gray-300 rounded-md" placeholder="e.g., 90">
                     </div>
                 </div>
                 <button id="set-rates-btn"
@@ -464,9 +464,7 @@
                     New Bill (Clear Items)
                 </button>
             </div>
-        </div>
-    </div>
-    <div id="customer-modal" class="modal hidden no-print">
+        </div> </div> <div id="customer-modal" class="modal hidden no-print">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="text-lg font-semibold">Select Customer</h2>
@@ -476,7 +474,7 @@
                 <input type="text" id="customer-search" class="w-full p-2 border border-gray-300 rounded-md mb-4"
                     placeholder="Search customers...">
                 <ul id="customer-list-modal" class="space-y-2">
-                </ul>
+                    </ul>
             </div>
         </div>
     </div>
@@ -489,7 +487,7 @@
             </div>
             <div class="modal-body">
                 <ul id="history-list-modal" class="space-y-3">
-                </ul>
+                    </ul>
             </div>
         </div>
     </div>
@@ -535,19 +533,22 @@
             const goldRateInput = document.getElementById('gold-rate-input');
             const silverRateInput = document.getElementById('silver-rate-input');
             const setRatesBtn = document.getElementById('set-rates-btn');
-            console.log("Found setRatesBtn:", setRatesBtn);
+            console.log("Found setRatesBtn:", setRatesBtn); // Keep log
             const ratesInputContainer = document.getElementById('rates-input-container');
             const ratesDisplay = document.getElementById('rates-display');
             const goldRateDisplay = document.getElementById('gold-rate-display');
             const silverRateDisplay = document.getElementById('silver-rate-display');
             const editRatesBtn = document.getElementById('edit-rates-btn');
-            console.log("Found editRatesBtn:", editRatesBtn);
+            console.log("Found editRatesBtn:", editRatesBtn); // Keep log
             const appBody = document.getElementById('app-body');
             const itemForm = document.getElementById('item-form');
+            console.log("Found itemForm:", itemForm); // Keep log
             const itemsList = document.getElementById('items-list');
             const silverItemForm = document.getElementById('silver-item-form');
+            console.log("Found silverItemForm:", silverItemForm); // Keep log
             const silverItemsList = document.getElementById('silver-items-list');
             const oldGoldForm = document.getElementById('old-gold-form');
+            console.log("Found oldGoldForm:", oldGoldForm); // Keep log
             const oldGoldList = document.getElementById('old-gold-list');
             const chargesConfig = document.getElementById('charges-config');
             const summarySection = document.getElementById('summary-section');
@@ -563,10 +564,12 @@
             const settingsBtn = document.getElementById('settings-btn');
             const settingsPanel = document.getElementById('settings-panel');
             const shopDetailsForm = document.getElementById('shop-details-form');
+            console.log("Found shopDetailsForm:", shopDetailsForm); // Keep log
             const shopNameInput = document.getElementById('shop-name');
             const shopAddressInput = document.getElementById('shop-address');
             const paymentSection = document.getElementById('payment-section');
             const paymentForm = document.getElementById('payment-form');
+            console.log("Found paymentForm:", paymentForm); // Keep log
             const paymentList = document.getElementById('payment-list');
             const thermalReceiptSection = document.getElementById('thermal-receipt-section'); // For CSS styling
             const billSection = document.querySelector('.bill-section'); // For A4 print
@@ -607,93 +610,51 @@
 
             // --- State Management (LocalStorage) ---
             const saveState = () => {
-                // Save the *current* bill details
                 const currentBillState = {
-                    goldRate22k, silverRate, // Include rates for consistency check on load
-                    customerName: customerNameInput.value,
-                    customerPhone: customerPhoneInput.value,
+                    goldRate22k, silverRate, customerName: customerNameInput.value, customerPhone: customerPhoneInput.value,
                     items, silverItems, oldGoldItems, paymentDetails,
                     wastage: wastageInput.value, gst: gstInput.value,
                     ratesSet: goldRate22k > 0 && silverRate > 0,
                     discount: document.getElementById('discount-input')?.value || 0
                 };
                 localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentBillState));
-
-                // Save persistent data
                 localStorage.setItem('jewelBillCustomers', JSON.stringify(customers));
                 localStorage.setItem('jewelBillHistory', JSON.stringify(billHistory));
-                // Rates and ShopDetails saved separately via saveRates() / saveShopDetails()
             };
 
             const loadState = () => {
-                // Load persistent data first
                 customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
                 billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
                 shopDetails = JSON.parse(localStorage.getItem('jewelBillShopDetails')) || {};
                 shopNameInput.value = shopDetails.name || '';
                 shopAddressInput.value = shopDetails.address || '';
-
                 const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
                 if (savedRates) {
-                    goldRate22k = savedRates.goldRate22k || 0;
-                    silverRate = savedRates.silverRate || 0;
-                    goldRateInput.value = goldRate22k || '';
-                    silverRateInput.value = silverRate || '';
+                    goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0;
+                    goldRateInput.value = goldRate22k || ''; silverRateInput.value = silverRate || '';
                 }
-
-                // Load the current bill state
                 const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
-
                 if (!savedCurrentState) {
-                    // No current state, decide view based on rates
-                    if (goldRate22k > 0 && silverRate > 0) {
-                        updateRateDisplay(false);
-                    } else {
-                        updateRateDisplay(true);
-                    }
-                    return;
+                    updateRateDisplay(!(goldRate22k > 0 && silverRate > 0)); return;
                 }
-
-                // Restore current bill state if it exists
                 const state = JSON.parse(savedCurrentState);
-
-                // Check if restored rates match current saved rates - if not, maybe warn?
-                // For now, prioritize the explicitly loaded rates above.
-                goldRate22k = state.goldRate22k || goldRate22k;
-                silverRate = state.silverRate || silverRate;
-
-                customerNameInput.value = state.customerName || '';
-                customerPhoneInput.value = state.customerPhone || '';
-                items = state.items || [];
-                silverItems = state.silverItems || [];
-                oldGoldItems = state.oldGoldItems || [];
-                paymentDetails = state.paymentDetails || [];
-                wastageInput.value = state.wastage || '12';
-                gstInput.value = state.gst || '3';
-                // Discount will be set during calculateTotals if input exists
-
-                // Decide view based on rates existence from the restored state
+                goldRate22k = state.goldRate22k || goldRate22k; silverRate = state.silverRate || silverRate;
+                customerNameInput.value = state.customerName || ''; customerPhoneInput.value = state.customerPhone || '';
+                items = state.items || []; silverItems = state.silverItems || []; oldGoldItems = state.oldGoldItems || []; paymentDetails = state.paymentDetails || [];
+                wastageInput.value = state.wastage || '12'; gstInput.value = state.gst || '3';
                 if (state.ratesSet && goldRate22k > 0 && silverRate > 0) {
-                    updateRateDisplay(false);
-                    renderAllLists();
-                    showToast('restore-toast');
-                } else {
-                    updateRateDisplay(true);
-                }
+                    updateRateDisplay(false); renderAllLists(); showToast('restore-toast');
+                } else { updateRateDisplay(true); }
             };
 
             const saveRates = () => {
                 localStorage.setItem('jewelBillRates', JSON.stringify({ goldRate22k, silverRate }));
-                // Also update current state if it exists
                 const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
-                currentState.goldRate22k = goldRate22k;
-                currentState.silverRate = silverRate;
+                currentState.goldRate22k = goldRate22k; currentState.silverRate = silverRate;
                 currentState.ratesSet = goldRate22k > 0 && silverRate > 0;
                 localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
             }
-            const saveShopDetails = () => {
-                localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
-            }
+            const saveShopDetails = () => { localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails)); }
 
             const showToast = (id) => {
                 const toast = document.getElementById(id);
@@ -708,42 +669,17 @@
 
             // --- UI Rendering ---
             const renderAllLists = () => {
-                renderItems();
-                renderSilverItems();
-                renderOldGoldItems();
-                renderPayments();
-                calculateTotals(); // Saves current state implicitly
+                renderItems(); renderSilverItems(); renderOldGoldItems(); renderPayments(); calculateTotals();
             }
-
-            // --- REPLACEMENT for updateRateDisplay ---
             const updateRateDisplay = (isEditing) => {
-                // Ensure elements exist
-                if (!ratesInputContainer || !ratesDisplay || !appBody || !goldRateDisplay || !silverRateDisplay) {
-                    console.error("updateRateDisplay: One or more rate display elements not found!");
-                    return;
-                }
-
+                if (!ratesInputContainer || !ratesDisplay || !appBody || !goldRateDisplay || !silverRateDisplay) { console.error("updateRateDisplay: One or more rate display elements not found!"); return; }
                 if (isEditing) {
-                    ratesInputContainer.classList.remove('hidden'); // Show the input fields container
-                    ratesDisplay.classList.add('hidden');       // Hide the rate display area
-                    appBody.classList.add('hidden');            // Hide the main application body
-
-                    // Optional: Focus the first input field when editing starts
+                    ratesInputContainer.classList.remove('hidden'); ratesDisplay.classList.add('hidden'); appBody.classList.add('hidden');
                     if (goldRateInput) goldRateInput.focus();
                 } else {
-                    // Update the displayed rates (using formatCurrency helper)
-                    goldRateDisplay.textContent = formatCurrency(goldRate22k);
-                    silverRateDisplay.textContent = formatCurrency(silverRate);
-
-                    ratesInputContainer.classList.add('hidden');    // Hide the input fields container
-                    ratesDisplay.classList.remove('hidden');    // Show the rate display area
-
-                    // Only show the app body if rates are actually set (> 0)
-                    if (goldRate22k > 0 && silverRate > 0) {
-                        appBody.classList.remove('hidden');         // Show the main application body
-                    } else {
-                        appBody.classList.add('hidden'); // Keep hidden if rates are somehow zero
-                    }
+                    goldRateDisplay.textContent = formatCurrency(goldRate22k); silverRateDisplay.textContent = formatCurrency(silverRate);
+                    ratesInputContainer.classList.add('hidden'); ratesDisplay.classList.remove('hidden');
+                    if (goldRate22k > 0 && silverRate > 0) { appBody.classList.remove('hidden'); } else { appBody.classList.add('hidden'); }
                 }
             };
 
