@@ -23,111 +23,76 @@
         }
 
         @media print {
+            /* Hide everything by default */
             body * {
                 visibility: hidden;
+                margin: 0; /* Reset margins */
+                padding: 0; /* Reset padding */
+                box-shadow: none; /* Remove shadows */
+                border: none; /* Remove default borders unless explicitly added back */
             }
 
-            .print-visible,
-            .print-visible * {
+            /* Make only the print container and its children visible */
+            .print-visible, .print-visible * {
                 visibility: visible;
             }
 
-            .print-visible {
-                display: block !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-            }
-
+             /* Ensure the main container itself is visible and occupies print area */
+             /* IMPORTANT: We target .bill-section directly here */
             .bill-section.print-visible {
-                width: 100%;
-                font-size: 12px;
+                visibility: visible !important; /* Force visibility */
+                display: block !important; /* Ensure it's treated as a block */
+                position: static !important; /* Override any absolute positioning */
+                width: 100% !important; /* Use full page width */
+                margin: 0 !important; /* Reset margin */
+                padding: 20px !important; /* Add some padding for the print page */
+                border: none !important;
+                box-shadow: none !important;
+                left: 0 !important;
+                top: 0 !important;
+                font-size: 10pt !important; /* Set a base print font size */
+                color: #000 !important; /* Ensure text is black */
+                background: #fff !important; /* Ensure background is white */
             }
 
-            .thermal-receipt.print-visible {
-                width: 300px;
-                font-family: 'Courier New', monospace;
-                font-size: 12px;
-                line-height: 1.4;
-                color: #000;
-                background: #fff;
-                padding: 10px;
+            /* Make sure specific print elements within bill-section behave */
+            .bill-section.print-visible div,
+            .bill-section.print-visible p,
+            .bill-section.print-visible span,
+            .bill-section.print-visible h1,
+            .bill-section.print-visible h2,
+            .bill-section.print-visible h3,
+            .bill-section.print-visible table,
+            .bill-section.print-visible thead,
+            .bill-section.print-visible tbody,
+            .bill-section.print-visible tr,
+            .bill-section.print-visible th,
+            .bill-section.print-visible td {
+                 /* Reset potentially conflicting Tailwind styles */
+                 position: static; 
+                 float: none;
+                 display: revert; /* Try letting the browser decide basic display */
+                 width: auto;
+                 color: #000 !important;
+                 background: transparent !important;
+                 border: none; /* Remove borders by default */
+                 /* Add back borders specifically for the table if needed */
+            }
+             /* Add borders back to table cells for clarity */
+            .bill-section.print-visible th,
+            .bill-section.print-visible td {
+                border: 1px solid #ccc; /* Light gray border */
+                padding: 4px; /* Adjust padding */
+            }
+            .bill-section.print-visible thead th {
+                 border-bottom: 2px solid #000; /* Thicker bottom border for headers */
             }
 
+
+            /* Hide elements specifically marked as no-print */
             .no-print {
-                display: none;
+                display: none !important;
             }
-        }
-
-        #restore-toast,
-        #settings-toast {
-            transition: opacity 0.5s, transform 0.5s;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            padding: 0.25rem;
-            cursor: pointer;
-        }
-
-        #settings-panel {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        /* Style for Modals */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            z-index: 50;
-        }
-
-        .modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 90%;
-            /* Responsive width */
-            width: 500px;
-            /* Max width */
-            max-height: 80vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            padding: 1rem;
-            flex-grow: 1;
-            /* Allows body to take remaining space */
-        }
-
-        .modal-close-btn {
-            color: #6b7280;
-            /* gray-500 */
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .modal-close-btn:hover {
-            color: #111827;
-            /* gray-900 */
         }
     </style>
 </head>
