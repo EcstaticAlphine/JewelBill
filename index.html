@@ -682,9 +682,8 @@
                     if (goldRate22k > 0 && silverRate > 0) { appBody.classList.remove('hidden'); } else { appBody.classList.add('hidden'); }
                 }
             };
-
             const recalculateAllItemValues = () => {
-                items.forEach(item => {
+                 items.forEach(item => {
                     const netWeight = item.grossWeight - item.stoneWeight;
                     const purityAdjustedWeight = netWeight * (item.karat / 22);
                     item.netWeight = netWeight;
@@ -700,13 +699,8 @@
                     item.goldValue = purityAdjustedWeight * goldRate22k;
                 });
             };
-            // --- End REPLACEMENT ---
-
             const renderItems = () => {
-                if (!itemsList) return;
-                if (items.length === 0) {
-                    itemsList.innerHTML = '';
-                } else {
+                if (!itemsList) return; if (items.length === 0) { itemsList.innerHTML = ''; } else {
                     const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mb-2">Gold Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th><th class="p-2 text-right">Value</th><th class="p-2 text-right">Making Charge</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = items.map((item) => {
@@ -717,14 +711,10 @@
                         <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-2 text-right">${formatCurrency(item.goldValue)}</td><td class="p-2 text-right">${formatCurrency(makingChargeValue)}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="gold" data-action="edit" aria-label="Edit Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="gold" data-action="delete" aria-label="Delete Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
                     `}).join('');
                     itemsList.innerHTML = tableHeader + tableRows + tableFooter;
-                }
+                 }
             };
-
             const renderSilverItems = () => {
-                if (!silverItemsList) return;
-                if (silverItems.length === 0) {
-                    silverItemsList.innerHTML = '';
-                } else {
+                if (!silverItemsList) return; if (silverItems.length === 0) { silverItemsList.innerHTML = ''; } else {
                     const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mb-2">Silver Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Weight</th><th class="p-2 text-right">Value</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = silverItems.map((item) => `
@@ -733,13 +723,9 @@
                     silverItemsList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
             };
-
             const renderOldGoldItems = () => {
-                if (!oldGoldList) return;
-                if (oldGoldItems.length === 0) {
-                    oldGoldList.innerHTML = '';
-                } else {
-                    const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th><th class="p-2 text-right">Value</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
+                if (!oldGoldList) return; if (oldGoldItems.length === 0) { oldGoldList.innerHTML = ''; } else {
+                     const tableHeader = `<h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th><th class="p-2 text-right">Value</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = oldGoldItems.map((item) => `
                         <tr class="border-b"><td class="p-2 font-medium">${item.name}</td><td class="p-2 text-right">${item.netWeight.toFixed(2)}g (${item.purityPercent}%)</td><td class="p-2 text-right">${formatCurrency(item.goldValue)}</td><td class="p-2 text-right no-print flex justify-end gap-2"><button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="oldGold" data-action="edit" aria-label="Edit Old Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 12V7a2 2 0 012-2h2.586l-4 4H5zM3 15a2 2 0 002 2h10a2 2 0 002-2v-3l-2 2v1H5v-1l2-2V5H5a2 2 0 00-2 2v10z"></path></svg></button><button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="oldGold" data-action="delete" aria-label="Delete Old Gold Item"><svg class="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"></path></svg></button></td></tr>
@@ -747,12 +733,8 @@
                     oldGoldList.innerHTML = tableHeader + tableRows + tableFooter;
                 }
             }
-
             const renderPayments = () => {
-                if (!paymentList) return;
-                if (paymentDetails.length === 0) {
-                    paymentList.innerHTML = '';
-                } else {
+                if (!paymentList) return; if (paymentDetails.length === 0) { paymentList.innerHTML = ''; } else {
                     const tableHeader = `<div class="overflow-x-auto mt-4"><table class="w-full text-sm text-left"><thead class="bg-gray-50"><tr><th class="p-2">Mode</th><th class="p-2">Reference</th><th class="p-2 text-right">Amount</th><th class="p-2 no-print"></th></tr></thead><tbody>`;
                     const tableFooter = `</tbody></table></div>`;
                     const tableRows = paymentDetails.map(p => `
@@ -764,97 +746,16 @@
 
             // --- Calculation Logic ---
             const calculateTotals = () => {
-                if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) {
-                    console.error("CalculateTotals: Missing essential elements.");
-                    return;
-                };
-
-                const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
-                const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
-
-                if (totalItemsInBill === 0) {
-                    summarySection.classList.add('hidden');
-                    chargesConfig.classList.add('hidden');
-                    actionButtons.classList.add('hidden');
-                    paymentSection.classList.add('hidden');
-                    saveState();
-                    return;
-                }
-
-                chargesConfig.classList.remove('hidden');
-                actionButtons.classList.remove('hidden');
-                paymentSection.classList.remove('hidden');
-
-                const wastagePercent = parseFloat(wastageInput.value) || 0;
-                const gstPercent = parseFloat(gstInput.value) || 0;
-                const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0);
-                const wastageValue = (goldSubtotal * wastagePercent) / 100;
-                const goldMakingCharges = items.reduce((sum, item) => {
-                    const charge = item.makingCharge.type === 'perGram'
-                        ? item.grossWeight * item.makingCharge.value
-                        : item.makingCharge.value;
-                    return sum + charge;
-                }, 0);
-                const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0);
-                const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal;
-                const gstValue = (totalBeforeGst * gstPercent) / 100;
-                const grandTotal = totalBeforeGst + gstValue;
-                const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
-
-                let discount = 0;
-                const discountInput = document.getElementById('discount-input');
-                if (discountInput) {
-                    discount = parseFloat(discountInput.value) || 0;
-                } else {
-                    discount = savedState.discount || 0;
-                }
-
-                const netPayable = grandTotal - oldGoldTotal - discount;
-                const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0);
-                const balanceDue = netPayable - totalPaid;
-
-                // Build summary HTML dynamically
-                let summaryHTML = `<div class="space-y-2 text-sm">`;
-                if (goldSubtotal > 0) {
-                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`;
-                }
-                if (silverSubtotal > 0) {
-                    summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`;
-                }
-                summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div>`;
-                summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div>`;
-                summaryHTML += `<div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`;
-                if (oldGoldTotal > 0) {
-                    summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`;
-                }
-                // Add Discount Input
-                summaryHTML += `
-                    <div class="grid grid-cols-1 gap-4 pt-4 no-print">
-                        <div>
-                            <label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label>
-                            <input type="number" id="discount-input" value="${discount.toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00">
-                        </div>
-                    </div>`;
-                if (discount > 0) {
-                    summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`;
-                }
-                summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div>`;
-                summaryHTML += `<div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div>`;
-                summaryHTML += `<div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div>`;
-                summaryHTML += `</div>`; // Close space-y-2
-
-                summarySection.innerHTML = summaryHTML;
-                summarySection.classList.remove('hidden');
-
-                // Add listener to the NEWLY CREATED discount input
-                const newDiscountInput = document.getElementById('discount-input');
-                if (newDiscountInput) {
-                    newDiscountInput.addEventListener('input', calculateTotals);
-                }
-
-                saveState(); // Save current bill state after every calculation
+                 if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) { console.error("CalculateTotals: Missing essential elements."); return; };
+                 const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {}; const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
+                 if (totalItemsInBill === 0) { summarySection.classList.add('hidden'); chargesConfig.classList.add('hidden'); actionButtons.classList.add('hidden'); paymentSection.classList.add('hidden'); saveState(); return; }
+                 chargesConfig.classList.remove('hidden'); actionButtons.classList.remove('hidden'); paymentSection.classList.remove('hidden');
+                 const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
+                 let discount = 0; const discountInput = document.getElementById('discount-input'); if (discountInput) { discount = parseFloat(discountInput.value) || 0; } else { discount = savedState.discount || 0; }
+                 const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid;
+                 let summaryHTML = `<div class="space-y-2 text-sm">`; if (goldSubtotal > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`; } if (silverSubtotal > 0) { summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`; } summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div><div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`; if (oldGoldTotal > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`; } summaryHTML += `<div class="grid grid-cols-1 gap-4 pt-4 no-print"><div><label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label><input type="number" id="discount-input" value="${discount.toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00"></div></div>`; if (discount > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`; } summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div><div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div><div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div></div>`;
+                 summarySection.innerHTML = summaryHTML; summarySection.classList.remove('hidden'); const newDiscountInput = document.getElementById('discount-input'); if (newDiscountInput) { newDiscountInput.addEventListener('input', calculateTotals); }
+                 saveState();
             };
 
 
@@ -1346,159 +1247,88 @@
 
 
             // --- Assign Final Event Listeners ---
-            // ***** ADD THIS BLOCK for "Set Rates" *****
+
+            // ** Rates Listeners **
             if (setRatesBtn) setRatesBtn.addEventListener('click', () => {
                 console.log("Set Rates Button Clicked!");
-                const goldRate = parseFloat(goldRateInput.value);
-                const silverR = parseFloat(silverRateInput.value);
-
+                const goldRate = parseFloat(goldRateInput.value); const silverR = parseFloat(silverRateInput.value);
                 if (!isNaN(goldRate) && goldRate > 0 && !isNaN(silverR) && silverR > 0) {
-                    goldRate22k = goldRate;
-                    silverRate = silverR;
-                    saveRates(); // Save rates immediately
-                    recalculateAllItemValues(); // Recalculate item values based on new rates
-                    renderAllLists(); // Re-render lists and totals
-                    updateRateDisplay(false); // Hide inputs, show display and app body
-                } else {
-                    alert('Please enter valid positive rates for both gold and silver.');
-                }
+                    goldRate22k = goldRate; silverRate = silverR; saveRates(); recalculateAllItemValues(); renderAllLists(); updateRateDisplay(false);
+                } else { alert('Please enter valid positive rates for both gold and silver.'); }
             });
-            // ***** END of "Set Rates" block *****
-
-
-            // ***** ADD THIS BLOCK for "Edit Rates" *****
             if (editRatesBtn) editRatesBtn.addEventListener('click', () => {
-                console.log("Edit Rates Button Clicked!");
-                updateRateDisplay(true); // Show inputs, hide display and app body
-            });
-            // ***** END of "Edit Rates" block *****
-
-            if (printEstimateBtn) printEstimateBtn.addEventListener('click', sendBluetoothPrint);
-
-            if (generateBillBtn) generateBillBtn.addEventListener('click', () => {
-                // Ensure there's something to bill
-                if (items.length === 0 && silverItems.length === 0) {
-                    alert("Cannot generate a bill with no items.");
-                    return;
-                }
-
-                // --- Save Bill Logic ---
-                const billNumber = `INV-${Date.now().toString().slice(-8)}`;
-                const billDate = new Date().toISOString();
-                const currentCustomer = {
-                    name: customerNameInput.value.trim(),
-                    phone: customerPhoneInput.value.trim()
-                };
-
-                calculateTotals(); // Ensure totals are up-to-date before saving
-
-                // Recalculate totals specifically for saving history (avoids relying on DOM)
-                const wastagePercent = parseFloat(wastageInput.value) || 0;
-                const gstPercent = parseFloat(gstInput.value) || 0;
-                const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0);
-                const wastageValue = (goldSubtotal * wastagePercent) / 100;
-                const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0);
-                const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0);
-                const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal;
-                const gstValue = (totalBeforeGst * gstPercent) / 100;
-                const grandTotal = totalBeforeGst + gstValue;
-                const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
-                const discount = parseFloat(document.getElementById('discount-input')?.value) || 0;
-                const netPayable = grandTotal - oldGoldTotal - discount;
-                const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0);
-                const balanceDue = netPayable - totalPaid;
-
-                const billTotals = {
-                    goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal,
-                    totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount,
-                    netPayable, totalPaid, balanceDue, wastagePercent, gstPercent
-                };
-
-                const billData = {
-                    billNumber, date: billDate, customer: currentCustomer,
-                    // Deep copy item arrays to freeze their state in history
-                    items: JSON.parse(JSON.stringify(items)),
-                    silverItems: JSON.parse(JSON.stringify(silverItems)),
-                    oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)),
-                    paymentDetails: JSON.parse(JSON.stringify(paymentDetails)),
-                    totals: billTotals,
-                    shopDetails: JSON.parse(JSON.stringify(shopDetails))
-                };
-
-                billHistory.push(billData);
-
-                // Save new customer if checkbox is checked
-                if (saveCustomerCheckbox.checked && currentCustomer.name) {
-                    // Avoid duplicates based on name OR phone
-                    const existingCustomer = customers.find(c =>
-                        c.name.toLowerCase() === currentCustomer.name.toLowerCase() ||
-                        (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)
-                    );
-                    if (!existingCustomer) {
-                        customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone });
-                        console.log("New customer saved:", currentCustomer.name);
-                    } else {
-                        console.log("Customer already exists:", currentCustomer.name);
-                    }
-                }
-
-                saveState(); // Save updated history & customers & potentially current state (though it should be reset)
-
-                // --- Trigger A4 Print ---
-                prepareA4Print(true, billData);
-
-                alert(`Bill ${billNumber} saved successfully!`);
-
-                // Ask to reset the form after successful save and print prompt
-                if (confirm("Bill saved to history. Start a new bill now?")) {
-                    resetFormLogic();
-                }
-
+                console.log("Edit Rates Button Clicked!"); updateRateDisplay(true);
             });
 
-            if (resetBtn) resetBtn.addEventListener('click', () => {
-                if (items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0 || paymentDetails.length > 0 || customerNameInput.value || customerPhoneInput.value) {
-                    if (confirm('Start a new bill? Current items, customer details, and payments will be cleared.')) {
-                        resetFormLogic();
-                    }
-                } else {
-                    resetFormLogic(); // Reset even if empty, might be stuck
-                }
-            });
-
-            // Separate reset logic function
-            const resetFormLogic = () => {
-                items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
-                customerNameInput.value = ''; customerPhoneInput.value = '';
-                saveCustomerCheckbox.checked = false;
-
-                // Clear only the current bill state from localStorage
-                localStorage.removeItem('jewelBillCurrentState');
-
-                // Re-render empty lists and recalculate (hides sections)
+            // ** Form Submit Listeners with preventDefault() **
+            if (itemForm) itemForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // <-- CORRECTED
+                console.log("itemForm submit handler started");
+                const name = document.getElementById('item-name').value;
+                if (!name) { alert('Please enter gold item name.'); return; }
+                const grossWeight = parseFloat(document.getElementById('gross-weight').value); const stoneWeight = parseFloat(document.getElementById('stone-weight').value) || 0; const karat = parseInt(document.getElementById('karat').value); const makingChargeType = document.getElementById('making-charge-type').value; const makingChargeValue = parseFloat(document.getElementById('making-charge-value').value); const editingId = document.getElementById('editing-gold-item-id').value;
+                if (isNaN(grossWeight) || grossWeight <= 0 || stoneWeight < 0 || grossWeight < stoneWeight) { alert('Please enter valid weights for the gold item.'); return; }
+                if (isNaN(makingChargeValue) || makingChargeValue < 0) { alert('Please enter a valid making charge value.'); return; }
+                const netWeight = grossWeight - stoneWeight; const purityAdjustedWeight = netWeight * (karat / 22); const goldValue = purityAdjustedWeight * goldRate22k; const itemData = { name, grossWeight, stoneWeight, karat, netWeight, purityAdjustedWeight, goldValue, makingCharge: { type: makingChargeType, value: makingChargeValue } };
+                if (editingId) { const index = items.findIndex(item => item.id == editingId); if (index > -1) items[index] = { ...items[index], ...itemData }; } else { itemData.id = Date.now(); items.push(itemData); }
+                itemForm.reset(); document.getElementById('karat').value = '22'; document.getElementById('making-charge-type').value = 'perGram'; document.getElementById('stone-weight').value = '0'; document.getElementById('editing-gold-item-id').value = ''; document.getElementById('add-gold-item-btn').textContent = 'Add Gold Item'; document.getElementById('item-name').focus();
                 renderAllLists();
+            });
 
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                // Focus customer name if app body is visible, otherwise focus gold rate
-                if (!appBody.classList.contains('hidden')) {
-                    customerNameInput.focus();
-                } else {
-                    goldRateInput.focus();
-                }
-                console.log("Form reset for new bill.");
-            }
+            if (silverItemForm) silverItemForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // <-- CORRECTED
+                console.log("silverItemForm submit handler started");
+                const name = document.getElementById('silver-item-name').value; if (!name) { alert('Please enter silver item name.'); return; } const weight = parseFloat(document.getElementById('silver-item-weight').value); const editingId = document.getElementById('editing-silver-item-id').value; if (isNaN(weight) || weight <= 0) { alert('Please enter a valid weight for the silver item.'); return; } const value = weight * silverRate; const itemData = { name, weight, value };
+                if (editingId) { const index = silverItems.findIndex(item => item.id == editingId); if (index > -1) silverItems[index] = { ...silverItems[index], ...itemData }; } else { itemData.id = Date.now(); silverItems.push(itemData); }
+                silverItemForm.reset(); document.getElementById('editing-silver-item-id').value = ''; document.getElementById('add-silver-item-btn').textContent = 'Add Silver Item'; document.getElementById('silver-item-name').focus();
+                renderAllLists();
+            });
 
-            if (settingsBtn) settingsBtn.addEventListener('click', () => {
-                if (settingsPanel) settingsPanel.classList.toggle('hidden');
+            if (oldGoldForm) oldGoldForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // <-- CORRECTED
+                console.log("oldGoldForm submit handler started");
+                const name = document.getElementById('old-item-name').value; if (!name) { alert('Please enter old gold item name.'); return; } const netWeight = parseFloat(document.getElementById('old-item-weight').value); const purityPercent = parseFloat(document.getElementById('old-item-purity').value); const editingId = document.getElementById('editing-old-gold-item-id').value; if (isNaN(netWeight) || netWeight <= 0 || isNaN(purityPercent) || purityPercent <= 0 || purityPercent > 100) { alert('Please enter a valid weight and purity (1-100%) for old gold.'); return; } const purityAdjustedWeight = netWeight * (purityPercent / 91.6); const goldValue = purityAdjustedWeight * goldRate22k; const itemData = { name, netWeight, purityPercent, purityAdjustedWeight, goldValue };
+                if (editingId) { const index = oldGoldItems.findIndex(item => item.id == editingId); if (index > -1) oldGoldItems[index] = { ...oldGoldItems[index], ...itemData }; } else { itemData.id = Date.now(); oldGoldItems.push(itemData); }
+                oldGoldForm.reset(); document.getElementById('editing-old-gold-item-id').value = ''; document.getElementById('add-old-gold-btn').textContent = 'Add Old Gold'; document.getElementById('old-item-name').focus();
+                renderAllLists();
+            });
+
+            if (paymentForm) paymentForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // <-- CORRECTED
+                console.log("paymentForm submit handler started");
+                const mode = document.getElementById('payment-mode').value; const amount = parseFloat(document.getElementById('payment-amount').value); const ref = document.getElementById('payment-ref').value; if (isNaN(amount) || amount <= 0) { alert('Please enter a valid payment amount.'); return; } paymentDetails.push({ id: Date.now(), mode, amount, ref });
+                paymentForm.reset(); document.getElementById('payment-mode').value = 'Cash'; document.getElementById('payment-amount').focus();
+                renderAllLists();
             });
 
             if (shopDetailsForm) shopDetailsForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                shopDetails.name = shopNameInput.value.trim();
-                shopDetails.address = shopAddressInput.value.trim();
-                saveShopDetails();
-                showToast('settings-toast');
+                e.preventDefault(); // <-- CORRECTED
+                console.log("shopDetailsForm submit handler started");
+                shopDetails.name = shopNameInput.value.trim(); shopDetails.address = shopAddressInput.value.trim();
+                saveShopDetails(); showToast('settings-toast');
                 if (settingsPanel) settingsPanel.classList.add('hidden');
+            });
+
+            // ** Other Button Listeners **
+            if (printEstimateBtn) printEstimateBtn.addEventListener('click', sendBluetoothPrint);
+            if (generateBillBtn) generateBillBtn.addEventListener('click', () => {
+                if (items.length === 0 && silverItems.length === 0) { alert("Cannot generate a bill with no items."); return; }
+                const billNumber = `INV-${Date.now().toString().slice(-8)}`; const billDate = new Date().toISOString(); const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim() }; calculateTotals(); const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0); const discount = parseFloat(document.getElementById('discount-input')?.value) || 0; const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid; const billTotals = { goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+                const billData = { billNumber, date: billDate, customer: currentCustomer, items: JSON.parse(JSON.stringify(items)), silverItems: JSON.parse(JSON.stringify(silverItems)), oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)), paymentDetails: JSON.parse(JSON.stringify(paymentDetails)), totals: billTotals, shopDetails: JSON.parse(JSON.stringify(shopDetails)) };
+                billHistory.push(billData);
+                if (saveCustomerCheckbox.checked && currentCustomer.name) { const existingCustomer = customers.find(c => c.name.toLowerCase() === currentCustomer.name.toLowerCase() || (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)); if (!existingCustomer) { customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone }); console.log("New customer saved:", currentCustomer.name); } else { console.log("Customer already exists:", currentCustomer.name); } }
+                saveState(); prepareA4Print(true, billData); alert(`Bill ${billNumber} saved successfully!`); if (confirm("Bill saved to history. Start a new bill now?")) { resetFormLogic(); }
+            });
+            if (resetBtn) resetBtn.addEventListener('click', () => { if (items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0 || paymentDetails.length > 0 || customerNameInput.value || customerPhoneInput.value) { if (confirm('Start a new bill? Current items, customer details, and payments will be cleared.')) { resetFormLogic(); } } else { resetFormLogic(); } });
+            if (settingsBtn) settingsBtn.addEventListener('click', () => { if (settingsPanel) settingsPanel.classList.toggle('hidden'); });
+            if (connectButton) connectButton.addEventListener('click', connectToPrinter);
+            if (recalculateBtn) recalculateBtn.addEventListener('click', calculateTotals);
+
+            // Item List Edit/Delete Listener (Event Delegation)
+            document.body.addEventListener('click', (e) => {
+                const actionBtn = e.target.closest('button[data-id][data-action]'); if (!actionBtn) return; const id = actionBtn.dataset.id; const type = actionBtn.dataset.type; const action = actionBtn.dataset.action;
+                if (action === 'delete') { if (confirm('Are you sure you want to delete this item?')) { if (type === 'gold') items = items.filter(i => i.id != id); else if (type === 'silver') silverItems = silverItems.filter(i => i.id != id); else if (type === 'oldGold') oldGoldItems = oldGoldItems.filter(i => i.id != id); else if (type === 'payment') paymentDetails = paymentDetails.filter(p => p.id != id); renderAllLists(); } }
+                else if (action === 'edit') { let targetForm; if (type === 'gold') { const item = items.find(i => i.id == id); if (!item) return; document.getElementById('item-name').value = item.name; document.getElementById('gross-weight').value = item.grossWeight; document.getElementById('stone-weight').value = item.stoneWeight; document.getElementById('karat').value = item.karat; document.getElementById('making-charge-type').value = item.makingCharge.type; document.getElementById('making-charge-value').value = item.makingCharge.value; document.getElementById('editing-gold-item-id').value = id; document.getElementById('add-gold-item-btn').textContent = 'Update Gold Item'; targetForm = itemForm; targetForm.querySelector('input').focus(); } else if (type === 'silver') { const item = silverItems.find(i => i.id == id); if (!item) return; document.getElementById('silver-item-name').value = item.name; document.getElementById('silver-item-weight').value = item.weight; document.getElementById('editing-silver-item-id').value = id; document.getElementById('add-silver-item-btn').textContent = 'Update Silver Item'; targetForm = silverItemForm; targetForm.querySelector('input').focus(); } else if (type === 'oldGold') { const item = oldGoldItems.find(i => i.id == id); if (!item) return; document.getElementById('old-item-name').value = item.name; document.getElementById('old-item-weight').value = item.netWeight; document.getElementById('old-item-purity').value = item.purityPercent; document.getElementById('editing-old-gold-item-id').value = id; document.getElementById('add-old-gold-btn').textContent = 'Update Old Gold'; targetForm = oldGoldForm; targetForm.querySelector('input').focus(); } if (targetForm) { targetForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
             });
 
             // Customer Modal Listeners
@@ -1510,8 +1340,12 @@
             if (historyBtn) historyBtn.addEventListener('click', openHistoryModal);
             if (closeHistoryModal) closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
 
+            // Input listener for live calculation (delegated)
+            if (appBody) appBody.addEventListener('input', (e) => {
+                if (['customer-name', 'customer-phone', 'wastage', 'gst', 'discount-input'].includes(e.target.id)) { calculateTotals(); }
+            });
 
-            // Register the Service Worker for PWA Offline Capability
+            // --- Service Worker Registration ---
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('sw.js')
