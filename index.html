@@ -492,34 +492,88 @@
         </div>
     </div>
 
-    <div class="bill-section p-8 bg-white print-visible">
-        <div class="text-center mb-8">
-            <h1 id="shop-name-print" class="text-2xl font-bold text-gray-800">JewelBill</h1>
-            <p id="shop-address-print" class="text-xs text-gray-500"></p>
-        </div>
-        <div class="text-center mb-6">
-            <h2 id="invoice-title-print" class="text-xl font-bold underline">ESTIMATE</h2>
-        </div>
-        <div class="flex justify-between border-y py-2 mb-4 text-xs">
-            <div>
-                <p><strong>Bill No:</strong> <span id="bill-no-print"></span></p>
-                <p><strong>Date:</strong> <span id="bill-date-print"></span></p>
+    <div class="bill-section bg-white p-6 print-visible" style="width: 210mm; min-height: 297mm; /* A4 size approximation */">
+        <div class="flex justify-between items-start mb-8">
+            <div class="text-xs text-gray-600 space-y-1">
+                <p><strong>Phone:</strong> <span id="shop-phone-print">(Set in Settings)</span></p>
+                <p><strong>Email:</strong> <span id="shop-email-print">(Set in Settings)</span></p>
+                <p><strong>Web:</strong> <span id="shop-web-print">(Set in Settings)</span></p>
+                <p><strong>Address:</strong> <span id="shop-address-print">(Set in Settings)</span></p>
             </div>
-            <div>
-                <p><strong>Customer:</strong> <span id="customer-name-print"></span></p>
-                <p><strong>Phone:</strong> <span id="customer-phone-print"></span></p>
+            <div class="text-right">
+                <div class="w-32 h-32 bg-gray-700 flex items-center justify-center mb-1">
+                     <span class="text-4xl font-bold text-yellow-500">AJ</span> 
+                 </div>
+                 <h2 id="shop-name-print" class="text-xl font-bold text-yellow-600">JewelBill</h2> 
             </div>
         </div>
-        <div id="items-list-print" class="mb-4"></div>
-        <div id="silver-items-list-print" class="mb-4"></div>
-        <div id="old-gold-list-print" class="mb-4"></div>
-        <div class="flex justify-end mt-6">
-            <div id="summary-section-print" class="w-1/2"></div>
+
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h1 class="text-4xl font-semibold text-yellow-600 border-b-2 border-yellow-600 pb-1 inline-block">INVOICE</h1>
+            </div>
+            <div class="text-right text-sm">
+                <p><strong>Invoice No:</strong> <span id="bill-no-print">AJ000</span></p>
+                <p><strong>Date:</strong> <span id="bill-date-print">DD/MM/YYYY</span></p>
+            </div>
         </div>
-        <div id="payment-list-print" class="mt-4"></div>
-        <div class="mt-12 text-center text-xs text-gray-500">
-            <p>Thank you for your business!</p>
-            <p>This is a computer-generated document.</p>
+
+        <div class="mb-6 border-t border-b border-gray-200 py-2">
+            <h3 class="text-sm font-semibold mb-1 text-gray-700">Bill To:</h3>
+            <p id="customer-name-print" class="text-sm font-medium">Customer Name</p>
+            <p id="customer-phone-print" class="text-sm text-gray-600">Customer Phone</p>
+        </div>
+
+        <div class="mb-8">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-t-2 border-b-2 border-pink-500 text-pink-700">
+                        <th class="p-2 font-semibold">ITEM</th>
+                        <th class="p-2 font-semibold text-right">WEIGHT (Net)</th>
+                        <th class="p-2 font-semibold text-right">RATE</th>
+                        <th class="p-2 font-semibold text-right">VALUE</th>
+                        <th class="p-2 font-semibold text-right">MAKING CHG.</th>
+                        <th class="p-2 font-semibold text-right">SUBTOTAL</th>
+                    </tr>
+                </thead>
+                <tbody id="items-list-print">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="old-gold-section-print" class="mb-8 hidden">
+             <h3 class="text-sm font-semibold mb-1 text-gray-700">Old Gold Exchange Details:</h3>
+             <table class="w-full text-left text-xs">
+                 <thead>
+                     <tr class="border-t border-b border-gray-300 text-gray-600">
+                         <th class="p-2 font-semibold">ITEM</th>
+                         <th class="p-2 font-semibold text-right">WEIGHT (Net)</th>
+                         <th class="p-2 font-semibold text-right">PURITY</th>
+                         <th class="p-2 font-semibold text-right">RATE</th>
+                         <th class="p-2 font-semibold text-right">VALUE (-)</th>
+                     </tr>
+                 </thead>
+                 <tbody id="old-gold-list-print">
+                     </tbody>
+             </table>
+        </div>
+
+
+        <div class="flex justify-end mb-8">
+            <div class="w-1/2 md:w-1/3 text-xs space-y-1" id="summary-section-print">
+                </div>
+        </div>
+
+        <div id="payment-section-print" class="mb-8 hidden">
+             <h3 class="text-sm font-semibold mb-1 text-gray-700">Payment Details:</h3>
+             <div id="payment-list-print" class="text-xs space-y-1">
+                 </div>
+        </div>
+
+        <div class="border-t pt-4 text-xs text-gray-500">
+            <p class="font-semibold mb-1">Terms & Conditions:</p>
+            <p>1. Goods once sold will not be taken back. Exchange possible within 7 days with bill. 2. Calculations are approximate based on provided weights and rates. 3. All disputes subject to Chennai jurisdiction.</p>
+            <p class="mt-4 text-center">Thank you for your business!</p>
         </div>
     </div>
 
@@ -693,18 +747,27 @@
             };
 
            // --- Calculation Logic ---
-            const calculateTotals = () => {
+            const calculateTotals = (returnObject = false) => {
                  if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) { console.error("CalculateTotals: Missing essential elements."); return; };
                  const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {}; const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
                  if (totalItemsInBill === 0) { summarySection.classList.add('hidden'); chargesConfig.classList.add('hidden'); actionButtons.classList.add('hidden'); paymentSection.classList.add('hidden'); saveState(); return; }
                  chargesConfig.classList.remove('hidden'); actionButtons.classList.remove('hidden'); paymentSection.classList.remove('hidden');
                  const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
                  let discount = 0; const discountInput = document.getElementById('discount-input'); if (discountInput) { discount = parseFloat(discountInput.value) || 0; } else { discount = parseFloat(savedState.discount) || 0; } // Ensure discount is number
-                 const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid;
+                 const netPayable = grandTotal - oldGoldTotal - discount; 
+                 const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); 
+                 const balanceDue = netPayable - totalPaid;
                  let summaryHTML = `<div class="space-y-2 text-sm">`; if (goldSubtotal > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`; } if (silverSubtotal > 0) { summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`; } summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div><div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`; if (oldGoldTotal > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`; } summaryHTML += `<div class="grid grid-cols-1 gap-4 pt-4 no-print"><div><label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label><input type="number" id="discount-input" value="${(discount || 0).toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00"></div></div>`; if (discount > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`; } summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div><div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div><div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div></div>`;
                  summarySection.innerHTML = summaryHTML; summarySection.classList.remove('hidden'); const newDiscountInput = document.getElementById('discount-input'); if (newDiscountInput) { newDiscountInput.addEventListener('input', calculateTotals); }
-                 saveState();
-            };
+                if(returnObject) {
+                     // Return the calculated totals if requested
+                     return { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+                 } 
+                 // *** If not returning object, save state here ***
+                 else {
+                    saveState(); 
+                 }
+             };
 
             // --- Customer Modal Logic ---
             const openCustomerModal = () => { if (!customerModal || !customerListModal) return; renderCustomerListModal(); customerModal.classList.remove('hidden'); if (customerSearch) customerSearch.focus(); };
@@ -796,39 +859,179 @@
             };
 
            // --- Print Functions ---
+            // *** REVISED prepareA4Print Function ***
             const prepareA4Print = (isFinalBill, billData = null) => {
-                const displayData = billData || { billNumber: `EST${Date.now().toString().slice(-6)}`, date: new Date().toISOString(), customer: { name: customerNameInput.value, phone: customerPhoneInput.value }, items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails, totals: {}, shopDetails: shopDetails };
-                const shopNamePrint = document.getElementById('shop-name-print'); const invoiceTitlePrint = document.getElementById('invoice-title-print'); const shopAddressPrint = document.getElementById('shop-address-print'); const billNoPrint = document.getElementById('bill-no-print'); const billDatePrint = document.getElementById('bill-date-print'); const customerNamePrint = document.getElementById('customer-name-print'); const customerPhonePrint = document.getElementById('customer-phone-print'); const itemsListPrint = document.getElementById('items-list-print'); const silverItemsListPrint = document.getElementById('silver-items-list-print'); const oldGoldListPrint = document.getElementById('old-gold-list-print'); const summarySectionPrint = document.getElementById('summary-section-print'); const paymentListPrint = document.getElementById('payment-list-print'); const billSectionTarget = document.querySelector('.bill-section');
-                if (!shopNamePrint || !invoiceTitlePrint || !shopAddressPrint || !billNoPrint || !billDatePrint || !customerNamePrint || !customerPhonePrint || !itemsListPrint || !silverItemsListPrint || !oldGoldListPrint || !summarySectionPrint || !paymentListPrint || !billSectionTarget) { console.error("prepareA4Print: Print elements not found!"); return; }
-                shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill'; invoiceTitlePrint.textContent = isFinalBill ? (billData ? 'DUPLICATE INVOICE' : 'FINAL INVOICE') : 'ESTIMATE'; shopAddressPrint.textContent = displayData.shopDetails?.address || ''; billNoPrint.textContent = displayData.billNumber; billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); customerNamePrint.textContent = displayData.customer?.name || 'N/A'; customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
-                if (displayData.items?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mb-2">GOLD ITEMS</h3>...<tbody>`; const tableRows = displayData.items.map(item => { const mc = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value; return `<tr class="border-b"><td class="p-1">${item.name} (${item.karat}K)</td><td class="p-1 text-right">${item.grossWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.stoneWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td><td class="p-1 text-right">${formatCurrency(mc)}</td></tr>`; }).join(''); itemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { itemsListPrint.innerHTML = ''; }
-                if (displayData.silverItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">SILVER ITEMS</h3>...<tbody>`; const tableRows = displayData.silverItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.weight.toFixed(2)}g</td><td class="p-1 text-right">${formatCurrency(item.value)}</td></tr> `).join(''); silverItemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { silverItemsListPrint.innerHTML = ''; }
-                if (displayData.oldGoldItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">OLD GOLD EXCHANGE</h3>...<tbody>`; const tableRows = displayData.oldGoldItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.netWeight.toFixed(2)}g</td><td class="p-1 text-right">${item.purityPercent}%</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td></tr> `).join(''); oldGoldListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { oldGoldListPrint.innerHTML = ''; }
-                
-                // *** CORRECTED: Rebuild summary robustly ***
-                summarySectionPrint.innerHTML = ''; const totals = billData?.totals;
+                const displayData = billData || {
+                    billNumber: `EST-${Date.now().toString().slice(-6)}`,
+                    date: new Date().toISOString(),
+                    customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
+                    items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails,
+                    // Use live calculated totals if it's an estimate reprint without saved totals
+                    totals: calculateTotals(true), // Pass true to return calculated totals object
+                    shopDetails: shopDetails
+                };
+
+                // Get element references
+                const shopNamePrint = document.getElementById('shop-name-print');
+                const shopAddressPrint = document.getElementById('shop-address-print');
+                // Add selectors for new optional header fields
+                const shopPhonePrint = document.getElementById('shop-phone-print');
+                const shopEmailPrint = document.getElementById('shop-email-print');
+                const shopWebPrint = document.getElementById('shop-web-print');
+
+                const invoiceTitlePrint = document.getElementById('invoice-title-print');
+                const billNoPrint = document.getElementById('bill-no-print');
+                const billDatePrint = document.getElementById('bill-date-print');
+                const customerNamePrint = document.getElementById('customer-name-print');
+                const customerPhonePrint = document.getElementById('customer-phone-print');
+                const itemsListPrint = document.getElementById('items-list-print'); // This tbody will hold gold AND silver
+                const oldGoldSectionPrint = document.getElementById('old-gold-section-print');
+                const oldGoldListPrint = document.getElementById('old-gold-list-print'); // tbody for old gold
+                const summarySectionPrint = document.getElementById('summary-section-print');
+                const paymentSectionPrint = document.getElementById('payment-section-print');
+                const paymentListPrint = document.getElementById('payment-list-print');
+                const billSectionTarget = document.querySelector('.bill-section');
+
+                // --- Populate Header ---
+                if(shopNamePrint) shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill';
+                if(shopAddressPrint) shopAddressPrint.textContent = displayData.shopDetails?.address?.split(', Phone:')[0] || ''; // Basic split
+                // Populate optional header fields (extract from address or add dedicated fields in settings)
+                const addressString = displayData.shopDetails?.address || '';
+                const phoneMatch = addressString.match(/Phone:\s*(\S+)/);
+                 if(shopPhonePrint) shopPhonePrint.textContent = phoneMatch ? phoneMatch[1] : '(Not Set)';
+                 if(shopEmailPrint) shopEmailPrint.textContent = '(Not Set)'; // Add fields in settings later
+                 if(shopWebPrint) shopWebPrint.textContent = '(Not Set)'; // Add fields in settings later
+
+                if(invoiceTitlePrint) invoiceTitlePrint.textContent = isFinalBill ? (billData ? 'DUPLICATE INVOICE' : 'FINAL INVOICE') : 'ESTIMATE';
+                if(billNoPrint) billNoPrint.textContent = displayData.billNumber;
+                if(billDatePrint) billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                if(customerNamePrint) customerNamePrint.textContent = displayData.customer?.name || 'N/A';
+                if(customerPhonePrint) customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
+
+                // --- Populate Items Table (Gold & Silver combined) ---
+                itemsListPrint.innerHTML = ''; // Clear previous items
+                let itemRowsHTML = '';
+                const allItems = [...(displayData.items || []), ...(displayData.silverItems || [])];
+
+                allItems.forEach(item => {
+                    let itemName = item.name;
+                    let netWeight = item.netWeight?.toFixed(3) || item.weight?.toFixed(2);
+                    let rate = 0;
+                    let value = 0;
+                    let makingCharge = 0;
+                    let subtotal = 0;
+                    let isGold = item.hasOwnProperty('karat'); // Check if it's a gold item
+
+                    if (isGold) {
+                         itemName += ` (${item.karat}K)`;
+                         // Use rate from totals if available (for reprints), else current rate
+                         const rateUsed = displayData.totals?.goldRate22k || goldRate22k;
+                         // Recalculate value based on the rate used for the bill
+                         value = (item.purityAdjustedWeight || (item.netWeight * (item.karat / 22))) * rateUsed;
+                         rate = rateUsed;
+                         makingCharge = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value;
+                         subtotal = value + makingCharge;
+                    } else { // Silver item
+                         // Use rate from totals if available, else current rate
+                         const rateUsed = displayData.totals?.silverRate || silverRate;
+                         // Recalculate value
+                         value = item.weight * rateUsed;
+                         rate = rateUsed;
+                         subtotal = value; // No making charge for silver in this structure
+                         netWeight = item.weight?.toFixed(2); // Ensure silver weight is shown
+                    }
+
+                    itemRowsHTML += `
+                        <tr class="border-b border-gray-200">
+                            <td class="p-2">${itemName}</td>
+                            <td class="p-2 text-right">${netWeight || '-'}g</td>
+                            <td class="p-2 text-right">${formatCurrency(rate)}</td>
+                            <td class="p-2 text-right">${formatCurrency(value)}</td>
+                            <td class="p-2 text-right">${isGold ? formatCurrency(makingCharge) : '-'}</td>
+                            <td class="p-2 text-right">${formatCurrency(subtotal)}</td>
+                        </tr>
+                    `;
+                });
+                itemsListPrint.innerHTML = itemRowsHTML;
+
+                // --- Populate Old Gold Table ---
+                if (displayData.oldGoldItems?.length > 0) {
+                     oldGoldListPrint.innerHTML = '';
+                     let oldGoldRowsHTML = '';
+                     const rateUsed = displayData.totals?.goldRate22k || goldRate22k; // Rate used for exchange
+
+                     displayData.oldGoldItems.forEach(item => {
+                         // Recalculate value based on the rate used
+                         const value = (item.purityAdjustedWeight || (item.netWeight * (item.purityPercent / 91.6))) * rateUsed;
+                         oldGoldRowsHTML += `
+                             <tr class="border-b border-gray-200">
+                                 <td class="p-2">${item.name}</td>
+                                 <td class="p-2 text-right">${item.netWeight.toFixed(2)}g</td>
+                                 <td class="p-2 text-right">${item.purityPercent}%</td>
+                                 <td class="p-2 text-right">${formatCurrency(rateUsed)}</td>
+                                 <td class="p-2 text-right">${formatCurrency(value)}</td>
+                             </tr>
+                         `;
+                     });
+                     oldGoldListPrint.innerHTML = oldGoldRowsHTML;
+                     oldGoldSectionPrint.classList.remove('hidden');
+                } else {
+                    oldGoldSectionPrint.classList.add('hidden');
+                    oldGoldListPrint.innerHTML = '';
+                }
+
+                // --- Populate Summary Section ---
+                summarySectionPrint.innerHTML = ''; // Clear previous
+                const totals = displayData.totals; // Use calculated/saved totals
                 if (totals) {
-                    let summaryHTML = `<div class="space-y-1 text-xs" style="font-size: 11px;">`;
-                    // Add default 0 if value is missing/undefined before formatting
-                    if ((totals.goldSubtotal || 0) > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(totals.goldSubtotal || 0)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${totals.wastagePercent || 0}%)</span><span class="font-semibold">${formatCurrency(totals.wastageValue || 0)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(totals.goldMakingCharges || 0)}</span></div>`; }
-                    if ((totals.silverSubtotal || 0) > 0) { summaryHTML += `<div class="flex justify-between ${(totals.goldSubtotal || 0) > 0 ? 'border-t mt-1 pt-1' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(totals.silverSubtotal || 0)}</span></div>`; }
-                    summaryHTML += `<div class="flex justify-between font-bold border-t pt-1 mt-1"><span>Total before GST</span><span>${formatCurrency(totals.totalBeforeGst || 0)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${totals.gstPercent || 0}%)</span><span class="font-semibold">${formatCurrency(totals.gstValue || 0)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>Bill Total</span><span>${formatCurrency(totals.grandTotal || 0)}</span></div>`;
-                    if ((totals.oldGoldTotal || 0) > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(totals.oldGoldTotal || 0)}</span></div>`; }
-                    if ((totals.discount || 0) > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(totals.discount || 0)}</span></div>`; }
-                    summaryHTML += `<div class="flex justify-between text-base font-bold bg-yellow-100 p-1 rounded-md mt-1"><span>Net Amount Payable</span><span>${formatCurrency(totals.netPayable || 0)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between text-xs font-semibold mt-1 pt-1 border-t"><span>Total Paid</span><span>${formatCurrency(totals.totalPaid || 0)}</span></div>`;
-                    summaryHTML += `<div class="flex justify-between text-base font-bold ${(totals.balanceDue || 0) > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue || 0)}</span></div>`;
-                    summaryHTML += `</div>`;
+                    let summaryHTML = ``;
+                     // Use totals calculated by calculateTotals(true) or from billData.totals
+                    const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0);
+
+                     summaryHTML += `<div class="flex justify-between border-t pt-1"><span class="font-semibold">Subtotal</span><span class="font-semibold">${formatCurrency(combinedItemSubtotal)}</span></div>`;
+                    if ((totals.wastageValue || 0) > 0) { // Only show wastage if applicable
+                         summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Wastage (${totals.wastagePercent || 0}%)</span><span>${formatCurrency(totals.wastageValue || 0)}</span></div>`;
+                     }
+                     summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Tax/GST (${totals.gstPercent || 0}%)</span><span>${formatCurrency(totals.gstValue || 0)}</span></div>`;
+
+                    if ((totals.oldGoldTotal || 0) > 0) {
+                        summaryHTML += `<div class="flex justify-between text-blue-600"><span class="">Less: Old Gold</span><span>- ${formatCurrency(totals.oldGoldTotal || 0)}</span></div>`;
+                    }
+                    if ((totals.discount || 0) > 0) {
+                        summaryHTML += `<div class="flex justify-between text-red-600"><span class="">Discount</span><span>- ${formatCurrency(totals.discount || 0)}</span></div>`;
+                    }
+                     // Use pink border for Total like template
+                     summaryHTML += `<div class="flex justify-between border-t border-b-2 border-pink-500 py-1 my-1 text-sm"><span class="font-bold">TOTAL</span><span class="font-bold">${formatCurrency(totals.netPayable || 0)}</span></div>`;
+
+                    // Add Paid and Due only for final bills
+                    if (isFinalBill) {
+                         summaryHTML += `<div class="flex justify-between text-xs mt-1"><span class="text-gray-600">Total Paid</span><span>${formatCurrency(totals.totalPaid || 0)}</span></div>`;
+                         summaryHTML += `<div class="flex justify-between text-xs font-semibold ${ (totals.balanceDue || 0) > 0.009 ? 'text-red-600' : 'text-green-600' }"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue || 0)}</span></div>`;
+                     }
+
                     summarySectionPrint.innerHTML = summaryHTML;
-                } else { summarySectionPrint.innerHTML = '<p class="text-xs text-red-500">Error: Summary data missing for reprint.</p>'; }
-                // *** END SUMMARY CORRECTION ***
+                } else {
+                    summarySectionPrint.innerHTML = '<p class="text-xs text-red-500">Error: Summary data missing.</p>';
+                }
 
-                if (isFinalBill) { if (displayData.paymentDetails?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">PAYMENTS</h3>...<tbody>`; const tableRows = displayData.paymentDetails.map(p => `...`).join(''); paymentListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { paymentListPrint.innerHTML = '<p class="text-xs mt-4 font-semibold">No payments recorded.</p>'; } } else { paymentListPrint.innerHTML = ''; }
-                if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible'); billSectionTarget.classList.add('print-visible'); setTimeout(() => { window.print(); }, 100);
+                // --- Populate Payment Section (Only for final bills) ---
+                if (isFinalBill && displayData.paymentDetails?.length > 0) {
+                    let paymentHTML = '';
+                    displayData.paymentDetails.forEach(p => {
+                        paymentHTML += `<p>${p.mode}: ${formatCurrency(p.amount)} ${p.ref ? `(${p.ref})` : ''}</p>`;
+                    });
+                    paymentListPrint.innerHTML = paymentHTML;
+                    paymentSectionPrint.classList.remove('hidden');
+                } else {
+                    paymentSectionPrint.classList.add('hidden');
+                    paymentListPrint.innerHTML = '';
+                }
+
+                // --- Prepare for Print ---
+                if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible');
+                billSectionTarget.classList.add('print-visible');
+                setTimeout(() => { window.print(); }, 150); // Slightly longer timeout
             };
-
             // Thermal Print - Prepare HTML (Returns String)
             const prepareThermalPrint = (billData = null) => {
                  // Determine if using saved data or live data
