@@ -533,22 +533,17 @@
             const goldRateInput = document.getElementById('gold-rate-input');
             const silverRateInput = document.getElementById('silver-rate-input');
             const setRatesBtn = document.getElementById('set-rates-btn');
-            console.log("Found setRatesBtn:", setRatesBtn); // Keep log
             const ratesInputContainer = document.getElementById('rates-input-container');
             const ratesDisplay = document.getElementById('rates-display');
             const goldRateDisplay = document.getElementById('gold-rate-display');
             const silverRateDisplay = document.getElementById('silver-rate-display');
             const editRatesBtn = document.getElementById('edit-rates-btn');
-            console.log("Found editRatesBtn:", editRatesBtn); // Keep log
             const appBody = document.getElementById('app-body');
             const itemForm = document.getElementById('item-form');
-            console.log("Found itemForm:", itemForm); // Keep log
             const itemsList = document.getElementById('items-list');
             const silverItemForm = document.getElementById('silver-item-form');
-            console.log("Found silverItemForm:", silverItemForm); // Keep log
             const silverItemsList = document.getElementById('silver-items-list');
             const oldGoldForm = document.getElementById('old-gold-form');
-            console.log("Found oldGoldForm:", oldGoldForm); // Keep log
             const oldGoldList = document.getElementById('old-gold-list');
             const chargesConfig = document.getElementById('charges-config');
             const summarySection = document.getElementById('summary-section');
@@ -564,15 +559,13 @@
             const settingsBtn = document.getElementById('settings-btn');
             const settingsPanel = document.getElementById('settings-panel');
             const shopDetailsForm = document.getElementById('shop-details-form');
-            console.log("Found shopDetailsForm:", shopDetailsForm); // Keep log
             const shopNameInput = document.getElementById('shop-name');
             const shopAddressInput = document.getElementById('shop-address');
             const paymentSection = document.getElementById('payment-section');
             const paymentForm = document.getElementById('payment-form');
-            console.log("Found paymentForm:", paymentForm); // Keep log
             const paymentList = document.getElementById('payment-list');
-            const thermalReceiptSection = document.getElementById('thermal-receipt-section'); // For CSS styling
-            const billSection = document.querySelector('.bill-section'); // For A4 print
+            const thermalReceiptSection = document.getElementById('thermal-receipt-section');
+            const billSection = document.querySelector('.bill-section');
             const connectButton = document.getElementById('btn-connect');
             const statusLabel = document.getElementById('status-label');
             const selectCustomerBtn = document.getElementById('select-customer-btn');
@@ -596,7 +589,8 @@
             // --- Helper Functions ---
             const formatCurrency = (value) => {
                 const num = parseFloat(value);
-                if (isNaN(num)) { return '₹ -.--'; }
+                // Return '₹ 0.00' for invalid numbers instead of '₹ -.--'
+                if (isNaN(num)) { return '₹ 0.00'; }
                 return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             };
             const generateNextBillNumber = () => {
@@ -613,32 +607,33 @@
                 localStorage.setItem('jewelBillHistory', JSON.stringify(billHistory));
                 localStorage.setItem('jewelBillLastBillNum', lastBillNum.toString());
             };
-
             const loadState = () => {
                 customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
                 billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
                 shopDetails = JSON.parse(localStorage.getItem('jewelBillShopDetails')) || {};
                 lastBillNum = parseInt(localStorage.getItem('jewelBillLastBillNum')) || 0;
-                shopNameInput.value = shopDetails.name || ''; shopAddressInput.value = shopDetails.address || '';
+                if(shopNameInput) shopNameInput.value = shopDetails.name || '';
+                if(shopAddressInput) shopAddressInput.value = shopDetails.address || '';
                 const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
-                if (savedRates) { goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0; goldRateInput.value = goldRate22k || ''; silverRateInput.value = silverRate || ''; }
+                if (savedRates) { goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0; if(goldRateInput) goldRateInput.value = goldRate22k || ''; if(silverRateInput) silverRateInput.value = silverRate || ''; }
                 const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
                 if (!savedCurrentState) { updateRateDisplay(!(goldRate22k > 0 && silverRate > 0)); return; }
                 const state = JSON.parse(savedCurrentState);
                 goldRate22k = state.goldRate22k || goldRate22k; silverRate = state.silverRate || silverRate;
-                customerNameInput.value = state.customerName || ''; customerPhoneInput.value = state.customerPhone || '';
+                if(customerNameInput) customerNameInput.value = state.customerName || '';
+                if(customerPhoneInput) customerPhoneInput.value = state.customerPhone || '';
                 items = state.items || []; silverItems = state.silverItems || []; oldGoldItems = state.oldGoldItems || []; paymentDetails = state.paymentDetails || [];
-                wastageInput.value = state.wastage || '12'; gstInput.value = state.gst || '3';
+                if(wastageInput) wastageInput.value = state.wastage || '12';
+                if(gstInput) gstInput.value = state.gst || '3';
                 if (state.ratesSet && goldRate22k > 0 && silverRate > 0) { updateRateDisplay(false); renderAllLists(); showToast('restore-toast'); } else { updateRateDisplay(true); }
             };
-
             const saveRates = () => {
                 localStorage.setItem('jewelBillRates', JSON.stringify({ goldRate22k, silverRate }));
                 const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
                 currentState.goldRate22k = goldRate22k; currentState.silverRate = silverRate;
                 currentState.ratesSet = goldRate22k > 0 && silverRate > 0;
                 localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
-            }
+            };
             const saveShopDetails = () => { localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails)); }
 
             const showToast = (id) => {
@@ -697,18 +692,18 @@
                 }
             };
 
-            // --- Calculation Logic ---
+           // --- Calculation Logic ---
             const calculateTotals = () => {
-                if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) { console.error("CalculateTotals: Missing essential elements."); return; };
-                const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {}; const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
-                if (totalItemsInBill === 0) { summarySection.classList.add('hidden'); chargesConfig.classList.add('hidden'); actionButtons.classList.add('hidden'); paymentSection.classList.add('hidden'); saveState(); return; }
-                chargesConfig.classList.remove('hidden'); actionButtons.classList.remove('hidden'); paymentSection.classList.remove('hidden');
-                const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
-                let discount = 0; const discountInput = document.getElementById('discount-input'); if (discountInput) { discount = parseFloat(discountInput.value) || 0; } else { discount = savedState.discount || 0; }
-                const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid;
-                let summaryHTML = `<div class="space-y-2 text-sm">`; if (goldSubtotal > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`; } if (silverSubtotal > 0) { summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`; } summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div><div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`; if (oldGoldTotal > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`; } summaryHTML += `<div class="grid grid-cols-1 gap-4 pt-4 no-print"><div><label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label><input type="number" id="discount-input" value="${(parseFloat(discount) || 0).toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00"></div></div>`; if (discount > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`; } summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div><div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div><div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div></div>`;
-                summarySection.innerHTML = summaryHTML; summarySection.classList.remove('hidden'); const newDiscountInput = document.getElementById('discount-input'); if (newDiscountInput) { newDiscountInput.addEventListener('input', calculateTotals); }
-                saveState();
+                 if (!summarySection || !chargesConfig || !actionButtons || !paymentSection || !wastageInput || !gstInput) { console.error("CalculateTotals: Missing essential elements."); return; };
+                 const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {}; const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
+                 if (totalItemsInBill === 0) { summarySection.classList.add('hidden'); chargesConfig.classList.add('hidden'); actionButtons.classList.add('hidden'); paymentSection.classList.add('hidden'); saveState(); return; }
+                 chargesConfig.classList.remove('hidden'); actionButtons.classList.remove('hidden'); paymentSection.classList.remove('hidden');
+                 const wastagePercent = parseFloat(wastageInput.value) || 0; const gstPercent = parseFloat(gstInput.value) || 0; const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0); const wastageValue = (goldSubtotal * wastagePercent) / 100; const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0); const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0); const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal; const gstValue = (totalBeforeGst * gstPercent) / 100; const grandTotal = totalBeforeGst + gstValue; const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
+                 let discount = 0; const discountInput = document.getElementById('discount-input'); if (discountInput) { discount = parseFloat(discountInput.value) || 0; } else { discount = parseFloat(savedState.discount) || 0; } // Ensure discount is number
+                 const netPayable = grandTotal - oldGoldTotal - discount; const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0); const balanceDue = netPayable - totalPaid;
+                 let summaryHTML = `<div class="space-y-2 text-sm">`; if (goldSubtotal > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(goldSubtotal)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`; } if (silverSubtotal > 0) { summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`; } summaryHTML += `<div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div><div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`; if (oldGoldTotal > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`; } summaryHTML += `<div class="grid grid-cols-1 gap-4 pt-4 no-print"><div><label for="discount-input" class="block text-sm font-medium text-gray-600 mb-1">Discount (-)</label><input type="number" id="discount-input" value="${(discount || 0).toFixed(2)}" class="w-full p-2 border border-gray-300 rounded-md" placeholder="0.00"></div></div>`; if (discount > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(discount)}</span></div>`; } summaryHTML += `<div class="flex justify-between text-xl font-bold bg-yellow-100 p-2 rounded-md mt-2"><span>Net Amount Payable</span><span>${formatCurrency(netPayable)}</span></div><div class="flex justify-between text-lg font-semibold mt-2 pt-2 border-t"><span>Total Paid</span><span>${formatCurrency(totalPaid)}</span></div><div class="flex justify-between text-xl font-bold ${balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(balanceDue)}</span></div></div>`;
+                 summarySection.innerHTML = summaryHTML; summarySection.classList.remove('hidden'); const newDiscountInput = document.getElementById('discount-input'); if (newDiscountInput) { newDiscountInput.addEventListener('input', calculateTotals); }
+                 saveState();
             };
 
             // --- Customer Modal Logic ---
@@ -800,50 +795,37 @@
                 console.log('> Bluetooth Device disconnected');
             };
 
-            // --- Print Functions ---
-
-            // --- Print Functions ---
+           // --- Print Functions ---
             const prepareA4Print = (isFinalBill, billData = null) => {
                 const displayData = billData || { billNumber: `EST${Date.now().toString().slice(-6)}`, date: new Date().toISOString(), customer: { name: customerNameInput.value, phone: customerPhoneInput.value }, items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails, totals: {}, shopDetails: shopDetails };
                 const shopNamePrint = document.getElementById('shop-name-print'); const invoiceTitlePrint = document.getElementById('invoice-title-print'); const shopAddressPrint = document.getElementById('shop-address-print'); const billNoPrint = document.getElementById('bill-no-print'); const billDatePrint = document.getElementById('bill-date-print'); const customerNamePrint = document.getElementById('customer-name-print'); const customerPhonePrint = document.getElementById('customer-phone-print'); const itemsListPrint = document.getElementById('items-list-print'); const silverItemsListPrint = document.getElementById('silver-items-list-print'); const oldGoldListPrint = document.getElementById('old-gold-list-print'); const summarySectionPrint = document.getElementById('summary-section-print'); const paymentListPrint = document.getElementById('payment-list-print'); const billSectionTarget = document.querySelector('.bill-section');
                 if (!shopNamePrint || !invoiceTitlePrint || !shopAddressPrint || !billNoPrint || !billDatePrint || !customerNamePrint || !customerPhonePrint || !itemsListPrint || !silverItemsListPrint || !oldGoldListPrint || !summarySectionPrint || !paymentListPrint || !billSectionTarget) { console.error("prepareA4Print: Print elements not found!"); return; }
-                shopNamePrint.textContent = displayData.shopDetails?.name || 'Ashok Jewellers'; invoiceTitlePrint.textContent = isFinalBill ? (billData ? 'DUPLICATE INVOICE' : 'FINAL INVOICE') : 'ESTIMATE'; shopAddressPrint.textContent = displayData.shopDetails?.address || ''; billNoPrint.textContent = displayData.billNumber; billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); customerNamePrint.textContent = displayData.customer?.name || 'N/A'; customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
-                if (displayData.items?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mb-2">GOLD ITEMS</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Gross Wt.</th><th class="p-1 text-right">Stone Wt.</th><th class="p-1 text-right">Net Wt.</th><th class="p-1 text-right">Value</th><th class="p-1 text-right">MC</th></tr></thead><tbody>`; const tableRows = displayData.items.map(item => { const mc = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value; return `<tr class="border-b"><td class="p-1">${item.name} (${item.karat}K)</td><td class="p-1 text-right">${item.grossWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.stoneWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td><td class="p-1 text-right">${formatCurrency(mc)}</td></tr>`; }).join(''); itemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { itemsListPrint.innerHTML = ''; }
-                if (displayData.silverItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">SILVER ITEMS</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Weight</th><th class="p-1 text-right">Value</th></tr></thead><tbody>`; const tableRows = displayData.silverItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.weight.toFixed(2)}g</td><td class="p-1 text-right">${formatCurrency(item.value)}</td></tr> `).join(''); silverItemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { silverItemsListPrint.innerHTML = ''; }
-                if (displayData.oldGoldItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">OLD GOLD EXCHANGE</h3><table class="w-full text-left" style="font-size: 11px;"><thead><tr class="border-b"><th class="p-1">Item</th><th class="p-1 text-right">Net Wt.</th><th class="p-1 text-right">Purity</th><th class="p-1 text-right">Value</th></tr></thead><tbody>`; const tableRows = displayData.oldGoldItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.netWeight.toFixed(2)}g</td><td class="p-1 text-right">${item.purityPercent}%</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td></tr> `).join(''); oldGoldListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { oldGoldListPrint.innerHTML = ''; }
-                summarySectionPrint.innerHTML = ''; // Clear previous
-                const totals = billData?.totals;
+                shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill'; invoiceTitlePrint.textContent = isFinalBill ? (billData ? 'DUPLICATE INVOICE' : 'FINAL INVOICE') : 'ESTIMATE'; shopAddressPrint.textContent = displayData.shopDetails?.address || ''; billNoPrint.textContent = displayData.billNumber; billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); customerNamePrint.textContent = displayData.customer?.name || 'N/A'; customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
+                if (displayData.items?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mb-2">GOLD ITEMS</h3>...<tbody>`; const tableRows = displayData.items.map(item => { const mc = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value; return `<tr class="border-b"><td class="p-1">${item.name} (${item.karat}K)</td><td class="p-1 text-right">${item.grossWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.stoneWeight.toFixed(3)}g</td><td class="p-1 text-right">${item.netWeight.toFixed(3)}g</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td><td class="p-1 text-right">${formatCurrency(mc)}</td></tr>`; }).join(''); itemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { itemsListPrint.innerHTML = ''; }
+                if (displayData.silverItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">SILVER ITEMS</h3>...<tbody>`; const tableRows = displayData.silverItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.weight.toFixed(2)}g</td><td class="p-1 text-right">${formatCurrency(item.value)}</td></tr> `).join(''); silverItemsListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { silverItemsListPrint.innerHTML = ''; }
+                if (displayData.oldGoldItems?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">OLD GOLD EXCHANGE</h3>...<tbody>`; const tableRows = displayData.oldGoldItems.map(item => ` <tr class="border-b"><td class="p-1">${item.name}</td><td class="p-1 text-right">${item.netWeight.toFixed(2)}g</td><td class="p-1 text-right">${item.purityPercent}%</td><td class="p-1 text-right">${formatCurrency(item.goldValue)}</td></tr> `).join(''); oldGoldListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { oldGoldListPrint.innerHTML = ''; }
+                
+                // *** CORRECTED: Rebuild summary robustly ***
+                summarySectionPrint.innerHTML = ''; const totals = billData?.totals;
                 if (totals) {
-                    // Build summary HTML string directly from saved totals
-                    let summaryHTML = `<div class="space-y-1 text-xs" style="font-size: 11px;">`; // Use smaller spacing/font
-                    if (totals.goldSubtotal > 0) {
-                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(totals.goldSubtotal)}</span></div>`;
-                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Wastage (${totals.wastagePercent}%)</span><span class="font-semibold">${formatCurrency(totals.wastageValue)}</span></div>`;
-                        summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(totals.goldMakingCharges)}</span></div>`;
-                    }
-                    if (totals.silverSubtotal > 0) {
-                        summaryHTML += `<div class="flex justify-between ${totals.goldSubtotal > 0 ? 'border-t mt-1 pt-1' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(totals.silverSubtotal)}</span></div>`;
-                    }
-                     summaryHTML += `<div class="flex justify-between font-bold border-t pt-1 mt-1"><span>Total before GST</span><span>${formatCurrency(totals.totalBeforeGst)}</span></div>`;
-                     summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${totals.gstPercent}%)</span><span class="font-semibold">${formatCurrency(totals.gstValue)}</span></div>`;
-                     summaryHTML += `<div class="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>Bill Total</span><span>${formatCurrency(totals.grandTotal)}</span></div>`; // Slightly smaller font
-                    if (totals.oldGoldTotal > 0) {
-                        summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(totals.oldGoldTotal)}</span></div>`;
-                    }
-                    if (totals.discount > 0) { // Check if discount exists in saved data
-                         summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(totals.discount)}</span></div>`;
-                     }
-                     // Use text-base (14px) for Net Payable, slightly smaller than live view's text-lg/xl
-                     summaryHTML += `<div class="flex justify-between text-base font-bold bg-yellow-100 p-1 rounded-md mt-1"><span>Net Amount Payable</span><span>${formatCurrency(totals.netPayable)}</span></div>`;
-                     summaryHTML += `<div class="flex justify-between text-xs font-semibold mt-1 pt-1 border-t"><span>Total Paid</span><span>${formatCurrency(totals.totalPaid)}</span></div>`; // Smaller font for paid/due
-                     summaryHTML += `<div class="flex justify-between text-base font-bold ${totals.balanceDue > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue)}</span></div>`;
+                    let summaryHTML = `<div class="space-y-1 text-xs" style="font-size: 11px;">`;
+                    // Add default 0 if value is missing/undefined before formatting
+                    if ((totals.goldSubtotal || 0) > 0) { summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Gold Value</span><span class="font-semibold">${formatCurrency(totals.goldSubtotal || 0)}</span></div><div class="flex justify-between"><span class="text-gray-600">Wastage (${totals.wastagePercent || 0}%)</span><span class="font-semibold">${formatCurrency(totals.wastageValue || 0)}</span></div><div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(totals.goldMakingCharges || 0)}</span></div>`; }
+                    if ((totals.silverSubtotal || 0) > 0) { summaryHTML += `<div class="flex justify-between ${(totals.goldSubtotal || 0) > 0 ? 'border-t mt-1 pt-1' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(totals.silverSubtotal || 0)}</span></div>`; }
+                    summaryHTML += `<div class="flex justify-between font-bold border-t pt-1 mt-1"><span>Total before GST</span><span>${formatCurrency(totals.totalBeforeGst || 0)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">GST (${totals.gstPercent || 0}%)</span><span class="font-semibold">${formatCurrency(totals.gstValue || 0)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between text-sm font-bold border-t pt-1 mt-1"><span>Bill Total</span><span>${formatCurrency(totals.grandTotal || 0)}</span></div>`;
+                    if ((totals.oldGoldTotal || 0) > 0) { summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(totals.oldGoldTotal || 0)}</span></div>`; }
+                    if ((totals.discount || 0) > 0) { summaryHTML += `<div class="flex justify-between text-red-600"><span class="font-semibold">Discount</span><span class="font-semibold">- ${formatCurrency(totals.discount || 0)}</span></div>`; }
+                    summaryHTML += `<div class="flex justify-between text-base font-bold bg-yellow-100 p-1 rounded-md mt-1"><span>Net Amount Payable</span><span>${formatCurrency(totals.netPayable || 0)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between text-xs font-semibold mt-1 pt-1 border-t"><span>Total Paid</span><span>${formatCurrency(totals.totalPaid || 0)}</span></div>`;
+                    summaryHTML += `<div class="flex justify-between text-base font-bold ${(totals.balanceDue || 0) > 0.009 ? 'text-red-600' : 'text-green-600'}"><span>Balance Due</span><span>${formatCurrency(totals.balanceDue || 0)}</span></div>`;
                     summaryHTML += `</div>`;
                     summarySectionPrint.innerHTML = summaryHTML;
-                } else {
-                    // Fallback if totals somehow weren't saved
-                    summarySectionPrint.innerHTML = '<p class="text-xs text-red-500">Error: Summary data missing for reprint.</p>';
-                }
-                if (isFinalBill) { if (displayData.paymentDetails?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">PAYMENTS</h3><table class="w-full text-left" style="font-size: 11px;">...</thead><tbody>`; const tableRows = displayData.paymentDetails.map(p => `...`).join(''); paymentListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { paymentListPrint.innerHTML = '<p class="text-xs mt-4 font-semibold">No payments recorded.</p>'; } } else { paymentListPrint.innerHTML = ''; }
+                } else { summarySectionPrint.innerHTML = '<p class="text-xs text-red-500">Error: Summary data missing for reprint.</p>'; }
+                // *** END SUMMARY CORRECTION ***
+
+                if (isFinalBill) { if (displayData.paymentDetails?.length > 0) { const tableHeader = `<h3 class="text-md font-bold mt-4 mb-2">PAYMENTS</h3>...<tbody>`; const tableRows = displayData.paymentDetails.map(p => `...`).join(''); paymentListPrint.innerHTML = tableHeader + tableRows + '</tbody></table>'; } else { paymentListPrint.innerHTML = '<p class="text-xs mt-4 font-semibold">No payments recorded.</p>'; } } else { paymentListPrint.innerHTML = ''; }
                 if (thermalReceiptSection) thermalReceiptSection.classList.remove('print-visible'); billSectionTarget.classList.add('print-visible'); setTimeout(() => { window.print(); }, 100);
             };
 
@@ -1109,7 +1091,9 @@
                 const billTotals = { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
                 const billData = { billNumber, date: billDate, customer: currentCustomer, items: JSON.parse(JSON.stringify(items)), silverItems: JSON.parse(JSON.stringify(silverItems)), oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)), paymentDetails: JSON.parse(JSON.stringify(paymentDetails)), totals: billTotals, shopDetails: JSON.parse(JSON.stringify(shopDetails)) };
                 billHistory.push(billData); if (saveCustomerCheckbox.checked && currentCustomer.name) { const existingCustomer = customers.find(c => c.name.toLowerCase() === currentCustomer.name.toLowerCase() || (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)); if (!existingCustomer) { customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone }); console.log("New customer saved:", currentCustomer.name); } else { console.log("Customer already exists:", currentCustomer.name); } }
-                saveState(); prepareA4Print(true, billData); alert(`Bill ${billNumber} saved successfully!`); if (confirm("Bill saved. Start a new bill now?")) { resetFormLogic(); }
+                saveState(); prepareA4Print(true, billData); alert(`Bill ${billNumber} saved successfully!`);
+                // Removed automatic reset confirmation
+                // if (confirm("Bill saved. Start a new bill now?")) { resetFormLogic(); }
             });
             if (resetBtn) resetBtn.addEventListener('click', () => { if (items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0 || paymentDetails.length > 0 || customerNameInput.value || customerPhoneInput.value) { if (confirm('Start a new bill? Current items, customer details, and payments will be cleared.')) { resetFormLogic(); } } else { resetFormLogic(); } });
             const resetFormLogic = () => { items = []; silverItems = []; oldGoldItems = []; paymentDetails = []; if (customerNameInput) customerNameInput.value = ''; if (customerPhoneInput) customerPhoneInput.value = ''; if (saveCustomerCheckbox) saveCustomerCheckbox.checked = false; localStorage.removeItem('jewelBillCurrentState'); renderAllLists(); window.scrollTo({ top: 0, behavior: 'smooth' }); if (appBody && !appBody.classList.contains('hidden')) { if (customerNameInput) customerNameInput.focus(); } else { if (goldRateInput) goldRateInput.focus(); } console.log("Form reset for new bill."); };
