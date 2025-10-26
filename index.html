@@ -22,74 +22,77 @@
             display: none;
         }
 
-        @media print {
-            /* Hide everything by default */
-            body * {
-                visibility: hidden;
-                margin: 0; /* Reset margins */
-                padding: 0; /* Reset padding */
-                box-shadow: none; /* Remove shadows */
-                border: none; /* Remove default borders unless explicitly added back */
+       @media print {
+            /* Hide everything outside the bill section */
+            body > *:not(.bill-section) {
+                display: none !important;
             }
 
-            /* Make only the print container and its children visible */
-            .print-visible, .print-visible * {
-                visibility: visible;
+            /* Reset body and html for printing */
+            html, body {
+                visibility: visible !important; /* Make sure body is visible */
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important; /* Allow natural height */
+                background: #fff !important; /* Force white background */
+                font-size: 10pt !important; /* Base print font size */
+                color: #000 !important; /* Force black text */
             }
 
-             /* Ensure the main container itself is visible and occupies print area */
-             /* IMPORTANT: We target .bill-section directly here */
-            .bill-section.print-visible {
-                visibility: visible !important; /* Force visibility */
-                display: block !important; /* Ensure it's treated as a block */
-                position: static !important; /* Override any absolute positioning */
-                width: 100% !important; /* Use full page width */
-                margin: 0 !important; /* Reset margin */
-                padding: 20px !important; /* Add some padding for the print page */
-                border: none !important;
-                box-shadow: none !important;
+            /* Force the bill section to be visible and take up space */
+            .bill-section {
+                display: block !important;
+                visibility: visible !important;
+                position: relative !important; /* Change from static/absolute to relative */
                 left: 0 !important;
                 top: 0 !important;
-                font-size: 10pt !important; /* Set a base print font size */
-                color: #000 !important; /* Ensure text is black */
-                background: #fff !important; /* Ensure background is white */
+                width: 100% !important; /* Use available width */
+                max-width: 100% !important; /* Override Tailwind max-width */
+                min-height: auto !important; /* Allow natural height */
+                margin: 0 !important;
+                padding: 20mm 15mm !important; /* Add typical A4 margins (approx) */
+                box-shadow: none !important;
+                border: none !important;
+                background: #fff !important; /* Ensure white background */
             }
 
-            /* Make sure specific print elements within bill-section behave */
-            .bill-section.print-visible div,
-            .bill-section.print-visible p,
-            .bill-section.print-visible span,
-            .bill-section.print-visible h1,
-            .bill-section.print-visible h2,
-            .bill-section.print-visible h3,
-            .bill-section.print-visible table,
-            .bill-section.print-visible thead,
-            .bill-section.print-visible tbody,
-            .bill-section.print-visible tr,
-            .bill-section.print-visible th,
-            .bill-section.print-visible td {
-                 /* Reset potentially conflicting Tailwind styles */
-                 position: static; 
-                 float: none;
-                 display: revert; /* Try letting the browser decide basic display */
-                 width: auto;
-                 color: #000 !important;
-                 background: transparent !important;
-                 border: none; /* Remove borders by default */
-                 /* Add back borders specifically for the table if needed */
+            /* Make sure all children within the bill section are visible */
+            .bill-section * {
+                visibility: visible !important;
+                color: #000 !important; /* Ensure children have black text */
+                background: transparent !important; /* Ensure no background colors interfere */
+                 box-shadow: none !important;
+                 border: none; /* Remove most borders initially */
             }
-             /* Add borders back to table cells for clarity */
-            .bill-section.print-visible th,
-            .bill-section.print-visible td {
-                border: 1px solid #ccc; /* Light gray border */
-                padding: 4px; /* Adjust padding */
+             /* Re-apply borders specifically for table */
+            .bill-section table {
+                width: 100%; /* Ensure table uses full width */
+                border-collapse: collapse; /* Standard table look */
             }
-            .bill-section.print-visible thead th {
-                 border-bottom: 2px solid #000; /* Thicker bottom border for headers */
+            .bill-section th,
+            .bill-section td {
+                 border: 1px solid #ccc; /* Apply borders */
+                 padding: 4px; /* Adjust padding */
+                 font-size: 9pt; /* Slightly smaller for table data */
             }
+             .bill-section thead th {
+                 border-bottom: 2px solid #000; /* Header separator */
+                 background-color: #f3f4f6; /* Light gray header like Tailwind bg-gray-100 */
+             }
+             /* Ensure specific borders from template are applied */
+             .bill-section thead tr.border-pink-500 th { /* If you kept this class */
+                 border-top: 2px solid #ec4899; /* pink-500 */
+                 border-bottom: 2px solid #ec4899; /* pink-500 */
+                 color: #be185d; /* pink-700 */
+             }
+             .bill-section div.border-pink-500 { /* For the total line */
+                  border-top: 1px solid #ec4899;
+                  border-bottom: 2px solid #ec4899;
+             }
 
 
-            /* Hide elements specifically marked as no-print */
+             /* Hide elements marked no-print */
             .no-print {
                 display: none !important;
             }
