@@ -23,111 +23,137 @@
         }
 
         @media print {
-            body * {
-                visibility: hidden;
-            }
+            /* Basic Reset */
+            body * { display: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; position: static !important; float: none !important; width: auto !important; height: auto !important; }
+            html, body { visibility: visible !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; font-size: 10pt !important; color: #000 !important; }
 
-            .print-visible,
-            .print-visible * {
-                visibility: visible;
-            }
-
-            .print-visible {
-                display: block !important;
-                position: absolute;
-                left: 0;
-                top: 0;
-            }
-
+            /* Make bill section visible and define page layout */
             .bill-section.print-visible {
-                width: 100%;
-                font-size: 12px;
+                display: block !important; visibility: visible !important;
+                position: absolute !important; left: 0 !important; top: 0 !important;
+                width: 100% !important; max-width: 100% !important; min-height: auto !important;
+                margin: 0 !important; padding: 15mm !important; /* A4 Margins */
+                background: #fff !important; box-shadow: none !important; border: none !important;
             }
+            /* Make children visible */
+            .bill-section.print-visible * { display: block !important; visibility: visible !important; color: #000 !important; background: transparent !important; box-shadow: none !important; border: none; font-size: inherit; line-height: inherit; }
 
-            .thermal-receipt.print-visible {
-                width: 300px;
-                font-family: 'Courier New', monospace;
-                font-size: 12px;
-                line-height: 1.4;
-                color: #000;
-                background: #fff;
-                padding: 10px;
-            }
+             /* --- Specific Print Styles for the REVISED Header --- */
+             .bill-section.print-visible .print-header-container {
+                 margin-bottom: 2rem !important; /* Matches mb-8 */
+                 overflow: hidden; /* Contains floated elements */
+             }
+             .bill-section.print-visible .print-logo-container {
+                 float: right !important; /* Float logo block to the right */
+                 width: 128px !important; /* Explicit width for the container */
+                 text-align: right !important;
+             }
+             .bill-section.print-visible #print-logo-img {
+                 display: block !important; /* Make image block */
+                 width: 100% !important; /* Image fills its container */
+                 max-width: 128px !important; /* Redundant but safe */
+                 height: auto !important;
+                 margin-bottom: 4px !important;
+             }
+              .bill-section.print-visible #shop-name-print-header {
+                 display: block !important; /* Ensure it's block */
+                 font-size: 1.25rem !important; /* text-xl */
+                 font-weight: 700 !important; /* font-bold */
+                 color: #ca8a04 !important; /* text-yellow-600 */
+                 text-align: right !important;
+                 margin-top: 0 !important;
+             }
+             .bill-section.print-visible .print-contact-info {
+                 /* Takes up remaining space - float handles this */
+                 font-size: 0.75rem !important; /* text-xs */
+                 color: #4b5563 !important; /* text-gray-600 */
+                 line-height: 1.5 !important;
+             }
+             .bill-section.print-visible .print-contact-info p {
+                  margin-bottom: 2px !important; /* space-y-1 approx */
+             }
+             .bill-section.print-visible .print-contact-info strong {
+                  font-weight: 600 !important; /* Semibold */
+             }
+             /* --- End Header Print Styles --- */
 
-            .no-print {
-                display: none;
-            }
-        }
 
-        #restore-toast,
-        #settings-toast {
-            transition: opacity 0.5s, transform 0.5s;
-        }
+             /* Restore specific display types needed WITHIN the bill */
+             .bill-section.print-visible .flex { display: flex !important; }
+             .bill-section.print-visible .grid { display: grid !important; }
+             .bill-section.print-visible .inline-block { display: inline-block !important; }
+             .bill-section.print-visible table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
+             .bill-section.print-visible thead { display: table-header-group !important; }
+             .bill-section.print-visible tbody { display: table-row-group !important; }
+             .bill-section.print-visible tr { display: table-row !important; }
+             .bill-section.print-visible th,
+             .bill-section.print-visible td { display: table-cell !important; }
 
-        .icon-btn {
-            background: none;
-            border: none;
-            padding: 0.25rem;
-            cursor: pointer;
-        }
 
-        #settings-panel {
-            transition: transform 0.3s ease-in-out;
-        }
+             /* Re-apply crucial Tailwind styles needed for layout/look */
+             /* Spacing */
+             .bill-section.print-visible .mb-8 { margin-bottom: 2rem !important; }
+             .bill-section.print-visible .mb-6 { margin-bottom: 1.5rem !important; }
+             .bill-section.print-visible .mt-1 { margin-top: 0.25rem !important; }
+             .bill-section.print-visible .mt-2 { margin-top: 0.5rem !important; }
+             .bill-section.print-visible .mb-1 { margin-bottom: 0.25rem !important; }
+             .bill-section.print-visible .mb-2 { margin-bottom: 0.5rem !important; }
+             .bill-section.print-visible .pt-1 { padding-top: 0.25rem !important; }
+             .bill-section.print-visible .pt-2 { padding-top: 0.5rem !important; }
+             .bill-section.print-visible .pt-4 { padding-top: 1rem !important; }
+             .bill-section.print-visible .pb-1 { padding-bottom: 0.25rem !important; }
+             .bill-section.print-visible .py-1 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important;}
+             .bill-section.print-visible .py-2 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+             .bill-section.print-visible .p-1 { padding: 0.25rem !important; }
+             .bill-section.print-visible .p-2 { padding: 0.5rem !important; }
+             /* Alignment & Width */
+             .bill-section.print-visible .justify-between { justify-content: space-between !important; }
+             .bill-section.print-visible .items-start { align-items: flex-start !important; }
+             .bill-section.print-visible .items-end { align-items: flex-end !important; }
+             .bill-section.print-visible .w-1\/2 { width: 50% !important; }
+             .bill-section.print-visible .w-1\/3 { width: 33.333333% !important; }
+             .bill-section.print-visible .text-right { text-align: right !important; }
+             .bill-section.print-visible .text-center { text-align: center !important; }
+             /* Font & Text */
+             .bill-section.print-visible .font-bold { font-weight: 700 !important; }
+             .bill-section.print-visible .font-semibold { font-weight: 600 !important; }
+             .bill-section.print-visible .font-medium { font-weight: 500 !important; }
+             .bill-section.print-visible .text-xs { font-size: 0.75rem !important; line-height: 1.1 !important; } /* Adjusted line-height */
+             .bill-section.print-visible .text-sm { font-size: 0.875rem !important; line-height: 1.2 !important;} /* Adjusted line-height */
+             .bill-section.print-visible .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important;}
+             .bill-section.print-visible .text-xl { font-size: 1.25rem !important; line-height: 1.75rem !important;}
+             .bill-section.print-visible .text-4xl { font-size: 2.25rem !important; line-height: 2.5rem !important;}
+             .bill-section.print-visible .text-gray-500 { color: #6b7280 !important; }
+             .bill-section.print-visible .text-gray-600 { color: #4b5563 !important; }
+             .bill-section.print-visible .text-gray-700 { color: #374151 !important; }
+             .bill-section.print-visible .text-yellow-600 { color: #ca8a04 !important; }
+             .bill-section.print-visible .text-pink-700 { color: #be185d !important; }
+             .bill-section.print-visible .text-blue-600 { color: #2563eb !important; }
+             .bill-section.print-visible .text-red-600 { color: #dc2626 !important; }
+             .bill-section.print-visible .text-green-600 { color: #16a34a !important; }
+             .bill-section.print-visible .bg-yellow-100 { background-color: #fef9c3 !important; }
 
-        /* Style for Modals */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            z-index: 50;
-        }
+             /* Borders */
+             .bill-section.print-visible .border-b-2 { border-bottom-width: 2px !important; }
+             .bill-section.print-visible .border-t-2 { border-top-width: 2px !important; }
+             .bill-section.print-visible .border-b { border-bottom-width: 1px !important; }
+             .bill-section.print-visible .border-t { border-top-width: 1px !important; }
+             /* Ensure border colors are solid black unless specified */
+             .bill-section.print-visible .border-b-2, .bill-section.print-visible .border-t-2,
+             .bill-section.print-visible .border-b, .bill-section.print-visible .border-t { border-color: #000 !important; border-style: solid !important; }
+             /* Template specific border colors */
+             .bill-section.print-visible .border-pink-500 { border-color: #ec4899 !important; }
+             .bill-section.print-visible .border-yellow-600 { border-color: #ca8a04 !important; }
+             .bill-section.print-visible .border-gray-200 { border-color: #e5e7eb !important; }
+             /* Table Borders */
+             .bill-section.print-visible th, .bill-section.print-visible td { border: 1px solid #ccc !important; padding: 4px !important; }
+             .bill-section.print-visible thead th { border-bottom-width: 2px !important; border-bottom-color: #000 !important; background-color: #f9fafb !important; }
+             .bill-section.print-visible thead tr.border-pink-500 th { border-top: 2px solid #ec4899 !important; border-bottom: 2px solid #ec4899 !important; color: #be185d !important; background-color: transparent !important; }
+             /* Summary Total Line Border */
+             .bill-section.print-visible div.border-pink-500 { border-top: 1px solid #ec4899 !important; border-bottom: 2px solid #ec4899 !important; }
 
-        .modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 90%;
-            /* Responsive width */
-            width: 500px;
-            /* Max width */
-            max-height: 80vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            padding: 1rem;
-            flex-grow: 1;
-            /* Allows body to take remaining space */
-        }
-
-        .modal-close-btn {
-            color: #6b7280;
-            /* gray-500 */
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .modal-close-btn:hover {
-            color: #111827;
-            /* gray-900 */
+            /* Hide no-print */
+            .no-print, .no-print * { display: none !important; visibility: hidden !important; }
         }
     </style>
 </head>
@@ -493,15 +519,23 @@
     </div>
 
     <div class="bill-section bg-white p-6 print-visible" style="width: 210mm; min-height: 297mm; /* A4 size approximation */">
-        <div class="flex justify-between items-start mb-8">
-            <div class="text-xs text-gray-600 space-y-1">
+        
+        <div class="mb-8 print-header-container"> 
+            <div class="print-logo-container"> 
+                <img src="AJ.png" alt="Shop Logo" id="print-logo-img"> 
+                <h2 id="shop-name-print-header" class="text-xl font-bold text-yellow-600">
+                    </h2>
+            </div>
+            <div class="print-contact-info text-xs text-gray-600 space-y-1">
                 <p><strong>Phone:</strong> <span id="shop-phone-print">(Set in Settings)</span></p>
                 <p><strong>Email:</strong> <span id="shop-email-print">(Set in Settings)</span></p>
                 <p><strong>Web:</strong> <span id="shop-web-print">(Set in Settings)</span></p>
                 <p><strong>Address:</strong> <span id="shop-address-print">(Set in Settings)</span></p>
             </div>
-            <div class="text-right">
-            <img src="AJ.png" alt="Shop Logo" class="w-32 h-auto inline-block mb-1"> 
+             <div style="clear: both;"></div> 
+        </div>
+        <div class="flex justify-between items-end mb-6"> 
+           {/* ... */}
         </div>
 
         <div class="flex justify-between items-end mb-6">
