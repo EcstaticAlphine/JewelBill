@@ -1,67 +1,81 @@
 /*
   style.css
-  Main stylesheet for JewelBill Application (Corrected for CDN)
+  Main stylesheet for JewelBill Application (with Dark Theme)
 */
 
 /* 1. Base Styles & Font */
 body {
     font-family: 'Inter', sans-serif;
     scroll-behavior: smooth;
+    /* --- DARK THEME: Base Colors --- */
+    background-color: #1f2937; /* bg-gray-800 */
+    color: #d1d5db; /* text-gray-300 */
 }
 
 /* 2. Reusable Component Styles */
 .content-card {
-    background-color: white;
-    padding: 1.5rem; /* p-6 */
-    border-radius: 0.5rem; /* rounded-lg */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    /* --- DARK THEME: Card Colors --- */
+    background-color: #374151; /* bg-gray-700 */
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3); /* Adjusted shadow */
+    border: 1px solid #4b5563; /* border-gray-600 for definition */
 }
 
 .section-title {
-    font-size: 1.25rem; /* text-xl */
-    font-weight: 700; /* font-bold */
-    margin-bottom: 1rem; /* mb-4 */
-    border-bottom: 1px solid #e5e7eb; /* border-b */
-    padding-bottom: 0.5rem; /* pb-2 */
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    /* --- DARK THEME: Title Border --- */
+    border-bottom: 1px solid #4b5563; /* border-gray-600 */
+    padding-bottom: 0.5rem;
+    /* --- DARK THEME: Title Text Color --- */
+    color: #f3f4f6; /* text-gray-100 */
 }
 
 .form-label {
     display: block;
-    font-size: 0.875rem; /* text-sm */
-    font-weight: 500; /* font-medium */
-    color: #4b5563; /* text-gray-600 */
-    margin-bottom: 0.25rem; /* mb-1 */
+    font-size: 0.875rem;
+    font-weight: 500;
+    /* --- DARK THEME: Label Text --- */
+    color: #9ca3af; /* text-gray-400 */
+    margin-bottom: 0.25rem;
 }
 
 .form-input, .form-select {
     width: 100%;
-    padding: 0.5rem; /* p-2 */
-    border: 1px solid #d1d5db; /* border border-gray-300 */
-    border-radius: 0.375rem; /* rounded-md */
+    padding: 0.5rem;
+    /* --- DARK THEME: Input Background/Text/Border --- */
+    background-color: #4b5563; /* bg-gray-600 */
+    color: #f3f4f6; /* text-gray-100 */
+    border: 1px solid #6b7280; /* border-gray-500 */
+    border-radius: 0.375rem;
+}
+.form-input::placeholder { /* --- DARK THEME: Placeholder Text --- */
+    color: #9ca3af; /* text-gray-400 */
 }
 .form-input:focus, .form-select:focus {
     outline: 2px solid transparent;
     outline-offset: 2px;
-    --tw-ring-color: #FBBF24; /* ring-yellow-500 */
+    --tw-ring-color: #FBBF24; /* ring-yellow-500 (Keep yellow for focus) */
     box-shadow: 0 0 0 2px var(--tw-ring-color);
     border-color: transparent;
 }
-
-.button-primary {
-    width: 100%;
-    background-color: #FBBF24; /* bg-yellow-500 */
-    color: white;
-    font-weight: 700; /* font-bold */
-    padding: 0.5rem 1rem; /* py-2 px-4 */
-    border-radius: 0.375rem; /* rounded-md */
-    transition: background-color 0.3s;
+.form-select option { /* --- DARK THEME: Dropdown Options --- */
+     background-color: #374151; /* bg-gray-700 */
+     color: #f3f4f6; /* text-gray-100 */
 }
-.button-primary:hover { background-color: #F59E0B; } /* hover:bg-yellow-600 */
+
+/* Keep button colors as they are for visibility, maybe adjust hover */
+.button-primary {
+    width: 100%; background-color: #FBBF24; color: #1f2937; /* Dark text for yellow */ font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
+.button-primary:hover { background-color: #F59E0B; }
 
 .button-secondary {
-    width: 100%; background-color: #4B5563; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+    width: 100%; background-color: #6b7280; /* Slightly lighter gray */ color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
 }
-.button-secondary:hover { background-color: #374151; }
+.button-secondary:hover { background-color: #4b5563; }
 
 .button-info {
     width: 100%; background-color: #3B82F6; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
@@ -83,102 +97,154 @@ body {
 }
 .button-special:hover { background-color: #4F46E5; }
 
-.icon-button {
-    padding: 0.5rem; /* p-2 */
-    border-radius: 9999px; /* rounded-full */
-    transition: background-color 0.2s;
+/* Header Buttons */
+header .icon-button {
+    padding: 0.5rem; border-radius: 9999px; transition: background-color 0.2s; color: white; /* Ensure icons are white */
 }
-.icon-button:hover { background-color: #F59E0B; } /* hover:bg-yellow-600 */
-.icon-button:focus { outline: 2px solid white; }
+header .icon-button:hover { background-color: #F59E0B; }
+header .icon-button:focus { outline: 2px solid white; }
+
+/* In-table/modal icon buttons */
+.icon-btn { /* Basic styling for edit/delete icons */
+    background: none; border: none; padding: 0.25rem; cursor: pointer;
+}
+/* Adjust specific icon colors if needed */
+.icon-btn.text-blue-500 { color: #60a5fa; }
+.icon-btn.text-blue-500:hover { color: #3b82f6; }
+.icon-btn.text-red-500 { color: #f87171; }
+.icon-btn.text-red-500:hover { color: #ef4444; }
+
 
 /* 3. Toast Notification Styles */
 .toast {
-    position: fixed;
-    top: 1.25rem; /* top-5 */
-    right: 1.25rem; /* right-5 */
-    color: white;
-    padding: 0.5rem 1rem; /* py-2 px-4 */
-    border-radius: 0.5rem; /* rounded-lg */
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); /* shadow-lg */
-    opacity: 0;
-    transform: translateY(-1.25rem); /* -translate-y-5 */
-    z-index: 50;
-    transition: all 0.3s ease-out;
+    position: fixed; top: 1.25rem; right: 1.25rem; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); opacity: 0; transform: translateY(-1.25rem); z-index: 50; transition: all 0.3s ease-out;
 }
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+.toast.bg-blue-500 { background-color: #3b82f6; }
+.toast.bg-green-500 { background-color: #22c55e; }
+.toast.show { opacity: 1; transform: translateY(0); }
 
 /* 4. Modal Styles */
 .modal {
-    position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100;
+    position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */ display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100;
 }
 .modal-content {
-    background-color: white; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); max-width: 90%; width: 500px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column;
+    /* --- DARK THEME: Modal background --- */
+    background-color: #374151; /* bg-gray-700 */
+    border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); max-width: 90%; width: 500px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column;
 }
 .modal-header {
-    padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1;
+    padding: 1rem; border-bottom: 1px solid #4b5563; /* border-gray-600 */ display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0;
+    /* --- DARK THEME: Header background --- */
+    background: #374151; /* bg-gray-700 */ z-index: 1;
+    /* --- DARK THEME: Header text --- */
+    color: #f3f4f6; /* text-gray-100 */
 }
 .modal-body {
     padding: 1rem; flex-grow: 1;
 }
 .modal-close-btn {
-     color: #6b7280; background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer;
+     /* --- DARK THEME: Close button color --- */
+     color: #9ca3af; /* text-gray-400 */ background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer;
 }
-.modal-close-btn:hover { color: #111827; }
+.modal-close-btn:hover { color: #f3f4f6; /* text-gray-100 */ }
+/* --- DARK THEME: Modal list items --- */
+.modal-body ul li {
+    border-bottom-color: #4b5563; /* border-gray-600 */
+}
+.modal-body ul li:hover {
+    background-color: #4b5563; /* bg-gray-600 */
+}
+.modal-body .text-gray-500 { /* Make secondary text lighter */
+    color: #9ca3af; /* text-gray-400 */
+}
 
 /* 5. Base Print Styles (Common) */
 .bill-section, .thermal-receipt { display: none; }
 
 @media print {
-    /* Hide all non-print elements */
+    /* --- Force Light Mode for Printing --- */
+    body, .content-card, .modal-content, .modal-header, .form-input, .form-select, .items-table-print th {
+        background: white !important;
+        color: black !important;
+    }
+    .form-label, .text-gray-500, .text-gray-600, .modal-close-btn, .shop-details-print, .print-footer {
+        color: #4b5563 !important; /* Restore default gray text colors */
+    }
+    .section-title {
+        border-bottom-color: #e5e7eb !important;
+    }
+    .items-table-print th {
+        background-color: #f8f8f8 !important; /* Light gray header */
+    }
+    .items-table-print th, .items-table-print td {
+        border-color: #ccc !important; /* Light gray border */
+    }
+
+    /* Hide non-print elements */
     .no-print { display: none !important; }
 
     /* --- 6. A4 Bill Print Styles --- */
     @page { size: A4 portrait; margin: 15mm; }
 
-    body.printing-a4 { background: white !important; color: black !important; font-size: 10pt !important; }
     body.printing-a4 > *:not(.bill-section) { display: none !important; }
 
     .bill-section {
-        display: block !important; visibility: visible !important; width: 100% !important; margin: 0 !important; padding: 0 !important; position: static !important; box-shadow: none !important; border: none !important; background: white !important; font-size: 10pt !important;
+        display: block !important; visibility: visible !important; width: 100% !important; margin: 0 !important; padding: 0 !important; position: static !important; box-shadow: none !important; border: none !important; font-size: 10pt !important;
     }
-    .bill-section * { visibility: visible !important; color: inherit !important; background: transparent !important; box-shadow: none !important; }
+    .bill-section * { visibility: visible !important; box-shadow: none !important; }
 
     .print-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-    .shop-details-print { font-size: 0.75rem; color: #4b5563; }
+    .shop-details-print { font-size: 0.75rem; }
     .shop-logo-print { text-align: right; }
     .shop-logo-print img { width: 8rem; height: auto; display: inline-block; margin-bottom: 0.25rem; }
-    .shop-logo-print h2 { font-size: 1.25rem; font-weight: 700; color: #D97706; }
+    /* Shop Name H2 is removed */
 
     .invoice-title-print { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; }
-    .invoice-title-print h1 { font-size: 2.25rem; font-weight: 600; color: #D97706; border-bottom: 2px solid #D97706; padding-bottom: 0.25rem; display: inline-block; }
+    .invoice-title-print h1 { font-size: 2.25rem; font-weight: 600; color: #D97706 !important; border-bottom: 2px solid #D97706 !important; padding-bottom: 0.25rem; display: inline-block; }
     .invoice-title-print div { text-align: right; font-size: 0.875rem; }
     
-    .customer-details-print { margin-bottom: 1.5rem; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0; }
-    .customer-details-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151; }
+    .customer-details-print { margin-bottom: 1.5rem; border-top: 1px solid #e5e7eb !important; border-bottom: 1px solid #e5e7eb !important; padding: 0.5rem 0; }
+    .customer-details-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151 !important; }
     .customer-details-print p { font-size: 0.875rem; font-weight: 500; }
+    .customer-details-print p.text-gray-600 { font-size: 0.875rem; color: #4b5563 !important; } /* Restore color for phone/address */
+
 
     .items-table-print { width: 100% !important; border-collapse: collapse !important; margin-bottom: 1rem; font-size: 9pt !important; }
-    .items-table-print th, .items-table-print td { border: 1px solid #ccc !important; padding: 4px !important; text-align: left !important; white-space: normal !important; }
-    .items-table-print th { font-weight: 600 !important; background-color: #f8f8f8 !important; }
+    .items-table-print th, .items-table-print td { padding: 4px !important; text-align: left !important; white-space: normal !important; }
     .items-table-print td:nth-child(n+2), .items-table-print th:nth-child(n+2) { text-align: right !important; }
     .items-table-header { border-top: 2px solid #ec4899 !important; border-bottom: 2px solid #ec4899 !important; color: #be185d !important; }
     
     .summary-payments-container-print { display: flex; justify-content: flex-end; margin-bottom: 2rem; }
     #summary-section-print { width: 45% !important; margin-top: 1rem !important; font-size: 9pt !important; }
     #summary-section-print .flex { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    #summary-section-print .border-pink-500 { border-top: 1px solid #ec4899 !important; border-bottom: 2px solid #ec4899 !important; }
     
     #payment-section-print { margin-bottom: 2rem; font-size: 0.75rem; }
-    #payment-section-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151; }
+    #payment-section-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
     
-    .print-footer { clear: both; padding-top: 1rem !important; margin-top: 2rem !important; font-size: 8pt !important; border-top: 1px solid #d1d5db; color: #6b7280; }
+    .print-footer { clear: both; padding-top: 1rem !important; margin-top: 2rem !important; font-size: 8pt !important; border-top: 1px solid #d1d5db !important; }
     .print-footer p:last-child { margin-top: 1rem; text-align: center; }
 
-    /* --- 7. Thermal Receipt Print Styles (Fallback if printing from browser) --- */
-    body.printing-thermal { font-family: 'monospace'; color: #000; background: #fff; width: 280px; font-size: 12px; line-height: 1.4; }
+    /* --- 7. Thermal Receipt Print Styles --- */
+    body.printing-thermal { font-family: 'monospace'; width: 280px; font-size: 12px; line-height: 1.4; }
     body.printing-thermal > *:not(.thermal-receipt) { display: none !important; }
     .thermal-receipt { display: block !important; visibility: visible !important; width: 100%; margin: 0; padding: 0; }
     .thermal-receipt * { visibility: visible !important; }
+}
+
+/* --- DARK THEME: Specific Table Adjustments --- */
+table thead.bg-gray-50 {
+    background-color: #4b5563; /* bg-gray-600 */
+    color: #f3f4f6; /* text-gray-100 */
+}
+table tr.border-b {
+    border-bottom-color: #4b5563; /* border-gray-600 */
+}
+.text-gray-600 { /* Make table secondary text lighter */
+     color: #9ca3af; /* text-gray-400 */
+}
+.bg-yellow-100 { /* Make summary highlight less intense */
+     background-color: #4b5563; /* bg-gray-600 */
+     border: 1px solid #FBBF24; /* yellow border */
+     color: #f3f4f6; /* text-gray-100 */
 }
