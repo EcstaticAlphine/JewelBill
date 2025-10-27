@@ -1,205 +1,183 @@
 /*
   style.css
-  Main stylesheet for JewelBill Application
-  (Dark Theme Default + System Preference Switching)
+  Main stylesheet for JewelBill Application (Corrected for CDN)
 */
 
-/* 1. Base Styles & Font (Dark Theme Default) */
+/* 1. Base Styles & Font */
 body {
     font-family: 'Inter', sans-serif;
     scroll-behavior: smooth;
-    background-color: #1f2937; /* bg-gray-800 */
-    color: #d1d5db; /* text-gray-300 */
-    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
 }
 
-/* 2. Reusable Component Styles (Dark Theme Default) */
+/* 2. Reusable Component Styles */
 .content-card {
-    background-color: #374151; /* bg-gray-700 */
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-    border: 1px solid #4b5563; /* border-gray-600 */
-    transition: background-color 0.3s, border-color 0.3s;
+    background-color: white;
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
 }
 
 .section-title {
-    font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;
-    border-bottom: 1px solid #4b5563; /* border-gray-600 */
-    padding-bottom: 0.5rem; color: #f3f4f6; /* text-gray-100 */
-    transition: border-color 0.3s, color 0.3s;
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 700; /* font-bold */
+    margin-bottom: 1rem; /* mb-4 */
+    border-bottom: 1px solid #e5e7eb; /* border-b */
+    padding-bottom: 0.5rem; /* pb-2 */
 }
 
 .form-label {
-    display: block; font-size: 0.875rem; font-weight: 500;
-    color: #9ca3af; /* text-gray-400 */
-    margin-bottom: 0.25rem;
-    transition: color 0.3s;
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: #4b5563; /* text-gray-600 */
+    margin-bottom: 0.25rem; /* mb-1 */
 }
 
 .form-input, .form-select {
-    width: 100%; padding: 0.5rem;
-    background-color: #4b5563; /* bg-gray-600 */
-    color: #f3f4f6; /* text-gray-100 */
-    border: 1px solid #6b7280; /* border-gray-500 */
-    border-radius: 0.375rem;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    width: 100%;
+    padding: 0.5rem; /* p-2 */
+    border: 1px solid #d1d5db; /* border border-gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
 }
-.form-input::placeholder { color: #9ca3af; /* text-gray-400 */ }
 .form-input:focus, .form-select:focus {
-    outline: 2px solid transparent; outline-offset: 2px;
-    --tw-ring-color: #FBBF24; box-shadow: 0 0 0 2px var(--tw-ring-color);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-color: #FBBF24; /* ring-yellow-500 */
+    box-shadow: 0 0 0 2px var(--tw-ring-color);
     border-color: transparent;
 }
-.form-select option {
-     background-color: #374151; color: #f3f4f6;
-}
 
-/* Buttons (Keeping colors for contrast, adjust hover slightly) */
-.button-primary { width: 100%; background-color: #FBBF24; color: #1f2937; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
-.button-primary:hover { background-color: #F59E0B; }
-.button-secondary { width: 100%; background-color: #6b7280; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
-.button-secondary:hover { background-color: #4b5563; }
-.button-info { width: 100%; background-color: #3B82F6; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
+.button-primary {
+    width: 100%;
+    background-color: #FBBF24; /* bg-yellow-500 */
+    color: white;
+    font-weight: 700; /* font-bold */
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    border-radius: 0.375rem; /* rounded-md */
+    transition: background-color 0.3s;
+}
+.button-primary:hover { background-color: #F59E0B; } /* hover:bg-yellow-600 */
+
+.button-secondary {
+    width: 100%; background-color: #4B5563; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
+.button-secondary:hover { background-color: #374151; }
+
+.button-info {
+    width: 100%; background-color: #3B82F6; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
 .button-info:hover { background-color: #2563EB; }
-.button-success { width: 100%; background-color: #16A34A; color: white; font-weight: 700; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
+
+.button-success {
+    width: 100%; background-color: #16A34A; color: white; font-weight: 700; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
 .button-success:hover { background-color: #15803D; }
-.button-danger { width: 100%; background-color: #EF4444; color: white; font-weight: 700; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
+
+.button-danger {
+    width: 100%; background-color: #EF4444; color: white; font-weight: 700; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
 .button-danger:hover { background-color: #DC2626; }
-.button-special { width: 100%; background-color: #6366F1; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s; }
+
+.button-special {
+    width: 100%; background-color: #6366F1; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.3s;
+}
 .button-special:hover { background-color: #4F46E5; }
 
-/* Header */
-header { background-color: #FBBF24; color: #1f2937; /* Dark text on yellow */ }
-header .text-yellow-100 { color: #4b5563; } /* Adjust subtitle color */
-header .icon-button { padding: 0.5rem; border-radius: 9999px; transition: background-color 0.2s; color: #1f2937; /* Dark icons */ }
-header .icon-button:hover { background-color: #F59E0B; }
-header .icon-button:focus { outline: 2px solid #1f2937; } /* Dark outline */
-
-/* Table adjustments */
-table thead.bg-gray-50 { background-color: #4b5563; color: #f3f4f6; }
-table tr.border-b { border-bottom-color: #4b5563; }
-.text-gray-600 { color: #9ca3af; } /* Lighter secondary text */
-.bg-yellow-100 { background-color: #4b5563; border: 1px solid #FBBF24; color: #f3f4f6; } /* Summary highlight */
-
-/* Edit/Delete Icons */
-.icon-btn { background: none; border: none; padding: 0.25rem; cursor: pointer; }
-.icon-btn.text-blue-500 { color: #60a5fa; } .icon-btn.text-blue-500:hover { color: #3b82f6; }
-.icon-btn.text-red-500 { color: #f87171; } .icon-btn.text-red-500:hover { color: #ef4444; }
-
+.icon-button {
+    padding: 0.5rem; /* p-2 */
+    border-radius: 9999px; /* rounded-full */
+    transition: background-color 0.2s;
+}
+.icon-button:hover { background-color: #F59E0B; } /* hover:bg-yellow-600 */
+.icon-button:focus { outline: 2px solid white; }
 
 /* 3. Toast Notification Styles */
-.toast { position: fixed; top: 1.25rem; right: 1.25rem; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); opacity: 0; transform: translateY(-1.25rem); z-index: 50; transition: all 0.3s ease-out; }
-.toast.bg-blue-500 { background-color: #3b82f6; }
-.toast.bg-green-500 { background-color: #22c55e; }
-.toast.show { opacity: 1; transform: translateY(0); }
-
-/* 4. Modal Styles (Dark Theme Default) */
-.modal { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
-.modal-content { background-color: #374151; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); max-width: 90%; width: 500px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
-.modal-header { padding: 1rem; border-bottom: 1px solid #4b5563; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #374151; z-index: 1; color: #f3f4f6; }
-.modal-body { padding: 1rem; flex-grow: 1; }
-.modal-close-btn { color: #9ca3af; background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; }
-.modal-close-btn:hover { color: #f3f4f6; }
-.modal-body ul li { border-bottom-color: #4b5563; }
-.modal-body ul li:hover { background-color: #4b5563; }
-.modal-body .text-gray-500 { color: #9ca3af; }
-
-
-/* --- LIGHT THEME OVERRIDES --- */
-@media (prefers-color-scheme: light) {
-    body {
-        background-color: #f3f4f6; /* bg-gray-100 */
-        color: #1f2937; /* text-gray-800 */
-    }
-    .content-card {
-        background-color: white;
-        border-color: #e5e7eb; /* border-gray-200 */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-    }
-    .section-title {
-        border-bottom-color: #e5e7eb; /* border-gray-200 */
-        color: #111827; /* text-gray-900 */
-    }
-    .form-label {
-        color: #4b5563; /* text-gray-600 */
-    }
-    .form-input, .form-select {
-        background-color: white;
-        color: #1f2937; /* text-gray-800 */
-        border-color: #d1d5db; /* border-gray-300 */
-    }
-    .form-input::placeholder { color: #6b7280; /* text-gray-500 */ }
-    .form-select option { background-color: white; color: #1f2937; }
-
-    /* Header */
-    header { background-color: #FBBF24; color: white; } /* Revert header to original */
-    header .text-yellow-100 { color: #FEF3C7; }
-    header .icon-button { color: white; }
-    header .icon-button:hover { background-color: #F59E0B; }
-    header .icon-button:focus { outline: 2px solid white; }
-
-    /* Table adjustments */
-    table thead.bg-gray-50 { background-color: #f9fafb; color: #374151; }
-    table tr.border-b { border-bottom-color: #e5e7eb; }
-    .text-gray-600 { color: #4b5563; }
-    .bg-yellow-100 { background-color: #FEF3C7; border: none; color: #1f2937; }
-
-    /* Modals */
-    .modal { background-color: rgba(0, 0, 0, 0.6); }
-    .modal-content { background-color: white; }
-    .modal-header { background: white; border-bottom-color: #e5e7eb; color: #111827; }
-    .modal-close-btn { color: #6b7280; }
-    .modal-close-btn:hover { color: #111827; }
-    .modal-body ul li { border-bottom-color: #e5e7eb; }
-    .modal-body ul li:hover { background-color: #f9fafb; }
-    .modal-body .text-gray-500 { color: #6b7280; }
+.toast {
+    position: fixed;
+    top: 1.25rem; /* top-5 */
+    right: 1.25rem; /* right-5 */
+    color: white;
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); /* shadow-lg */
+    opacity: 0;
+    transform: translateY(-1.25rem); /* -translate-y-5 */
+    z-index: 50;
+    transition: all 0.3s ease-out;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
+/* 4. Modal Styles */
+.modal {
+    position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100;
+}
+.modal-content {
+    background-color: white; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); max-width: 90%; width: 500px; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column;
+}
+.modal-header {
+    padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1;
+}
+.modal-body {
+    padding: 1rem; flex-grow: 1;
+}
+.modal-close-btn {
+     color: #6b7280; background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.modal-close-btn:hover { color: #111827; }
 
-/* --- PRINT STYLES (Always Light) --- */
+/* 5. Base Print Styles (Common) */
 .bill-section, .thermal-receipt { display: none; }
 
 @media print {
-    /* Force Light Mode */
-    body, .content-card, .modal-content, .modal-header, .form-input, .form-select, .items-table-print th { background: white !important; color: black !important; }
-    .form-label, .text-gray-500, .text-gray-600, .modal-close-btn, .shop-details-print, .print-footer, .customer-details-print p.text-gray-600 { color: #4b5563 !important; }
-    .section-title, .customer-details-print h3 { color: #374151 !important; border-bottom-color: #e5e7eb !important; }
-    .items-table-print th { background-color: #f8f8f8 !important; }
-    .items-table-print th, .items-table-print td, .customer-details-print { border-color: #ccc !important; }
-    .invoice-title-print h1 { color: #D97706 !important; border-bottom-color: #D97706 !important; }
-    .items-table-header { border-top-color: #ec4899 !important; border-bottom-color: #ec4899 !important; color: #be185d !important; }
-    .summary-payments-container-print .border-pink-500 { border-top-color: #ec4899 !important; border-bottom-color: #ec4899 !important; }
-    .print-footer { border-top-color: #d1d5db !important; }
-
+    /* Hide all non-print elements */
     .no-print { display: none !important; }
 
+    /* --- 6. A4 Bill Print Styles --- */
     @page { size: A4 portrait; margin: 15mm; }
+
+    body.printing-a4 { background: white !important; color: black !important; font-size: 10pt !important; }
     body.printing-a4 > *:not(.bill-section) { display: none !important; }
-    .bill-section { display: block !important; visibility: visible !important; width: 100% !important; margin: 0 !important; padding: 0 !important; position: static !important; box-shadow: none !important; border: none !important; font-size: 10pt !important; }
-    .bill-section * { visibility: visible !important; box-shadow: none !important; }
+
+    .bill-section {
+        display: block !important; visibility: visible !important; width: 100% !important; margin: 0 !important; padding: 0 !important; position: static !important; box-shadow: none !important; border: none !important; background: white !important; font-size: 10pt !important;
+    }
+    .bill-section * { visibility: visible !important; color: inherit !important; background: transparent !important; box-shadow: none !important; }
+
     .print-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-    .shop-details-print { font-size: 0.75rem; }
+    .shop-details-print { font-size: 0.75rem; color: #4b5563; }
     .shop-logo-print { text-align: right; }
     .shop-logo-print img { width: 8rem; height: auto; display: inline-block; margin-bottom: 0.25rem; }
+    .shop-logo-print h2 { font-size: 1.25rem; font-weight: 700; color: #D97706; }
+
     .invoice-title-print { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; }
-    .invoice-title-print h1 { font-size: 2.25rem; font-weight: 600; padding-bottom: 0.25rem; display: inline-block; }
+    .invoice-title-print h1 { font-size: 2.25rem; font-weight: 600; color: #D97706; border-bottom: 2px solid #D97706; padding-bottom: 0.25rem; display: inline-block; }
     .invoice-title-print div { text-align: right; font-size: 0.875rem; }
-    .customer-details-print { margin-bottom: 1.5rem; padding: 0.5rem 0; }
-    .customer-details-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
+    
+    .customer-details-print { margin-bottom: 1.5rem; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0; }
+    .customer-details-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151; }
     .customer-details-print p { font-size: 0.875rem; font-weight: 500; }
+
     .items-table-print { width: 100% !important; border-collapse: collapse !important; margin-bottom: 1rem; font-size: 9pt !important; }
-    .items-table-print th, .items-table-print td { padding: 4px !important; text-align: left !important; white-space: normal !important; }
+    .items-table-print th, .items-table-print td { border: 1px solid #ccc !important; padding: 4px !important; text-align: left !important; white-space: normal !important; }
+    .items-table-print th { font-weight: 600 !important; background-color: #f8f8f8 !important; }
     .items-table-print td:nth-child(n+2), .items-table-print th:nth-child(n+2) { text-align: right !important; }
+    .items-table-header { border-top: 2px solid #ec4899 !important; border-bottom: 2px solid #ec4899 !important; color: #be185d !important; }
+    
     .summary-payments-container-print { display: flex; justify-content: flex-end; margin-bottom: 2rem; }
     #summary-section-print { width: 45% !important; margin-top: 1rem !important; font-size: 9pt !important; }
     #summary-section-print .flex { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    
     #payment-section-print { margin-bottom: 2rem; font-size: 0.75rem; }
-    #payment-section-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .print-footer { clear: both; padding-top: 1rem !important; margin-top: 2rem !important; font-size: 8pt !important; }
+    #payment-section-print h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #374151; }
+    
+    .print-footer { clear: both; padding-top: 1rem !important; margin-top: 2rem !important; font-size: 8pt !important; border-top: 1px solid #d1d5db; color: #6b7280; }
     .print-footer p:last-child { margin-top: 1rem; text-align: center; }
 
-    body.printing-thermal { font-family: 'monospace'; width: 280px; font-size: 12px; line-height: 1.4; }
+    /* --- 7. Thermal Receipt Print Styles (Fallback if printing from browser) --- */
+    body.printing-thermal { font-family: 'monospace'; color: #000; background: #fff; width: 280px; font-size: 12px; line-height: 1.4; }
     body.printing-thermal > *:not(.thermal-receipt) { display: none !important; }
     .thermal-receipt { display: block !important; visibility: visible !important; width: 100%; margin: 0; padding: 0; }
     .thermal-receipt * { visibility: visible !important; }
