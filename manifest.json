@@ -1,15 +1,23 @@
 {
-  "short_name": "Printer",
-  "name": "My Printer App",
+  "short_name": "JewelBill",
+  "name": "JewelBill - Jewellery Biller",
+  "description": "A Progressive Web App for Jewellery Estimation and Billing with offline support.",
   "icons": [
     {
       "src": "icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "index.html",
   "display": "standalone",
-  "theme_color": "#007aff",
-  "background_color": "#ffffff"
+  "theme_color": "#FBBF24",
+  "background_color": "#FFFFFF"
 }
