@@ -90,6 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldGoldSectionPrint = getEl('old-gold-section-print');
     const paymentSectionPrint = getEl('payment-section-print');
 
+    // ** ADDED: Thermal Preview Selectors **
+    const previewEstimateBtn = getEl('preview-estimate-btn');
+    const thermalReceiptModal = getEl('thermal-receipt-modal');
+    const thermalReceiptContent = getEl('thermal-receipt-content');
+    const closeThermalPreviewBtn = getEl('close-thermal-preview');
+
     // Toasts
     const restoreToast = getEl('restore-toast');
     const settingsToast = getEl('settings-toast');
@@ -612,6 +618,21 @@ document.addEventListener('DOMContentLoaded', () => {
             historyListModal.appendChild(li);
         });
     };
+
+    // ** NEW: Thermal Preview Modal Logic **
+    const openThermalPreview = () => {
+        const plainText = prepareThermalText(null); // Get current estimate text
+        if (plainText) {
+            thermalReceiptContent.textContent = plainText; // Put text in <pre>
+            thermalReceiptModal.classList.remove('hidden');
+        } else {
+            alert("Cannot generate preview with no items.");
+        }
+    };
+    const closeThermalPreview = () => {
+        thermalReceiptModal.classList.add('hidden');
+        thermalReceiptContent.textContent = ''; // Clear content
+    };
     
     // --- 8. Form Submit Handlers ---
 
@@ -980,9 +1001,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const hr = '--------------------------------\n';
         let text = center(source.shopDetails.name || 'JewelBill');
-        text += center(source.shopDetails.address || '');
-        if (source.shopDetails.phone) text += center(`Phone: ${source.shopDetails.phone}`); // <-- NEW
-        if (source.shopDetails.email) text += center(`Email: ${source.shopDetails.email}`); // <-- NEW
         text += hr;
         text += center(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
         text += hr;
@@ -1202,6 +1220,10 @@ document.addEventListener('DOMContentLoaded', () => {
     customerAddressInput.addEventListener('input', saveState);
     wastageInput.addEventListener('input', () => calculateTotals(false));
     gstInput.addEventListener('input', () => calculateTotals(false));
+
+    // ** ADDED: Thermal Preview Listeners **
+    previewEstimateBtn.addEventListener('click', openThermalPreview);
+    closeThermalPreviewBtn.addEventListener('click', closeThermalPreview);
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

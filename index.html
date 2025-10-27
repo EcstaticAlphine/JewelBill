@@ -197,7 +197,7 @@
             </section>
 
             <section id="action-buttons" class="flex flex-col sm:flex-row gap-4 no-print hidden">
-                <button id="print-estimate-btn" class="button-info flex-1">Print Thermal Estimate</button>
+                <button id="preview-estimate-btn" class="button-secondary flex-1">Preview Estimate</button> <button id="print-estimate-btn" class="button-info flex-1">Print Thermal Estimate</button>
                 <button id="generate-bill-btn" class="button-success flex-1">Generate & Print A4 Bill</button>
                 <button id="reset-btn" class="button-danger flex-1">New Bill (Clear All)</button>
             </section>
@@ -209,6 +209,16 @@
     </div>
     <div id="history-modal" class="modal hidden no-print">
         <div class="modal-content"><div class="modal-header"><h2 class="text-lg font-semibold">Bill History</h2><button id="close-history-modal" class="modal-close-btn" aria-label="Close">&times;</button></div><div class="modal-body"><ul id="history-list-modal" class="space-y-3"></ul></div></div>
+    </div>
+
+    <div id="thermal-receipt-modal" class="modal hidden no-print">
+        <div class="modal-content thermal-receipt-preview-content"> <div class="modal-header">
+                <h2 class="text-lg font-semibold">Thermal Estimate Preview</h2>
+                <button id="close-thermal-preview" class="modal-close-btn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="thermal-receipt-content" class="thermal-receipt-text"></pre> </div>
+        </div>
     </div>
 
     <div class="bill-section">
