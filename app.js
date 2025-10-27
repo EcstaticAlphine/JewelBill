@@ -873,6 +873,7 @@ document.addEventListener('DOMContentLoaded', () => {
         getEl('bill-date-print').textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
         getEl('customer-name-print').textContent = displayData.customer?.name || 'N/A';
         getEl('customer-phone-print').textContent = displayData.customer?.phone || 'N/A';
+        getEl('customer-address-print').textContent = displayData.customer?.address || 'N/A';
 
         itemsListPrint.innerHTML = '';
         let itemRowsHTML = '';
@@ -1086,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- NEW BILL LOGIC ---
             const billNumber = generateNextBillNumber();
             const billDate = new Date().toISOString();
-            const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim(),address: customerAddressInput.value.trim() };
+            const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim(), address: customerAddressInput.value.trim() };
             const billTotals = calculateTotals(true);
             
             const billData = {
