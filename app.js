@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { toastEl.classList.remove('show'); }, 3000);
     };
 
+    // ** NEW HELPER: A simple delay function **
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     // --- 4. State Management (LocalStorage) ---
 
     /** Saves the entire app state to localStorage. */
