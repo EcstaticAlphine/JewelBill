@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shopPhoneInput = getEl('shop-phone'); // <-- NEW
     const shopEmailInput = getEl('shop-email'); // <-- NEW
     const shopAddressInput = getEl('shop-address');
+    const connectButton = getEl('btn-connect');
     const statusLabel = getEl('status-label');
 
     // History
@@ -112,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastBillNum = 0;
     
     let currentBillSaved = false;
+    
+    let bluetoothDevice = null;
+    let printerCharacteristic = null;
 
     const billPrefix = "AJ";
     const billPadding = 3;
@@ -802,6 +806,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- 10. Bluetooth & Printing Logic ---
+
+    const connectToPrinter = async () => {
+        if (!navigator.bluetooth) {
+            alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android.');
+            return;
+        }
+        try {
+            statusLabel.textContent = 'Scanning...';
+            statusLabel.style.color = 'inherit';
+            const device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: ['generic_attribute', '00001101-0000-1000-8000-00805f9b34fb']
+            });
+            statusLabel.textContent = `Connecting to ${device.name}...`;
+            bluetoothDevice = device;
+            device.addEventListener('gattserverdisconnected', onDisconnected);
+            const server = await device.gatt.connect();
+            let service;
+            try {
+                service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
+            } catch (sppError) {
+                console.warn("Standard SPP service not found. Trying generic attribute...");
+                try {
+                    service = await server.getPrimaryService('generic_attribute');
+                } catch (gaError) {
+                    console.warn("Generic Attribute service not found. Trying first available service...");
+                    const services = await server.getPrimaryServices();
+                    if (!services.length) throw new Error("No Bluetooth services found.");
+                    service = services[0];
+                }
+            }
+            console.log("Using service:", service.uuid);
+            const characteristics = await service.getCharacteristics();
+            printerCharacteristic = characteristics.find(c => c.properties.writeWithoutResponse) ||
+                                    characteristics.find(c => c.properties.write);
+            if (printerCharacteristic) {
+                statusLabel.textContent = `Connected: ${device.name}`;
+                statusLabel.style.color = 'green';
+            } else {
+                statusLabel.textContent = 'Error: No write characteristic found.';
+                server.disconnect();
+            }
+        } catch (error) {
+            statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
+            console.error('Connection failed!', error);
+            bluetoothDevice = null;
+            printerCharacteristic = null;
+        }
+    };
+
+    const onDisconnected = () => {
+        statusLabel.textContent = 'Status: Disconnected';
+        statusLabel.style.color = 'inherit';
+        bluetoothDevice = null;
+        printerCharacteristic = null;
+        console.log('> Bluetooth Device disconnected');
+    };
+
     /**
      * ** MODIFIED: Populates new shop phone/email fields **
      */
@@ -986,6 +1049,151 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     };
 
+    /**
+     * Generates ESC/POS commands and sends them to the printer.
+     */
+    const generateAndPrintEscPos = async (billData = null) => {
+        // 1. Get Bill Data
+        const source = billData || {
+            customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
+            items, silverItems, oldGoldItems,
+            totals: calculateTotals(true), // Get totals object
+            shopDetails: shopDetails
+        };
+        const totals = source.totals;
+        if (!totals) {
+            alert("Cannot print with no items.");
+            return;
+        }
+
+        // 2. Initialize Encoder
+        const encoder = new EscPosEncoder();
+
+        // 3. Helper for aligned rows
+        const row = (label, value) => {
+            return encoder.text(label)
+                          .text(value, 32, 'right');
+        };
+
+        // 4. Build the ESC/POS commands
+        // We wrap this in a try/catch in case the library fails
+        let data;
+        try {
+            encoder.initialize(); // Reset printer
+
+            encoder.align('center')
+                   .bold(true)
+                   .text(source.shopDetails.name || 'JewelBill', 32)
+                   .bold(false)
+                   .text(source.shopDetails.phone || '')
+                   .text(source.shopDetails.address || '')
+                   .lineFeed(1);
+            
+            encoder.align('left')
+                   .text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE')
+                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 32, 'right');
+            
+            encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
+                   .lineFeed(1)
+                   .text('-'.repeat(32)) // 32 chars for 58mm paper
+                   .lineFeed(1);
+
+            // Gold Items
+            if (source.items.length > 0) {
+                encoder.bold(true).text('Gold Items').bold(false).lineFeed(1);
+                source.items.forEach(item => {
+                    const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
+                    encoder.text(`${item.name} (${item.karat}K)`);
+                    row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
+                    row(` Making Charge:`, formatCVurrency(makingCharge));
+                });
+                encoder.text('-'.repeat(32)).lineFeed(1);
+            }
+            
+            // Silver Items (you can add this)
+            
+            // Totals
+            encoder.align('right');
+            if (totals.goldSubtotal > 0) row('Gold Value:', formatCurrency(totals.goldSubtotal));
+            if (totals.wastageValue > 0) row('Wastage:', formatCurrency(totals.wastageValue));
+            if (totals.goldMakingCharges > 0) row('Making Charges:', formatCurrency(totals.goldMakingCharges));
+            if (totals.silverSubtotal > 0) row('Silver Value:', formatCurrency(totals.silverSubtotal));
+            
+            encoder.text('-'.repeat(20)).lineFeed(1);
+            row('Total Before GST:', formatCurrency(totals.totalBeforeGst));
+            if (totals.gstValue > 0) row(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
+            if (totals.oldGoldTotal > 0) row('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
+            if (totals.discount > 0) row('Discount (-):', formatCurrency(totals.discount));
+            
+            encoder.lineFeed(1)
+                   .bold(true)
+                   .size('medium') // Double height/width
+                   .align('left')
+                   .text('NET PAYABLE:', 16)
+                   .text(formatCurrency(totals.netPayable), 16, 'right')
+                   .size('normal')
+                   .bold(false)
+                   .lineFeed(2);
+                   
+            // Footer
+            encoder.align('center')
+                   .text('Thank You!')
+                   .lineFeed(4)
+                   .cut(); // Cut the paper
+
+            // 5. Get the final byte array
+            data = encoder.encode();
+
+        } catch (error) {
+            console.error("Failed to encode ESC/POS:", error);
+            alert("An error occurred while generating the print data.");
+            return;
+        }
+
+        // 6. Send the data to the printer
+        await triggerBluetoothPrint(data);
+    };
+    /**
+     * Sends raw byte data (Uint8Array) to the connected printer.
+     */
+    const triggerBluetoothPrint = async (data) => {
+        if (!printerCharacteristic) {
+            alert('Printer is not connected. Please connect in Settings.');
+            return false; // Return false to indicate failure
+        }
+
+        try {
+            statusLabel.textContent = 'Printing...';
+            // Send the data in chunks
+            const chunkSize = 100; // Send 100 bytes at a time
+            for (let offset = 0; offset < data.length; offset += chunkSize) {
+                const chunk = data.slice(offset, offset + chunkSize);
+                
+                // Use writeValueWithoutResponse for speed if available, otherwise use writeValue
+                if (printerCharacteristic.properties.writeWithoutResponse) {
+                    await printerCharacteristic.writeValueWithoutResponse(chunk);
+                } else {
+                    await printerCharacteristic.writeValue(chunk);
+                }
+                // A small delay to help buffer
+                await new Promise(resolve => setTimeout(resolve, 20)); 
+            }
+            
+            statusLabel.textContent = 'Printing complete!';
+            console.log('Print complete');
+            return true; // Return true to indicate success
+
+        } catch (error) {
+            statusLabel.textContent = 'Print Failed: ' + error.message;
+            console.error('Print failed!', error);
+            // Re-connect if disconnected
+            if (error.name === 'NetworkError') {
+                onDisconnected();
+                alert('Printer connection lost. Please reconnect in Settings.');
+            }
+            return false; // Return false to indicate failure
+        }
+    };
     
     // --- 11. Main Action Button Handlers ---
 
@@ -1107,31 +1315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
     
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
-    // NEW: Add a click listener for the RawBT app
-    printEstimateBtn.addEventListener('click', () => {
-        // 1. Get the receipt text from your existing function
-        const plainText = prepareThermalText(null);
-        if (!plainText) {
-            alert("Cannot generate estimate with no items.");
-            return;
-        }
-
-        try {
-            // 2. Base64-encode the text (this is what RawBT expects)
-            // Note: btoa() can fail with special characters. Using a safer method.
-            const encodedText = btoa(unescape(encodeURIComponent(plainText)));
-
-            // 3. Create the special RawBT URL
-            const rawBtUrl = `rawbt:base64,${encodedText}`;
-
-            // 4. Open the URL. This will automatically launch RawBT and print.
-            window.open(rawBtUrl, '_self');
-
-        } catch (error) {
-            console.error('Printing to RawBT failed:', error);
-            alert('Printing failed. Make sure you have the RawBT app installed.');
-        }
-    });
+    printEstimateBtn.addEventListener('click', () => generateAndPrintEscPos(null));
     generateBillBtn.addEventListener('click', handleGenerateBill);
     resetBtn.addEventListener('click', () => {
         if (items.length > 0 || silverItems.length > 0 || customerNameInput.value) {
