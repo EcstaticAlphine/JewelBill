@@ -806,52 +806,98 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 10. Bluetooth & Printing Logic ---
-
+   // --- 10. Bluetooth & Printing Logic ---
+    
+    /**
+     * ** REWRITTEN BLUETOOTH CONNECT FUNCTION: Iterates all services **
+     */
     const connectToPrinter = async () => {
         if (!navigator.bluetooth) {
-            alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android.');
+            alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android for best results.');
             return;
         }
+
+        const SPP_UUID = '00001101-0000-1000-8000-00805f9b34fb';
+        
+        console.log('Requesting Bluetooth device...');
+        statusLabel.textContent = 'Scanning... (Check browser popup)';
+        statusLabel.style.color = 'inherit';
+
         try {
-            statusLabel.textContent = 'Scanning...';
-            statusLabel.style.color = 'inherit';
             const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: ['generic_attribute', '00001101-0000-1000-8000-00805f9b34fb']
+                acceptAllDevices: true, 
+                optionalServices: ['generic_attribute', SPP_UUID]
             });
+
+            console.log('Device selected:', device.name);
             statusLabel.textContent = `Connecting to ${device.name}...`;
             bluetoothDevice = device;
             device.addEventListener('gattserverdisconnected', onDisconnected);
-            const server = await device.gatt.connect();
-            let service;
-            try {
-                service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-            } catch (sppError) {
-                console.warn("Standard SPP service not found. Trying generic attribute...");
+
+            console.log('Connecting to GATT server...');
+            let server = await device.gatt.connect();
+            console.log('GATT server connected.');
+
+            await delay(500); // Wait for connection to stabilize
+            if (!server.connected) {
+                console.warn('GATT server disconnected. Attempting reconnect...');
+                statusLabel.textContent = 'Re-connecting...';
+                server = await device.gatt.connect();
+                await delay(500);
+                if (!server.connected) throw new Error('GATT server disconnected');
+                console.log('GATT server re-connected.');
+            }
+
+            // --- THIS IS THE KEY CHANGE ---
+            // Instead of asking for one service, we get ALL of them.
+            console.log('Discovering ALL primary services...');
+            const services = await server.getPrimaryServices();
+            if (!services || services.length === 0) {
+                // This is the error you were getting.
+                throw new Error('No services found on device.');
+            }
+            console.log('Found services:', services.map(s => s.uuid));
+            // --- END KEY CHANGE ---
+
+            let foundCharacteristic = null;
+
+            // Loop through all services to find a writable characteristic
+            for (const service of services) {
+                console.log('Checking service:', service.uuid);
                 try {
-                    service = await server.getPrimaryService('generic_attribute');
-                } catch (gaError) {
-                    console.warn("Generic Attribute service not found. Trying first available service...");
-                    const services = await server.getPrimaryServices();
-                    if (!services.length) throw new Error("No Bluetooth services found.");
-                    service = services[0];
+                    const characteristics = await service.getCharacteristics();
+                    const writableChar = characteristics.find(c =>
+                        c.properties.writeWithoutResponse || c.properties.write
+                    );
+
+                    if (writableChar) {
+                        console.log('Found writable characteristic!', writableChar.uuid, 'on service', service.uuid);
+                        foundCharacteristic = writableChar;
+                        break; // We found one, stop looping
+                    }
+                } catch (err) {
+                    // This is normal for some services, just log it.
+                    console.warn('Could not get characteristics for service:', service.uuid, err.message);
                 }
             }
-            console.log("Using service:", service.uuid);
-            const characteristics = await service.getCharacteristics();
-            printerCharacteristic = characteristics.find(c => c.properties.writeWithoutResponse) ||
-                                    characteristics.find(c => c.properties.write);
-            if (printerCharacteristic) {
+
+            if (foundCharacteristic) {
+                printerCharacteristic = foundCharacteristic;
                 statusLabel.textContent = `Connected: ${device.name}`;
                 statusLabel.style.color = 'green';
             } else {
-                statusLabel.textContent = 'Error: No write characteristic found.';
+                console.error('No writable characteristic found on any service.');
+                statusLabel.textContent = 'Error: No writable characteristic found.';
                 server.disconnect();
             }
+
         } catch (error) {
-            statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
             console.error('Connection failed!', error);
+            if (error.name === 'NotFoundError') {
+                 statusLabel.textContent = 'Connection Cancelled.';
+            } else {
+                 statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
+            }
             bluetoothDevice = null;
             printerCharacteristic = null;
         }
@@ -866,89 +912,65 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * ** MODIFIED: Populates new shop phone/email fields **
+     * ** A4 Print function (reverted to include shop name) **
      */
     const prepareA4Print = (isFinalBill, billData = null, isReprint = false) => {
         const displayData = billData || {
-            billNumber: `EST-${Date.now().toString().slice(-6)}`,
-            date: new Date().toISOString(),
-            customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
+            billNumber: `EST-${Date.now().toString().slice(-6)}`, date: new Date().toISOString(),
+            customer: { name: customerNameInput.value, phone: customerPhoneInput.value, address: customerAddressInput.value },
             items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails,
-            totals: calculateTotals(true),
-            shopDetails: shopDetails
+            totals: calculateTotals(true), shopDetails: shopDetails
         };
 
-        // Populate Header
-        // getEl('shop-name-print').textContent = displayData.shopDetails?.name || 'JewelBill';
-        getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)'; // <-- NEW
-        getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)'; // <-- NEW
-        getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)'; // <-- NEW
+        // --- Populate Header ---
+        shopNamePrint.textContent = displayData.shopDetails?.name || 'JewelBill';
+        shopPhonePrint.textContent = displayData.shopDetails?.phone || '(Not Set)';
+        shopEmailPrint.textContent = displayData.shopDetails?.email || '(Not Set)';
+        shopAddressPrint.textContent = displayData.shopDetails?.address || '(Not Set)';
         
         let title = 'ESTIMATE';
-        if (isFinalBill) {
-            title = isReprint ? 'DUPLICATE INVOICE' : 'FINAL INVOICE';
-        }
-        getEl('invoice-title-print').textContent = title;
+        if (isFinalBill) title = isReprint ? 'DUPLICATE INVOICE' : 'FINAL INVOICE';
+        invoiceTitlePrint.textContent = title;
+        billNoPrint.textContent = displayData.billNumber;
+        billDatePrint.textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        
+        // --- Populate Customer ---
+        customerNamePrint.textContent = displayData.customer?.name || 'N/A';
+        customerPhonePrint.textContent = displayData.customer?.phone || 'N/A';
+        customerAddressPrint.textContent = displayData.customer?.address || 'N/A';
 
-        getEl('bill-no-print').textContent = displayData.billNumber;
-        getEl('bill-date-print').textContent = new Date(displayData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-        getEl('customer-name-print').textContent = displayData.customer?.name || 'N/A';
-        getEl('customer-phone-print').textContent = displayData.customer?.phone || 'N/A';
-        getEl('customer-address-print').textContent = displayData.customer?.address || 'N/A';
-
-        itemsListPrint.innerHTML = '';
-        let itemRowsHTML = '';
+        // --- Populate Items Table ---
+        itemsListPrint.innerHTML = ''; let itemRowsHTML = '';
         const allItems = [...(displayData.items || []), ...(displayData.silverItems || [])];
         const totals = displayData.totals;
-
         allItems.forEach(item => {
             let itemName = item.name, netWeight, rate, value, makingCharge = 0, subtotal = 0, isGold = item.hasOwnProperty('karat');
             if (isGold) {
-                itemName += ` (${item.karat}K)`;
-                netWeight = item.netWeight?.toFixed(3);
-                rate = totals?.goldRate22k || goldRate22k;
+                itemName += ` (${item.karat}K)`; netWeight = item.netWeight?.toFixed(3); rate = totals?.goldRate22k || goldRate22k;
                 value = (item.purityAdjustedWeight || (item.netWeight * (item.karat / 22))) * rate;
                 makingCharge = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value;
                 subtotal = value + makingCharge;
             } else {
-                netWeight = item.weight?.toFixed(2);
-                rate = totals?.silverRate || silverRate;
-                value = item.weight * rate;
-                subtotal = value;
+                netWeight = item.weight?.toFixed(2); rate = totals?.silverRate || silverRate; value = item.weight * rate; subtotal = value;
             }
-            itemRowsHTML += `
-                <tr>
-                    <td>${itemName}</td><td>${netWeight || '-'}g</td><td>${formatCurrency(rate)}</td>
-                    <td>${formatCurrency(value)}</td><td>${isGold ? formatCurrency(makingCharge) : '-'}</td>
-                    <td>${formatCurrency(subtotal)}</td>
-                </tr>`;
+            itemRowsHTML += `<tr><td>${itemName}</td><td>${netWeight || '-'}g</td><td>${formatCurrency(rate)}</td><td>${formatCurrency(value)}</td><td>${isGold ? formatCurrency(makingCharge) : '-'}</td><td>${formatCurrency(subtotal)}</td></tr>`;
         });
         itemsListPrint.innerHTML = itemRowsHTML;
 
+        // --- Populate Old Gold Table ---
         if (displayData.oldGoldItems?.length > 0) {
-            oldGoldListPrint.innerHTML = '';
-            let oldGoldRowsHTML = '';
-            const rateUsed = totals?.goldRate22k || goldRate22k;
+            oldGoldListPrint.innerHTML = ''; let oldGoldRowsHTML = ''; const rateUsed = totals?.goldRate22k || goldRate22k;
             displayData.oldGoldItems.forEach(item => {
                 const value = (item.purityAdjustedWeight || (item.netWeight * (item.purityPercent / 91.6))) * rateUsed;
-                oldGoldRowsHTML += `
-                    <tr>
-                        <td>${item.name}</td><td>${item.netWeight.toFixed(2)}g</td>
-                        <td>${item.purityPercent}%</td><td>${formatCurrency(rateUsed)}</td>
-                        <td>${formatCurrency(value)}</td>
-                    </tr>`;
+                oldGoldRowsHTML += `<tr><td>${item.name}</td><td>${item.netWeight.toFixed(2)}g</td><td>${item.purityPercent}%</td><td>${formatCurrency(rateUsed)}</td><td>${formatCurrency(value)}</td></tr>`;
             });
-            oldGoldListPrint.innerHTML = oldGoldRowsHTML;
-            oldGoldSectionPrint.classList.remove('hidden');
-        } else {
-            oldGoldSectionPrint.classList.add('hidden');
-            oldGoldListPrint.innerHTML = '';
-        }
+            oldGoldListPrint.innerHTML = oldGoldRowsHTML; oldGoldSectionPrint.classList.remove('hidden');
+        } else { oldGoldSectionPrint.classList.add('hidden'); oldGoldListPrint.innerHTML = ''; }
 
+        // --- Populate Summary ---
         summarySectionPrint.innerHTML = '';
         if (totals) {
-            let summaryHTML = ``;
-            const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0);
+            let summaryHTML = ``; const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0);
             summaryHTML += `<div class="flex"><span>Subtotal</span><span class="font-semibold">${formatCurrency(combinedItemSubtotal)}</span></div>`;
             if ((totals.wastageValue || 0) > 0) summaryHTML += `<div class="flex"><span>Wastage (${totals.wastagePercent || 0}%)</span><span>${formatCurrency(totals.wastageValue || 0)}</span></div>`;
             summaryHTML += `<div class="flex"><span>Tax/GST (${totals.gstPercent || 0}%)</span><span>${formatCurrency(totals.gstValue || 0)}</span></div>`;
@@ -962,20 +984,15 @@ document.addEventListener('DOMContentLoaded', () => {
             summarySectionPrint.innerHTML = summaryHTML;
         }
 
+        // --- Populate Payments ---
         if (isFinalBill && displayData.paymentDetails?.length > 0) {
-            paymentListPrint.innerHTML = displayData.paymentDetails.map(p =>
-                `<p>${p.mode}: ${formatCurrency(p.amount)} ${p.ref ? `(${p.ref})` : ''}</p>`
-            ).join('');
+            paymentListPrint.innerHTML = displayData.paymentDetails.map(p => `<p>${p.mode}: ${formatCurrency(p.amount)} ${p.ref ? `(${p.ref})` : ''}</p>`).join('');
             paymentSectionPrint.classList.remove('hidden');
-        } else {
-            paymentSectionPrint.classList.add('hidden');
-            paymentListPrint.innerHTML = '';
-        }
+        } else { paymentSectionPrint.classList.add('hidden'); paymentListPrint.innerHTML = ''; }
 
-        document.body.classList.add('printing-a4');
-        document.body.classList.remove('printing-thermal');
-        window.print();
-        document.body.classList.remove('printing-a4');
+        // --- Trigger Print ---
+        document.body.classList.add('printing-a4'); document.body.classList.remove('printing-thermal');
+        window.print(); document.body.classList.remove('printing-a4');
     };
 
     /**
