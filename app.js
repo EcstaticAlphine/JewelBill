@@ -140,9 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { toastEl.classList.remove('show'); }, 3000);
     };
 
-    // ** NEW HELPER: A simple delay function **
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
     // --- 4. State Management (LocalStorage) ---
 
     /** Saves the entire app state to localStorage. */
@@ -183,57 +180,37 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
     };
 
-    /** ** MODIFIED: Loads new shop details ** */
     const loadState = () => {
         customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
         billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
         shopDetails = JSON.parse(localStorage.getItem('jewelBillShopDetails')) || {};
         lastBillNum = parseInt(localStorage.getItem('jewelBillLastBillNum')) || 0;
-
-        // Populate settings panel
-        shopNameInput.value = shopDetails.name || '';
-        shopPhoneInput.value = shopDetails.phone || ''; // <-- NEW
-        shopEmailInput.value = shopDetails.email || ''; // <-- NEW
+        
+        shopNameInput.value = shopDetails.name || ''; 
+        shopPhoneInput.value = shopDetails.phone || '';
+        shopEmailInput.value = shopDetails.email || ''; 
         shopAddressInput.value = shopDetails.address || '';
+        // Load Wi-Fi settings
+        printerIpInput.value = shopDetails.printerIp || '';
+        bridgeUrlInput.value = shopDetails.bridgeUrl || 'http://127.0.0.1:3000'; // Default to localhost
 
         const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
         if (savedRates) {
-            goldRate22k = savedRates.goldRate22k || 0;
-            silverRate = savedRates.silverRate || 0;
-            goldRateInput.value = goldRate22k || '';
-            silverRateInput.value = silverRate || '';
+            goldRate22k = savedRates.goldRate22k || 0; silverRate = savedRates.silverRate || 0;
+            goldRateInput.value = goldRate22k || ''; silverRateInput.value = silverRate || '';
         }
-
         const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
-        if (!savedCurrentState) {
-            updateRateDisplay(!(goldRate22k > 0 && silverRate > 0));
-            return;
-        }
-        
+        if (!savedCurrentState) { updateRateDisplay(!(goldRate22k > 0 && silverRate > 0)); return; }
         const state = JSON.parse(savedCurrentState);
-        goldRate22k = state.goldRate22k || goldRate22k;
-        silverRate = state.silverRate || silverRate;
-        customerNameInput.value = state.customerName || '';
-        customerPhoneInput.value = state.customerPhone || '';
-        customerAddressInput.value = state.customerAddress || '';
-        items = state.items || [];
-        silverItems = state.silverItems || [];
-        oldGoldItems = state.oldGoldItems || [];
-        paymentDetails = state.paymentDetails || [];
-        wastageInput.value = state.wastage || '12';
-        gstInput.value = state.gst || '3';
+        goldRate22k = state.goldRate22k || goldRate22k; silverRate = state.silverRate || silverRate;
+        customerNameInput.value = state.customerName || ''; customerPhoneInput.value = state.customerPhone || ''; customerAddressInput.value = state.customerAddress || '';
+        items = state.items || []; silverItems = state.silverItems || []; oldGoldItems = state.oldGoldItems || []; paymentDetails = state.paymentDetails || [];
+        wastageInput.value = state.wastage || '12'; gstInput.value = state.gst || '3';
         currentBillSaved = state.currentBillSaved || false;
-        
         if (state.ratesSet && goldRate22k > 0 && silverRate > 0) {
-            updateRateDisplay(false);
-            renderAllLists();
-            showToast(restoreToast);
-            if (currentBillSaved) {
-                generateBillBtn.textContent = 'Reprint A4 Bill';
-            }
-        } else {
-            updateRateDisplay(true);
-        }
+            updateRateDisplay(false); renderAllLists(); showToast(restoreToast);
+            if (currentBillSaved) generateBillBtn.textContent = 'Reprint A4 Bill';
+        } else updateRateDisplay(true);
     };
 
     // --- 5. UI Rendering Functions ---
@@ -740,8 +717,12 @@ document.addEventListener('DOMContentLoaded', () => {
         shopDetails.phone = shopPhoneInput.value.trim(); // <-- NEW
         shopDetails.email = shopEmailInput.value.trim(); // <-- NEW
         shopDetails.address = shopAddressInput.value.trim();
+        shopDetails.printerIp = printerIpInput.value.trim(); // <-- NEW
+        shopDetails.bridgeUrl = bridgeUrlInput.value.trim();
         
         saveShopDetails();
+        statusLabel.textContent = "Details saved. Ensure Bridge Server is running.";
+        statusLabel.style.color = "green";
         showToast(settingsToast);
         settingsPanel.classList.add('hidden');
     };
@@ -807,107 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 getEl('old-item-name').focus();
                 break;
         }
-    };
-
-   // --- 10. Bluetooth & Printing Logic ---
-    
-    /**
-     * ** REWRITTEN BLUETOOTH CONNECT FUNCTION: Filter by SPP UUID **
-     */
-    const connectToPrinter = async () => {
-        if (!navigator.bluetooth) {
-            alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android for best results.');
-            return;
-        }
-
-        const SPP_UUID = '00001101-0000-1000-8000-00805f9b34fb';
-        
-        console.log('Requesting Bluetooth device...');
-        statusLabel.textContent = 'Scanning... (Check browser popup)';
-        statusLabel.style.color = 'inherit';
-
-        try {
-            const device = await navigator.bluetooth.requestDevice({
-                // *** THIS IS THE KEY CHANGE ***
-                // We are now *filtering* for the SPP service.
-                // This is the most reliable way to find a classic printer on Android.
-                // It will show a list of *only* devices that claim to have this service.
-                filters: [
-                    { services: [SPP_UUID] }
-                ],
-                optionalServices: ['generic_attribute'] // We don't need to request SPP again here
-            });
-
-            console.log('Device selected:', device.name);
-            statusLabel.textContent = `Connecting to ${device.name}...`;
-            bluetoothDevice = device;
-            device.addEventListener('gattserverdisconnected', onDisconnected);
-
-            console.log('Connecting to GATT server...');
-            let server = await device.gatt.connect();
-            console.log('GATT server connected.');
-
-            await delay(500); // Wait for connection to stabilize
-            if (!server.connected) {
-                console.warn('GATT server disconnected. Attempting reconnect...');
-                statusLabel.textContent = 'Re-connecting...';
-                server = await device.gatt.connect();
-                await delay(500);
-                if (!server.connected) throw new Error('GATT server disconnected');
-                console.log('GATT server re-connected.');
-            }
-
-            let service;
-            try {
-                // We know the device *has* this service, so we just get it.
-                console.log('Attempting to get SPP service...');
-                service = await server.getPrimaryService(SPP_UUID);
-                console.log('Found SPP service.');
-            } catch (sppError) {
-                // If it fails here, it's a definite problem.
-                console.error('SPP service not found, even after filtering.', sppError);
-                statusLabel.textContent = 'Error: SPP service not found.';
-                server.disconnect();
-                return;
-            }
-
-            console.log('Getting characteristics for service:', service.uuid);
-            const characteristics = await service.getCharacteristics();
-
-            printerCharacteristic = characteristics.find(c => 
-                c.properties.writeWithoutResponse || c.properties.write
-            );
-
-            if (printerCharacteristic) {
-                console.log('Found write characteristic:', printerCharacteristic.uuid);
-                statusLabel.textContent = `Connected: ${device.name}`;
-                statusLabel.style.color = 'green';
-            } else {
-                console.error('No "write" characteristic found on the SPP service.');
-                statusLabel.textContent = 'Error: No write characteristic found.';
-                server.disconnect();
-            }
-
-        } catch (error) {
-            console.error('Connection failed!', error);
-            if (error.name === 'NotFoundError') {
-                 // This now means the filter found no devices
-                 statusLabel.textContent = 'No compatible printer found. (Or cancelled)';
-                 alert("No compatible printer was found.\n\nMake sure your printer is ON and NOT PAIRED in Android settings, then try again.");
-            } else {
-                 statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
-            }
-            bluetoothDevice = null;
-            printerCharacteristic = null;
-        }
-    };
-
-    const onDisconnected = () => {
-        statusLabel.textContent = 'Status: Disconnected';
-        statusLabel.style.color = 'inherit';
-        bluetoothDevice = null;
-        printerCharacteristic = null;
-        console.log('> Bluetooth Device disconnected');
     };
 
     /**
@@ -1065,35 +945,62 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     };
 
-    const triggerBluetoothPrint = async (billData = null) => {
-        if (!printerCharacteristic) {
-            alert('Printer is not connected. Please connect in Settings.');
+    /**
+     * ** NEW: Wi-Fi Print Function **
+     */
+    const triggerWiFiPrint = async (billData = null) => {
+        const printerIp = shopDetails.printerIp;
+        const bridgeUrl = shopDetails.bridgeUrl;
+
+        if (!printerIp || !bridgeUrl) {
+            alert("Printer IP or Bridge URL is not set. Please check Settings.");
             return;
         }
+
         const plainText = prepareThermalText(billData);
         if (!plainText) {
-            alert("Could not generate estimate content.");
+            alert("Cannot generate estimate content.");
             return;
         }
+
+        statusLabel.textContent = 'Sending to bridge...';
+        statusLabel.style.color = 'inherit';
+
         try {
-            statusLabel.textContent = 'Printing...';
-            const encoder = new TextEncoder();
-            const data = encoder.encode(plainText);
-            const chunkSize = 100;
-            for (let offset = 0; offset < data.length; offset += chunkSize) {
-                const chunk = data.slice(offset, offset + chunkSize);
-                if (printerCharacteristic.properties.write) {
-                    await printerCharacteristic.writeValue(chunk);
-                } else {
-                    await printerCharacteristic.writeValueWithoutResponse(chunk);
-                }
-                await new Promise(resolve => setTimeout(resolve, 50)); 
+            // Send the print job to the bridge server
+            const response = await fetch(`${bridgeUrl}/print`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    printerIp: printerIp,
+                    text: plainText
+                })
+            });
+
+            if (!response.ok) {
+                // Read the error message from the server
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Server responded with ${response.status}`);
             }
-            statusLabel.textContent = 'Printing complete!';
-            console.log('Print complete');
+
+            const result = await response.json();
+            console.log('Print job sent:', result);
+            statusLabel.textContent = 'Print job sent successfully!';
+            statusLabel.style.color = 'green';
+
         } catch (error) {
-            statusLabel.textContent = 'Print Failed: ' + error.message;
-            console.error('Print failed!', error);
+            console.error('Print Failed!', error);
+            // This error will trigger if the bridge server isn't running
+            if (error instanceof TypeError) { 
+                statusLabel.textContent = 'Error: Bridge Server is not reachable.';
+                alert('Error: Could not connect to the Bridge Server.\n\nPlease ensure the server is running on your computer and the URL is correct.');
+            } else {
+                statusLabel.textContent = `Print Failed: ${error.message}`;
+                alert(`Print Failed: ${error.message}`);
+            }
+            statusLabel.style.color = 'red';
         }
     };
     
@@ -1240,6 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ** ADDED: Thermal Preview Listeners **
     previewEstimateBtn.addEventListener('click', openThermalPreview);
     closeThermalPreviewBtn.addEventListener('click', closeThermalPreview);
+    printEstimateBtn.addEventListener('click', () => triggerWiFiPrint(null));
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
