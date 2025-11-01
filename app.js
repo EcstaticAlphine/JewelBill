@@ -812,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
    // --- 10. Bluetooth & Printing Logic ---
     
     /**
-     * ** REWRITTEN BLUETOOTH CONNECT FUNCTION: Iterates all services **
+     * ** REWRITTEN BLUETOOTH CONNECT FUNCTION: Filter by SPP UUID **
      */
     const connectToPrinter = async () => {
         if (!navigator.bluetooth) {
@@ -828,8 +828,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true, 
-                optionalServices: ['generic_attribute', SPP_UUID]
+                // *** THIS IS THE KEY CHANGE ***
+                // We are now *filtering* for the SPP service.
+                // This is the most reliable way to find a classic printer on Android.
+                // It will show a list of *only* devices that claim to have this service.
+                filters: [
+                    { services: [SPP_UUID] }
+                ],
+                optionalServices: ['generic_attribute'] // We don't need to request SPP again here
             });
 
             console.log('Device selected:', device.name);
@@ -851,53 +857,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('GATT server re-connected.');
             }
 
-            // --- THIS IS THE KEY CHANGE ---
-            // Instead of asking for one service, we get ALL of them.
-            console.log('Discovering ALL primary services...');
-            const services = await server.getPrimaryServices();
-            if (!services || services.length === 0) {
-                // This is the error you were getting.
-                throw new Error('No services found on device.');
-            }
-            console.log('Found services:', services.map(s => s.uuid));
-            // --- END KEY CHANGE ---
-
-            let foundCharacteristic = null;
-
-            // Loop through all services to find a writable characteristic
-            for (const service of services) {
-                console.log('Checking service:', service.uuid);
-                try {
-                    const characteristics = await service.getCharacteristics();
-                    const writableChar = characteristics.find(c =>
-                        c.properties.writeWithoutResponse || c.properties.write
-                    );
-
-                    if (writableChar) {
-                        console.log('Found writable characteristic!', writableChar.uuid, 'on service', service.uuid);
-                        foundCharacteristic = writableChar;
-                        break; // We found one, stop looping
-                    }
-                } catch (err) {
-                    // This is normal for some services, just log it.
-                    console.warn('Could not get characteristics for service:', service.uuid, err.message);
-                }
+            let service;
+            try {
+                // We know the device *has* this service, so we just get it.
+                console.log('Attempting to get SPP service...');
+                service = await server.getPrimaryService(SPP_UUID);
+                console.log('Found SPP service.');
+            } catch (sppError) {
+                // If it fails here, it's a definite problem.
+                console.error('SPP service not found, even after filtering.', sppError);
+                statusLabel.textContent = 'Error: SPP service not found.';
+                server.disconnect();
+                return;
             }
 
-            if (foundCharacteristic) {
-                printerCharacteristic = foundCharacteristic;
+            console.log('Getting characteristics for service:', service.uuid);
+            const characteristics = await service.getCharacteristics();
+
+            printerCharacteristic = characteristics.find(c => 
+                c.properties.writeWithoutResponse || c.properties.write
+            );
+
+            if (printerCharacteristic) {
+                console.log('Found write characteristic:', printerCharacteristic.uuid);
                 statusLabel.textContent = `Connected: ${device.name}`;
                 statusLabel.style.color = 'green';
             } else {
-                console.error('No writable characteristic found on any service.');
-                statusLabel.textContent = 'Error: No writable characteristic found.';
+                console.error('No "write" characteristic found on the SPP service.');
+                statusLabel.textContent = 'Error: No write characteristic found.';
                 server.disconnect();
             }
 
         } catch (error) {
             console.error('Connection failed!', error);
             if (error.name === 'NotFoundError') {
-                 statusLabel.textContent = 'Connection Cancelled.';
+                 // This now means the filter found no devices
+                 statusLabel.textContent = 'No compatible printer found. (Or cancelled)';
+                 alert("No compatible printer was found.\n\nMake sure your printer is ON and NOT PAIRED in Android settings, then try again.");
             } else {
                  statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
             }
