@@ -3,7 +3,8 @@
   Handles caching for offline functionality.
 */
 
-const CACHE_NAME = 'jewelbill-cache-v2'; // Changed cache name to force update
+// THIS IS THE FIX: Changed v2 to v3 to force the browser to update.
+const CACHE_NAME = 'jewelbill-cache-v3'; 
 const urlsToCache = [
   '/',
   'index.html',
@@ -11,9 +12,9 @@ const urlsToCache = [
   'app.js',
   'manifest.json',
   'icon-192.png',
-  'AJ.png',
-  'esc-pos-encoder.browser.js', // <-- THIS IS THE CRITICAL FIX
-  'https.cdn.tailwindcss.com', // Corrected cache key for Tailwind
+  'AJ.jpg', // Make sure this matches your image file (original was .png)
+  'esc-pos-encoder.browser.js', // This file will now be cached
+  'https.cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
 ];
 
@@ -24,7 +25,8 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] Caching core assets:', urlsToCache);
-        // Use addAll with network requests for external URLs
+        
+        // We will cache local and network assets separately
         const localAssets = [
           '/',
           'index.html',
@@ -32,8 +34,7 @@ self.addEventListener('install', event => {
           'app.js',
           'manifest.json',
           'icon-192.png',
-          'AJ.png', // [Jewel Bill/AJ.jpg] - Wait, your file is AJ.jpg, not AJ.png. Let's fix that.
-          'AJ.jpg', // <-- CORRECTED FILE NAME
+          'AJ.jpg', // Using .jpg as in your file upload
           'esc-pos-encoder.browser.js'
         ];
         
@@ -44,7 +45,7 @@ self.addEventListener('install', event => {
 
         return cache.addAll(localAssets)
           .then(() => {
-            // Caching network assets individually in case one fails
+            // Caching network assets individually
             const networkPromises = networkAssets.map(url =>
               fetch(new Request(url, { mode: 'no-cors' })) // Use no-cors for opaque responses
                 .then(response => cache.put(url, response))
@@ -72,6 +73,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            // This will delete 'jewelbill-cache-v1' and 'jewelbill-cache-v2'
             console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -97,14 +99,13 @@ self.addEventListener('fetch', event => {
         // Otherwise, fetch from the network
         return fetch(event.request).then(
           networkResponse => {
-            // Optional: You might want to dynamically cache new requests
-            // Be careful with this
+            // Don't cache everything dynamically, only what's in the list
             return networkResponse;
           }
         ).catch(error => {
             console.error('[Service Worker] Fetch failed:', error);
-            // You could return a fallback offline page here if you had one
         });
       })
   );
 });
+
