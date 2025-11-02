@@ -980,7 +980,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * ** MODIFIED: Populates new shop phone/email fields **
-     * ** MODIFIED: Width changed to 56 chars **
+     * ** MODIFIED: Width changed to 48 chars **
      */
     const prepareThermalText = (billData = null) => {
         const source = billData || {
@@ -991,20 +991,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const totals = source.totals;
         
-        // ** MODIFIED: Default width -> 56 **
-        const line = (label, value, width = 56) => {
+        // ** MODIFIED: Default width -> 48 **
+        const line = (label, value, width = 48) => {
             const labelStr = label.toString(); const valueStr = value.toString();
             const spaces = Math.max(0, width - labelStr.length - valueStr.length);
             return `${labelStr}${' '.repeat(spaces)}${valueStr}\n`;
         };
-        // ** MODIFIED: Default width -> 56 **
-        const center = (text, width = 56) => {
+        // ** MODIFIED: Default width -> 48 **
+        const center = (text, width = 48) => {
             if (!text) return '\n';
             const spaces = Math.max(0, Math.floor((width - text.length) / 2));
             return `${' '.repeat(spaces)}${text}\n`;
         };
-        // ** MODIFIED: -> 56 dashes **
-        const hr = '--------------------------------------------------------\n';
+        // ** MODIFIED: -> 48 dashes **
+        const hr = '------------------------------------------------\n';
         
         let text = center(source.shopDetails.name || 'JewelBill');
         text += hr;
@@ -1040,9 +1040,9 @@ document.addEventListener('DOMContentLoaded', () => {
         text += line('Bill Total:', formatCurrency(totals.grandTotal));
         if (totals.oldGoldTotal > 0) text += line('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
         if (totals.discount > 0) text += line('Discount (-):', formatCurrency(totals.discount));
-        text += '========================================================\n';
+        text += '================================================\n';
         text += line('NET PAYABLE:', formatCurrency(totals.netPayable));
-        text += '========================================================\n\n';
+        text += '================================================\n\n';
         if (billData && source.paymentDetails?.length > 0) {
             text += `Payments Received\n`;
             source.paymentDetails.forEach(p => { text += line(`${p.mode}:`, formatCurrency(p.amount)); });
@@ -1054,10 +1054,9 @@ document.addEventListener('DOMContentLoaded', () => {
         text += center('Thank You!') + '\n\n\n\n';
         return text;
     };
-
     /**
      * Generates ESC/POS commands and sends them to the printer.
-     * ** MODIFIED: Width changed to 56 chars **
+     * ** MODIFIED: Width changed to 48 chars **
      */
     const generateAndPrintEscPos = async (billData = null) => {
         // 1. Get Bill Data
@@ -1077,10 +1076,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const encoder = new EscPosEncoder();
 
         // 3. Helper for aligned rows
-        // ** MODIFIED: -> 56 **
+        // ** MODIFIED: -> 48 **
         const row = (label, value) => {
             return encoder.text(label)
-                          .text(value, 56, 'right');
+                          .text(value, 48, 'right');
         };
 
         // 4. Build the ESC/POS commands
@@ -1089,24 +1088,24 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             encoder.initialize(); // Reset printer
 
-            // ** MODIFIED: -> 56 **
+            // ** MODIFIED: -> 48 **
             encoder.align('center')
                    .bold(true)
-                   .text(source.shopDetails.name || 'JewelBill', 56)
+                   .text(source.shopDetails.name || 'JewelBill', 48)
                    .bold(false)
                    .text(source.shopDetails.phone || '')
                    .text(source.shopDetails.address || '')
                    .lineFeed(1);
             
-            // ** MODIFIED: -> 56 **
+            // ** MODIFIED: -> 48 **
             encoder.align('left')
                    .text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE')
-                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 56, 'right');
+                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 48, 'right');
             
-            // ** MODIFIED: -> 56 **
+            // ** MODIFIED: -> 48 **
             encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
                    .lineFeed(1)
-                   .text('-'.repeat(56)) // 56 chars
+                   .text('-'.repeat(48)) // 48 chars
                    .lineFeed(1);
 
             // Gold Items
@@ -1118,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
                     row(` Making Charge:`, formatCVurrency(makingCharge));
                 });
-                encoder.text('-'.repeat(56)).lineFeed(1);
+                encoder.text('-'.repeat(48)).lineFeed(1);
             }
             
             // Silver Items (you can add this)
@@ -1130,19 +1129,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (totals.goldMakingCharges > 0) row('Making Charges:', formatCurrency(totals.goldMakingCharges));
             if (totals.silverSubtotal > 0) row('Silver Value:', formatCurrency(totals.silverSubtotal));
             
-            encoder.text('-'.repeat(30)).lineFeed(1); // Right-aligned partial line
+            encoder.text('-'.repeat(28)).lineFeed(1); // Right-aligned partial line
             row('Total Before GST:', formatCurrency(totals.totalBeforeGst));
             if (totals.gstValue > 0) row(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
             if (totals.oldGoldTotal > 0) row('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
             if (totals.discount > 0) row('Discount (-):', formatCurrency(totals.discount));
             
-            // ** MODIFIED: Widths 16 -> 28 **
+            // ** MODIFIED: Widths 28 -> 24 **
             encoder.lineFeed(1)
                    .bold(true)
                    .size('medium') // Double height/width
                    .align('left')
-                   .text('NET PAYABLE:', 28)
-                   .text(formatCurrency(totals.netPayable), 28, 'right')
+                   .text('NET PAYABLE:', 24)
+                   .text(formatCurrency(totals.netPayable), 24, 'right')
                    .size('normal')
                    .bold(false)
                    .lineFeed(2);
