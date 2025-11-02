@@ -9,6 +9,7 @@ const urlsToCache = [
   'index.html',
   'style.css',
   'app.js',
+  'esc-pos-encoder.browser.js',
   'manifest.json',
   'icon-192.png',
   'AJ.png',
