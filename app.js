@@ -1,10 +1,9 @@
 /*
   app.js
   Main JavaScript logic for JewelBill Application
-  (MODIFIED to use a Custom URL Bridge App)
+  (MODIFIED with Debug Alerts)
 */
 
-// Wait for the DOM to be fully loaded before running any script
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Element Selectors ---
@@ -64,18 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const printEstimateBtn = getEl('print-estimate-btn');
     const generateBillBtn = getEl('generate-bill-btn');
     const resetBtn = getEl('reset-btn');
-
-    // Settings Selectors
+    
     const settingsBtn = getEl('settings-btn');
     const settingsPanel = getEl('settings-panel');
     const shopNameInput = getEl('shop-name');
-    const shopPhoneInput = getEl('shop-phone');
-    const shopEmailInput = getEl('shop-email');
+    const shopPhoneInput = getEl('shop-phone'); 
+    const shopEmailInput = getEl('shop-email'); 
     const shopAddressInput = getEl('shop-address');
-    
-    // ** NOTE: The connectButton and statusLabel are NO LONGER USED **
-    // const connectButton = getEl('btn-connect');
-    // const statusLabel = getEl('status-label');
 
     // History
     const historyBtn = getEl('history-btn');
@@ -93,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldGoldSectionPrint = getEl('old-gold-section-print');
     const paymentSectionPrint = getEl('payment-section-print');
 
-    // Thermal Preview Selectors
     const previewEstimateBtn = getEl('preview-estimate-btn');
     const thermalReceiptModal = getEl('thermal-receipt-modal');
     const thermalReceiptContent = getEl('thermal-receipt-content');
@@ -116,11 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastBillNum = 0;
     
     let currentBillSaved = false;
-    
+
     const billPrefix = "AJ";
     const billPadding = 3;
 
     // --- 3. Helper Functions ---
+
     const formatCurrency = (value) => {
         const num = parseFloat(value);
         if (isNaN(num)) { return '₹ 0.00'; }
@@ -140,12 +134,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 4. State Management (LocalStorage) ---
+
     const saveState = () => {
         const currentBillState = {
-            goldRate22k, silverRate,
-            customerName: customerNameInput.value, customerPhone: customerPhoneInput.value, customerAddress: customerAddressInput.value,
-            items, silverItems, oldGoldItems, paymentDetails,
-            wastage: wastageInput.value, gst: gstInput.value,
+            goldRate22k,
+            silverRate,
+            customerName: customerNameInput.value,
+            customerPhone: customerPhoneInput.value,
+            customerAddress: customerAddressInput.value,
+            items,
+            silverItems,
+            oldGoldItems,
+            paymentDetails,
+            wastage: wastageInput.value,
+            gst: gstInput.value,
             ratesSet: goldRate22k > 0 && silverRate > 0,
             discount: getEl('discount-input')?.value || 0,
             currentBillSaved: currentBillSaved
@@ -175,9 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
         shopDetails = JSON.parse(localStorage.getItem('jewelBillShopDetails')) || {};
         lastBillNum = parseInt(localStorage.getItem('jewelBillLastBillNum')) || 0;
 
+        // Populate settings panel
         shopNameInput.value = shopDetails.name || '';
-        shopPhoneInput.value = shopDetails.phone || '';
-        shopEmailInput.value = shopDetails.email || '';
+        shopPhoneInput.value = shopDetails.phone || ''; 
+        shopEmailInput.value = shopDetails.email || ''; 
         shopAddressInput.value = shopDetails.address || '';
 
         const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
@@ -221,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 5. UI Rendering Functions ---
+
     const renderAllLists = () => {
         renderGoldItems();
         renderSilverItems();
@@ -373,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 6. Calculation Logic ---
+
     const calculateTotals = (returnObject = false) => {
         const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
         const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
@@ -458,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 7. Modal Logic ---
+
     const openCustomerModal = () => {
         renderCustomerListModal();
         customerModal.classList.remove('hidden');
@@ -470,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowerSearchTerm = searchTerm.toLowerCase();
         const filteredCustomers = customers.filter(c =>
             (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
-            (c.phone && c.phone.includes(searchTerm)) ||
+            (c.phone && c.phone.includes(searchTerm)) || // Removed .includes(lowerSearchTerm)
             (c.address && c.address.toLowerCase().includes(lowerSearchTerm))
         );
 
@@ -526,6 +532,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (numPart === lastBillNum) {
             lastBillNum--;
+            console.log(`Last bill number (${billNumber}) deleted. Counter rolled back to: ${lastBillNum}`);
+        } else {
+            console.log(`Older bill (${billNumber}) deleted. Counter remains: ${lastBillNum}`);
         }
         
         billHistory = billHistory.filter(b => b.billNumber !== billNumber);
@@ -578,8 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (printType === 'a4') {
                                 prepareA4Print(true, billToPrint, true); 
                             } else if (printType === 'thermal') {
-                                // NEW: Call the URL function with the old bill data
-                                generateAndPrintEscPos(billToPrint); 
+                                // This now calls the JewelBridge app
+                                triggerBluetoothPrint(billToPrint);
                             }
                         }, 50);
                     } else {
@@ -601,9 +610,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openThermalPreview = () => {
-        const plainText = prepareThermalText(null);
+        const plainText = prepareThermalText(null); // Get current estimate text
         if (plainText) {
-            thermalReceiptContent.textContent = plainText;
+            thermalReceiptContent.textContent = plainText; // Put text in <pre>
             thermalReceiptModal.classList.remove('hidden');
         } else {
             alert("Cannot generate preview with no items.");
@@ -611,10 +620,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const closeThermalPreview = () => {
         thermalReceiptModal.classList.add('hidden');
-        thermalReceiptContent.textContent = '';
+        thermalReceiptContent.textContent = ''; // Clear content
     };
     
     // --- 8. Form Submit Handlers ---
+
     const handleGoldFormSubmit = (e) => {
         e.preventDefault();
         const name = getEl('item-name').value;
@@ -712,8 +722,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleShopDetailsSubmit = (e) => {
         e.preventDefault();
         shopDetails.name = shopNameInput.value.trim();
-        shopDetails.phone = shopPhoneInput.value.trim();
-        shopDetails.email = shopEmailInput.value.trim();
+        shopDetails.phone = shopPhoneInput.value.trim(); 
+        shopDetails.email = shopEmailInput.value.trim(); 
         shopDetails.address = shopAddressInput.value.trim();
         
         saveShopDetails();
@@ -722,6 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 9. Item Edit/Delete Logic ---
+
     const handleListClick = (e) => {
         const target = e.target.closest('button[data-action]');
         if (!target) return;
@@ -783,7 +794,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 10. Printing Logic ---
+    // --- 10. Bluetooth & Printing Logic ---
+    
+    // ** All old Bluetooth code removed **
 
     /**
      * This function is still used for the "Preview" button
@@ -857,132 +870,10 @@ document.addEventListener('DOMContentLoaded', () => {
         text += center('Thank You!') + '\n\n\n\n';
         return text;
     };
-
-
+    
     /**
-     * NEW: Generates ESC/POS commands from the current bill.
+     * Prepares A4 print layout
      */
-    const generateEscPosData = (billData = null) => {
-        // 1. Get Bill Data
-        const source = billData || {
-            customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
-            items, silverItems, oldGoldItems,
-            totals: calculateTotals(true),
-            shopDetails: shopDetails
-        };
-        const totals = source.totals;
-        if (!totals) {
-            alert("Cannot print with no items.");
-            return null;
-        }
-
-        // 2. Initialize Encoder (from the script we added to index.html)
-        const encoder = new EscPosEncoder();
-
-        // 3. Helper for aligned rows
-        const row = (label, value, width = 32) => {
-            const labelStr = label.toString();
-            const valueStr = value.toString();
-            const spaces = Math.max(0, width - labelStr.length - valueStr.length);
-            return encoder.text(labelStr + ' '.repeat(spaces) + valueStr).lineFeed();
-        };
-
-        // 4. Build the ESC/POS commands
-        try {
-            encoder.initialize(); // Reset printer
-            encoder.align('center')
-                   .bold(true)
-                   .text(source.shopDetails.name || 'JewelBill')
-                   .bold(false)
-                   .text(source.shopDetails.phone || '')
-                   .text(source.shopDetails.address || '')
-                   .lineFeed(1)
-                   .align('left');
-            
-            encoder.text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
-            encoder.align('right')
-                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'))
-                   .lineFeed(1)
-                   .align('left');
-            
-            encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
-                   .lineFeed(1)
-                   .text('-'.repeat(32)) // 32 chars for 58mm paper
-                   .lineFeed(1);
-
-            // Gold Items
-            if (source.items.length > 0) {
-                encoder.bold(true).text('Gold Items').bold(false).lineFeed(1);
-                source.items.forEach(item => {
-                    const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
-                    encoder.text(`${item.name} (${item.karat}K)`);
-                    row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
-                    row(` Making Charge:`, formatCurrency(makingCharge));
-                });
-                encoder.text('-'.repeat(32)).lineFeed(1);
-            }
-            
-            // Silver Items
-            if (source.silverItems.length > 0) {
-                encoder.bold(true).text('Silver Items').bold(false).lineFeed(1);
-                source.silverItems.forEach(item => {
-                    encoder.text(item.name);
-                    row(` Weight:${item.weight.toFixed(2)}g`, formatCurrency(item.value));
-                });
-                encoder.text('-'.repeat(32)).lineFeed(1);
-            }
-            
-            // Totals
-            encoder.align('right');
-            if (totals.goldSubtotal > 0) row('Gold Value:', formatCurrency(totals.goldSubtotal));
-            if (totals.wastageValue > 0) row('Wastage:', formatCurrency(totals.wastageValue));
-            if (totals.goldMakingCharges > 0) row('Making Charges:', formatCurrency(totals.goldMakingCharges));
-            if (totals.silverSubtotal > 0) row('Silver Value:', formatCurrency(totals.silverSubtotal));
-            
-            encoder.text('-'.repeat(20)).lineFeed(1);
-            row('Total Before GST:', formatCurrency(totals.totalBeforeGst));
-            if (totals.gstValue > 0) row(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
-            if (totals.oldGoldTotal > 0) row('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
-            if (totals.discount > 0) row('Discount (-):', formatCurrency(totals.discount));
-            
-            encoder.lineFeed(1).align('left');
-            encoder.bold(true).size('medium'); // Double height/width
-            row('NET PAYABLE:', formatCurrency(totals.netPayable), 32);
-            encoder.size('normal').bold(false).lineFeed(1);
-                   
-            // Footer
-            encoder.align('center')
-                   .text('Thank You!')
-                   .lineFeed(4)
-                   .cut(); // Cut the paper
-
-            // 5. Get the final byte array
-            return encoder.encode();
-
-        } catch (error) {
-            console.error("Failed to encode ESC/POS:", error);
-            alert("An error occurred while generating the print data.");
-            return null;
-        }
-    };
-
-    /**
-     * Converts currency string back to number
-     */
-    const unformatCurrency = (value) => {
-        if (typeof value === 'number') return value;
-        return parseFloat(value.replace(/[₹,]/g, '')) || 0;
-    };
-
-    /**
-     * Helper to format currency in the new ESC/POS row function
-     */
-    const formatCVurrency = (value) => {
-        // This is a quick fix for a typo in the ESC/POS generator
-        // It's just a wrapper for the real function
-        return formatCurrency(value);
-    };
-
     const prepareA4Print = (isFinalBill, billData = null, isReprint = false) => {
         const displayData = billData || {
             billNumber: `EST-${Date.now().toString().slice(-6)}`,
@@ -993,10 +884,9 @@ document.addEventListener('DOMContentLoaded', () => {
             shopDetails: shopDetails
         };
 
-        // Populate Header
-        getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)';
-        getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)';
-        getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)';
+        getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)'; 
+        getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)'; 
+        getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)'; 
         
         let title = 'ESTIMATE';
         if (isFinalBill) {
@@ -1091,16 +981,151 @@ document.addEventListener('DOMContentLoaded', () => {
         window.print();
         document.body.classList.remove('printing-a4');
     };
+    
 
     /**
+     * +++ NEW FUNCTION +++
+     * Generates ESC/POS commands from the current bill.
+     */
+    const generateEscPosData = (billData = null) => {
+        // Test 1: Check if the encoder library loaded
+        if (typeof EscPosEncoder === 'undefined') {
+            alert("DEBUG: Error! EscPosEncoder library is not loaded.");
+            return null;
+        }
+        alert("DEBUG: Step 1 - EscPosEncoder library is loaded.");
+
+        // 1. Get Bill Data
+        const source = billData || {
+            customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
+            items, silverItems, oldGoldItems,
+            totals: calculateTotals(true),
+            shopDetails: shopDetails
+        };
+        const totals = source.totals;
+        if (!totals) {
+            alert("Cannot print with no items.");
+            return null;
+        }
+
+        // 2. Initialize Encoder
+        let encoder;
+        try {
+            encoder = new EscPosEncoder();
+        } catch(e) {
+            alert("DEBUG: Error! Failed to initialize EscPosEncoder: " + e.message);
+            return null;
+        }
+        
+        alert("DEBUG: Step 2 - Encoder initialized.");
+
+        // 3. Helper for aligned rows
+        const row = (label, value, width = 32) => {
+            const labelStr = label.toString();
+            const valueStr = value.toString();
+            const spaces = Math.max(0, width - labelStr.length - valueStr.length);
+            return encoder.text(labelStr + ' '.repeat(spaces) + valueStr).lineFeed();
+        };
+
+        // 4. Build the ESC/POS commands
+        let data;
+        try {
+            encoder.initialize(); // Reset printer
+            encoder.align('center')
+                   .bold(true)
+                   .text(source.shopDetails.name || 'JewelBill')
+                   .bold(false)
+                   .text(source.shopDetails.phone || '')
+                   .text(source.shopDetails.address || '')
+                   .lineFeed(1)
+                   .align('left');
+            
+            encoder.text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
+            encoder.align('right')
+                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'))
+                   .lineFeed(1)
+                   .align('left');
+            
+            encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
+                   .lineFeed(1)
+                   .text('-'.repeat(32)) // 32 chars for 58mm paper
+                   .lineFeed(1);
+
+            // Gold Items
+            if (source.items.length > 0) {
+                encoder.bold(true).text('Gold Items').bold(false).lineFeed(1);
+                source.items.forEach(item => {
+                    const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
+                    encoder.text(`${item.name} (${item.karat}K)`);
+                    row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
+                    row(` Making Charge:`, formatCurrency(makingCharge));
+                });
+                encoder.text('-'.repeat(32)).lineFeed(1);
+            }
+            
+            // Silver Items
+            if (source.silverItems.length > 0) {
+                encoder.bold(true).text('Silver Items').bold(false).lineFeed(1);
+                source.silverItems.forEach(item => {
+                    encoder.text(item.name);
+                    row(` Weight:${item.weight.toFixed(2)}g`, formatCurrency(item.value));
+                });
+                encoder.text('-'.repeat(32)).lineFeed(1);
+            }
+            
+            // Totals
+            encoder.align('right');
+            if (totals.goldSubtotal > 0) row('Gold Value:', formatCurrency(totals.goldSubtotal));
+            if (totals.wastageValue > 0) row('Wastage:', formatCurrency(totals.wastageValue));
+            if (totals.goldMakingCharges > 0) row('Making Charges:', formatCurrency(totals.goldMakingCharges));
+            if (totals.silverSubtotal > 0) row('Silver Value:', formatCurrency(totals.silverSubtotal));
+            
+            encoder.text('-'.repeat(20)).lineFeed(1);
+            row('Total Before GST:', formatCurrency(totals.totalBeforeGst));
+            if (totals.gstValue > 0) row(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
+            if (totals.oldGoldTotal > 0) row('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
+            if (totals.discount > 0) row('Discount (-):', formatCurrency(totals.discount));
+            
+            encoder.lineFeed(1).align('left');
+            encoder.bold(true).size('medium'); // Double height/width
+            row('NET PAYABLE:', formatCurrency(totals.netPayable), 32);
+            encoder.size('normal').bold(false).lineFeed(1);
+                   
+            // Footer
+            encoder.align('center')
+                   .text('Thank You!')
+                   .lineFeed(4)
+                   .cut(); // Cut the paper
+
+            // 5. Get the final byte array
+            data = encoder.encode();
+
+        } catch (error) {
+            console.error("Failed to encode ESC/POS:", error);
+            alert("DEBUG: Error! Failed to encode ESC/POS data: " + error.message);
+            return null;
+        }
+        
+        alert("DEBUG: Step 3 - ESC/POS data generated successfully.");
+        return data;
+    };
+    
+    /**
+     * +++ NEW FUNCTION +++
      * REPLACED: This now calls the JewelBridge app URL
      */
     const triggerBluetoothPrint = (billData = null) => {
+        alert("DEBUG: Print button clicked. Starting print process...");
+        
         const dataBytes = generateEscPosData(billData);
+        
         if (!dataBytes) {
+            alert("DEBUG: Error! Print cancelled, generateEscPosData returned no data.");
             console.log("Print cancelled, no data.");
             return;
         }
+        
+        alert("DEBUG: Step 4 - Data bytes received. Converting to Base64...");
 
         // 1. Convert the byte array (Uint8Array) to a Base64 string
         let binary = '';
@@ -1113,11 +1138,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Create the custom URL
         const customUrl = `jewelbill:${base64Data}`;
 
+        alert("DEBUG: Step 5 - Calling URL: " + customUrl.substring(0, 50) + "...");
+        
         // 3. Call the URL. Android will send this to your "JewelBridge" app.
-        window.open(customUrl, '_self');
+        try {
+            window.open(customUrl, '_self');
+        } catch (e) {
+            alert("DEBUG: Error! window.open failed: " + e.message);
+        }
     };
     
     // --- 11. Main Action Button Handlers ---
+    
     const handleGenerateBill = () => {
         if (items.length === 0 && silverItems.length === 0) {
             alert("Cannot generate bill with no items.");
@@ -1127,10 +1159,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let billToPrint;
 
         if (currentBillSaved) {
-            // --- REPRINT LOGIC ---
             if (billHistory.length > 0) {
-                billToPrint = billHistory.find(b => b.billNumber === `${billPrefix}${lastBillNum.toString().padStart(billPadding, '0')}`);
+                const billNumToFind = `${billPrefix}${lastBillNum.toString().padStart(billPadding, '0')}`;
+                billToPrint = billHistory.find(b => b.billNumber === billNumToFind);
                 if (!billToPrint) billToPrint = billHistory[billHistory.length - 1]; // fallback
+                
+                if(!billToPrint) {
+                    alert("Error: Could not find bill to reprint.");
+                    return;
+                }
                 prepareA4Print(true, billToPrint, true); 
             } else {
                 alert("Error: Bill state is saved, but no bill found in history.");
@@ -1138,7 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } else {
-            // --- NEW BILL LOGIC ---
             const billNumber = generateNextBillNumber();
             const billDate = new Date().toISOString();
             const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim(), address: customerAddressInput.value.trim() };
@@ -1163,12 +1199,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)
                 );
                 if (existingCustomer) {
-                    // Update existing customer
                     existingCustomer.name = currentCustomer.name;
                     existingCustomer.phone = currentCustomer.phone;
                     existingCustomer.address = currentCustomer.address;
                 } else {
-                    // Add new customer
                     customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone, address: currentCustomer.address });
                 }
             }
@@ -1208,7 +1242,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Form reset for new bill.");
     };
 
+
     // --- 12. Event Listeners ---
+
     setRatesBtn.addEventListener('click', () => {
         const goldRate = parseFloat(goldRateInput.value);
         const silverR = parseFloat(silverRateInput.value);
@@ -1243,9 +1279,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
     
-    // +++ THIS IS THE NEW PRINT BUTTON LISTENER +++
+    // +++ THIS IS THE MODIFIED PRINT BUTTON LISTENER +++
     printEstimateBtn.addEventListener('click', () => triggerBluetoothPrint(null));
-
+    
     generateBillBtn.addEventListener('click', handleGenerateBill);
     resetBtn.addEventListener('click', () => {
         if (items.length > 0 || silverItems.length > 0 || customerNameInput.value) {
@@ -1256,9 +1292,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resetFormLogic();
         }
     });
-
-    // We no longer need the "connectButton" listener
-    // connectButton.addEventListener('click', connectToPrinter);
 
     customerNameInput.addEventListener('input', saveState);
     customerPhoneInput.addEventListener('input', saveState);
@@ -1280,3 +1313,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 13. Initial Load ---
     loadState();
 });
+
