@@ -980,7 +980,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * ** MODIFIED: Populates new shop phone/email fields **
-     * ** MODIFIED: Width changed from 32 to 42 chars **
+     * ** MODIFIED: Width changed from 32 to 48 chars **
      */
     const prepareThermalText = (billData = null) => {
         const source = billData || {
@@ -991,19 +991,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const totals = source.totals;
         
-        // ** MODIFIED: Default width 32 -> 42 **
-        const line = (label, value, width = 42) => {
+        // ** MODIFIED: Default width 32 -> 48 **
+        const line = (label, value, width = 48) => {
             const labelStr = label.toString(); const valueStr = value.toString();
             const spaces = Math.max(0, width - labelStr.length - valueStr.length);
             return `${labelStr}${' '.repeat(spaces)}${valueStr}\n`;
         };
-        // ** MODIFIED: Default width 32 -> 42 **
-        const center = (text, width = 42) => {
+        // ** MODIFIED: Default width 32 -> 48 **
+        const center = (text, width = 48) => {
             if (!text) return '\n';
             const spaces = Math.max(0, Math.floor((width - text.length) / 2));
             return `${' '.repeat(spaces)}${text}\n`;
         };
-        // ** MODIFIED: 32 -> 42 dashes **
+        // ** MODIFIED: 32 -> 48 dashes **
         const hr = '------------------------------------------\n';
         
         let text = center(source.shopDetails.name || 'JewelBill');
@@ -1057,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Generates ESC/POS commands and sends them to the printer.
-     * ** MODIFIED: Width changed from 32 to 42 chars **
+     * ** MODIFIED: Width changed from 32 to 48 chars **
      */
     const generateAndPrintEscPos = async (billData = null) => {
         // 1. Get Bill Data
@@ -1077,10 +1077,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const encoder = new EscPosEncoder();
 
         // 3. Helper for aligned rows
-        // ** MODIFIED: 32 -> 42 **
+        // ** MODIFIED: 32 -> 48 **
         const row = (label, value) => {
             return encoder.text(label)
-                          .text(value, 42, 'right');
+                          .text(value, 48, 'right');
         };
 
         // 4. Build the ESC/POS commands
@@ -1089,24 +1089,24 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             encoder.initialize(); // Reset printer
 
-            // ** MODIFIED: 32 -> 42 **
+            // ** MODIFIED: 32 -> 48 **
             encoder.align('center')
                    .bold(true)
-                   .text(source.shopDetails.name || 'JewelBill', 42)
+                   .text(source.shopDetails.name || 'JewelBill', 48)
                    .bold(false)
                    .text(source.shopDetails.phone || '')
                    .text(source.shopDetails.address || '')
                    .lineFeed(1);
             
-            // ** MODIFIED: 32 -> 42 **
+            // ** MODIFIED: 32 -> 48 **
             encoder.align('left')
                    .text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE')
-                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 42, 'right');
+                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 48, 'right');
             
-            // ** MODIFIED: 32 -> 42 **
+            // ** MODIFIED: 32 -> 48 **
             encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
                    .lineFeed(1)
-                   .text('-'.repeat(42)) // 42 chars for 80mm paper
+                   .text('-'.repeat(48)) // 48 chars for 80mm paper
                    .lineFeed(1);
 
             // Gold Items
@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
                     row(` Making Charge:`, formatCVurrency(makingCharge));
                 });
-                encoder.text('-'.repeat(42)).lineFeed(1);
+                encoder.text('-'.repeat(48)).lineFeed(1);
             }
             
             // Silver Items (you can add this)
