@@ -140,7 +140,7 @@ table tr.border-b { border-bottom-color: #e5e7eb; }
 
 /* --- STYLES FOR THERMAL PREVIEW MODAL --- */
 .thermal-receipt-preview-content {
-    width: 540px; /* <-- MODIFIED: Was 360px */
+    width: 600px; /* <-- MODIFIED: Increase this value */
     max-width: 90%;
 }
 .thermal-receipt-text {
