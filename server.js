@@ -3,8 +3,7 @@
   Handles caching for offline functionality.
 */
 
-// THIS IS THE FIX: Changed v2 to v3 to force the browser to update.
-const CACHE_NAME = 'jewelbill-cache-v3'; 
+const CACHE_NAME = 'jewelbill-cache-v1';
 const urlsToCache = [
   '/',
   'index.html',
@@ -12,50 +11,23 @@ const urlsToCache = [
   'app.js',
   'manifest.json',
   'icon-192.png',
-  'AJ.jpg', // Make sure this matches your image file (original was .png)
-  'esc-pos-encoder.browser.js', // This file will now be cached
-  'https.cdn.tailwindcss.com',
+  'AJ.png',
+  'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
 ];
 
 // 1. Install the service worker and cache core assets
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Install event, caching new files...');
+  console.log('[Service Worker] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] Caching core assets:', urlsToCache);
-        
-        // We will cache local and network assets separately
-        const localAssets = [
-          '/',
-          'index.html',
-          'style.css',
-          'app.js',
-          'manifest.json',
-          'icon-192.png',
-          'AJ.jpg', // Using .jpg as in your file upload
-          'esc-pos-encoder.browser.js'
-        ];
-        
-        const networkAssets = [
-          'https://cdn.tailwindcss.com',
-          'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
-        ];
-
-        return cache.addAll(localAssets)
-          .then(() => {
-            // Caching network assets individually
-            const networkPromises = networkAssets.map(url =>
-              fetch(new Request(url, { mode: 'no-cors' })) // Use no-cors for opaque responses
-                .then(response => cache.put(url, response))
-                .catch(err => console.warn(`[Service Worker] Failed to cache ${url}`, err))
-            );
-            return Promise.all(networkPromises);
-          });
+        return cache.addAll(urlsToCache);
       })
       .then(() => {
         console.log('[Service Worker] Core assets cached successfully.');
+        // Force the waiting service worker to become the active service worker
         return self.skipWaiting();
       })
       .catch(error => {
@@ -73,13 +45,13 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // This will delete 'jewelbill-cache-v1' and 'jewelbill-cache-v2'
             console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
+      // Tell the active service worker to take control of all clients
       console.log('[Service Worker] Claiming clients');
       return self.clients.claim();
     })
@@ -99,13 +71,20 @@ self.addEventListener('fetch', event => {
         // Otherwise, fetch from the network
         return fetch(event.request).then(
           networkResponse => {
-            // Don't cache everything dynamically, only what's in the list
+            // Optional: Cache new requests dynamically
+            // Be careful with this, especially with POST requests or API calls
+            // if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
+            //   caches.open(CACHE_NAME).then(cache => {
+            //     cache.put(event.request, networkResponse.clone());
+            //   });
+            // }
             return networkResponse;
           }
-        ).catch(error => {
-            console.error('[Service Worker] Fetch failed:', error);
-        });
+        );
+      })
+      .catch(error => {
+        console.error('[Service Worker] Fetch failed:', error);
+        // You could return a fallback offline page here if you had one
       })
   );
 });
-

@@ -13,20 +13,17 @@
     <meta name="theme-color" content="#FFFFFF">
 
     <link rel="stylesheet" href="style.css">
-    
-    <!-- ADDED: This script is needed to generate print commands -->
-    <script src="esc-pos-encoder.browser.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/esc-pos-encoder@2.1.0/dist/esc-pos-encoder.browser.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- ... (all your HTML toasts) ... -->
     <div id="restore-toast" class="toast bg-blue-500">Previous session restored.</div>
     <div id="settings-toast" class="toast bg-green-500">Shop details saved.</div>
 
     <div class="container mx-auto p-4 max-w-2xl">
         
-        <!-- ... (all your HTML header) ... -->
         <header class="bg-yellow-500 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight">JewelBill</h1>
@@ -43,7 +40,7 @@
         </header>
 
         <div id="settings-panel" class="content-card no-print hidden">
-            <h2 class="section-title">Shop Details</h2>
+            <h2 class="section-title">Shop Details & Printer</h2>
             <form id="shop-details-form" class="space-y-4">
                 <div>
                     <label for="shop-name" class="form-label">Shop Name</label>
@@ -62,21 +59,14 @@
                     <input type="text" id="shop-address" class="form-input" placeholder="e.g., 123 Gold St, City">
                 </div>
 
-                <!-- 
-                  THIS ENTIRE PRINTER SECTION IS NOW REMOVED.
-                  <div class="border-t pt-4 mt-4">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Printer Connection</label>
+                <div class="border-t pt-4 mt-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">PrThermal inter Connection</label>
                     <button type="button" id="btn-connect" class="button-primary w-full">Connect to Bluetooth Printer</button>
                     <p id="status-label" class="text-sm text-center text-gray-500 mt-2">Status: Disconnected</p>
-                  </div>
-                -->
-                
+                </div>
                 <button type="submit" class="button-success w-full">Save Details</button>
             </form>
         </div>
-        
-        <!-- ... (Rest of your HTML body: rates, forms, bill section, etc.) ... -->
-        <!-- ... (This content is identical to your file and is not changed) ... -->
 
         <div class="bg-white p-4 rounded-lg shadow-md mb-6">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Today's Rates (per gram)</h2>
@@ -216,7 +206,6 @@
         </main>
     </div>
 
-    <!-- ... (Rest of your HTML: modals, print sections, etc. - no changes) ... -->
     <div id="customer-modal" class="modal hidden no-print">
         <div class="modal-content"><div class="modal-header"><h2 class="text-lg font-semibold">Select Customer</h2><button id="close-customer-modal" class="modal-close-btn" aria-label="Close">&times;</button></div><div class="modal-body"><input type="text" id="customer-search" class="form-input w-full mb-4" placeholder="Search customers..."><ul id="customer-list-modal" class="space-y-2"></ul></div></div>
     </div>
@@ -290,4 +279,3 @@
     <script src="app.js" defer></script>
 </body>
 </html>
-
