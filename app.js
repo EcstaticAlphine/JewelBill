@@ -860,20 +860,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /**
-     * NEW: Generates ESC/POS data and sends it to the custom URL.
+     * NEW: Generates ESC/POS commands from the current bill.
      */
-    const generateAndPrintEscPos = (billData = null) => {
+    const generateEscPosData = (billData = null) => {
         // 1. Get Bill Data
         const source = billData || {
             customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
             items, silverItems, oldGoldItems,
-            totals: calculateTotals(true), // Get totals object
+            totals: calculateTotals(true),
             shopDetails: shopDetails
         };
         const totals = source.totals;
         if (!totals) {
             alert("Cannot print with no items.");
-            return;
+            return null;
         }
 
         // 2. Initialize Encoder (from the script we added to index.html)
@@ -888,7 +888,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // 4. Build the ESC/POS commands
-        let data;
         try {
             encoder.initialize(); // Reset printer
             encoder.align('center')
@@ -958,31 +957,12 @@ document.addEventListener('DOMContentLoaded', () => {
                    .cut(); // Cut the paper
 
             // 5. Get the final byte array
-            data = encoder.encode();
+            return encoder.encode();
 
         } catch (error) {
             console.error("Failed to encode ESC/POS:", error);
             alert("An error occurred while generating the print data.");
-            return;
-        }
-
-        // 6. Convert byte array to Base64 string
-        let binary = '';
-        const len = data.byteLength;
-        for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(data[i]);
-        }
-        const base64Data = window.btoa(binary);
-
-        // 7. Send the data to our custom bridge app
-        const customUrl = `jewelbill:${base64Data}`;
-        
-        try {
-            // This will open the 'JewelBridge' app
-            window.open(customUrl, '_self');
-        } catch (error) {
-            console.error('Failed to open custom URL:', error);
-            alert('Print failed. Make sure the JewelBridge app is installed.');
+            return null;
         }
     };
 
@@ -1110,6 +1090,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('printing-thermal');
         window.print();
         document.body.classList.remove('printing-a4');
+    };
+
+    /**
+     * REPLACED: This now calls the JewelBridge app URL
+     */
+    const triggerBluetoothPrint = (billData = null) => {
+        const dataBytes = generateEscPosData(billData);
+        if (!dataBytes) {
+            console.log("Print cancelled, no data.");
+            return;
+        }
+
+        // 1. Convert the byte array (Uint8Array) to a Base64 string
+        let binary = '';
+        const len = dataBytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(dataBytes[i]);
+        }
+        const base64Data = window.btoa(binary);
+        
+        // 2. Create the custom URL
+        const customUrl = `jewelbill:${base64Data}`;
+
+        // 3. Call the URL. Android will send this to your "JewelBridge" app.
+        window.open(customUrl, '_self');
     };
     
     // --- 11. Main Action Button Handlers ---
@@ -1239,7 +1244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
     
     // +++ THIS IS THE NEW PRINT BUTTON LISTENER +++
-    printEstimateBtn.addEventListener('click', () => generateAndPrintEscPos(null));
+    printEstimateBtn.addEventListener('click', () => triggerBluetoothPrint(null));
 
     generateBillBtn.addEventListener('click', handleGenerateBill);
     resetBtn.addEventListener('click', () => {
