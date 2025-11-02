@@ -1003,8 +1003,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const spaces = Math.max(0, Math.floor((width - text.length) / 2));
             return `${' '.repeat(spaces)}${text}\n`;
         };
-        // ** MODIFIED: 32 -> 48 dashes **
-        const hr = '------------------------------------------\n';
+        // 56 dashes
+        const hr = '--------------------------------------------------------\n';
         
         let text = center(source.shopDetails.name || 'JewelBill');
         text += hr;
@@ -1040,9 +1040,9 @@ document.addEventListener('DOMContentLoaded', () => {
         text += line('Bill Total:', formatCurrency(totals.grandTotal));
         if (totals.oldGoldTotal > 0) text += line('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
         if (totals.discount > 0) text += line('Discount (-):', formatCurrency(totals.discount));
-        text += '==========================================\n';
+        text += '========================================================\n';
         text += line('NET PAYABLE:', formatCurrency(totals.netPayable));
-        text += '==========================================\n\n';
+        text += '========================================================\n\n';
         if (billData && source.paymentDetails?.length > 0) {
             text += `Payments Received\n`;
             source.paymentDetails.forEach(p => { text += line(`${p.mode}:`, formatCurrency(p.amount)); });
