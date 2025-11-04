@@ -175,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
     };
 
-    /** ** MODIFIED: Loads new shop details ** */
     const loadState = () => {
         customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
         billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
@@ -184,48 +183,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Populate settings panel
         shopNameInput.value = shopDetails.name || '';
-        shopPhoneInput.value = shopDetails.phone || ''; // <-- NEW
-        shopEmailInput.value = shopDetails.email || ''; // <-- NEW
+        shopPhoneInput.value = shopDetails.phone || ''; 
+        shopEmailInput.value = shopDetails.email || ''; 
         shopAddressInput.value = shopDetails.address || '';
 
+        // --- MODIFIED LOGIC ---
+        // 1. Load rates from their dedicated storage
         const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
         if (savedRates) {
             goldRate22k = savedRates.goldRate22k || 0;
             silverRate = savedRates.silverRate || 0;
             goldRateInput.value = goldRate22k || '';
             silverRateInput.value = silverRate || '';
+        } else {
+            goldRate22k = 0;
+            silverRate = 0;
         }
 
+        // 2. Load the rest of the bill state
         const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
-        if (!savedCurrentState) {
-            updateRateDisplay(!(goldRate22k > 0 && silverRate > 0));
-            return;
-        }
-        
-        const state = JSON.parse(savedCurrentState);
-        goldRate22k = state.goldRate22k || goldRate22k;
-        silverRate = state.silverRate || silverRate;
-        customerNameInput.value = state.customerName || '';
-        customerPhoneInput.value = state.customerPhone || '';
-        customerAddressInput.value = state.customerAddress || '';
-        items = state.items || [];
-        silverItems = state.silverItems || [];
-        oldGoldItems = state.oldGoldItems || [];
-        paymentDetails = state.paymentDetails || [];
-        wastageInput.value = state.wastage || '12';
-        gstInput.value = state.gst || '3';
-        currentBillSaved = state.currentBillSaved || false;
-        
-        if (state.ratesSet && goldRate22k > 0 && silverRate > 0) {
-            updateRateDisplay(false);
+        if (savedCurrentState) {
+            const state = JSON.parse(savedCurrentState);
+            
+            // Respect rates from current state if they exist, otherwise use savedRates
+            goldRate22k = state.goldRate22k || goldRate22k;
+            silverRate = state.silverRate || silverRate;
+            
+            customerNameInput.value = state.customerName || '';
+            customerPhoneInput.value = state.customerPhone || '';
+            customerAddressInput.value = state.customerAddress || '';
+            items = state.items || [];
+            silverItems = state.silverItems || [];
+            oldGoldItems = state.oldGoldItems || [];
+            paymentDetails = state.paymentDetails || [];
+            wastageInput.value = state.wastage || '12';
+            gstInput.value = state.gst || '3';
+            currentBillSaved = state.currentBillSaved || false;
+            
             renderAllLists();
             showToast(restoreToast);
             if (currentBillSaved) {
                 generateBillBtn.textContent = 'Reprint A4 Bill';
             }
+        }
+        
+        // 3. Decide whether to show rate inputs based *only* on loaded rates.
+        if (goldRate22k > 0 && silverRate > 0) {
+            // Rates are set, hide the input form.
+            updateRateDisplay(false);
         } else {
+            // No rates are set, show the input form.
             updateRateDisplay(true);
         }
+        // --- END MODIFIED LOGIC ---
     };
 
     // --- 5. UI Rendering Functions ---
@@ -1268,24 +1278,38 @@ document.addEventListener('DOMContentLoaded', () => {
         currentBillSaved = false;
         generateBillBtn.textContent = 'Generate & Print A4 Bill';
 
+        // --- ADDED: Clear rates from state and localStorage ---
+        goldRate22k = 0;
+        silverRate = 0;
+        goldRateInput.value = '';
+        silverRateInput.value = '';
+        localStorage.removeItem('jewelBillRates'); 
+        // --- END ADDED ---
+
         const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
         currentState.customerName = ''; currentState.customerPhone = '';
         currentState.items = []; currentState.silverItems = []; currentState.oldGoldItems = [];
         currentState.paymentDetails = []; currentState.discount = 0;
         currentState.currentBillSaved = false;
+
+        // --- ADDED: Also clear rates from the bill state ---
+        currentState.ratesSet = false; 
+        currentState.goldRate22k = 0;
+        currentState.silverRate = 0;
+        // --- END ADDED ---
+
         localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
 
         renderAllLists();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        if (appBody && !appBody.classList.contains('hidden')) {
-            customerNameInput.focus();
-        } else {
-            goldRateInput.focus();
-        }
+        // --- MODIFIED: Force rate input to show ---
+        updateRateDisplay(true); 
+        goldRateInput.focus();
+        // --- END MODIFIED ---
+        
         console.log("Form reset for new bill.");
     };
-
     // --- 12. Event Listeners ---
 
     setRatesBtn.addEventListener('click', () => {
