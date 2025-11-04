@@ -71,8 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const shopPhoneInput = getEl('shop-phone'); // <-- NEW
     const shopEmailInput = getEl('shop-email'); // <-- NEW
     const shopAddressInput = getEl('shop-address');
-    const connectButton = getEl('btn-connect');
-    const statusLabel = getEl('status-label');
 
     // History
     const historyBtn = getEl('history-btn');
@@ -113,9 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastBillNum = 0;
     
     let currentBillSaved = false;
-    
-    let bluetoothDevice = null;
-    let printerCharacteristic = null;
 
     const billPrefix = "AJ";
     const billPadding = 3;
@@ -1326,32 +1321,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
     
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
-    printEstimateBtn.addEventListener('click', async () => {
-        // 1. Get the plain text from your *existing* function
-        //    This function is perfect and needs no changes.
-        const plainText = prepareThermalText(null); //
-        if (!plainText) {
-            alert("Cannot generate estimate with no items.");
-            return;
-        }
-
-        // 2. Check if the browser's "Share" feature is available
-        if (navigator.share) {
-            try {
-                // 3. This opens the phone's built-in Share menu
-                await navigator.share({
-                    title: 'Print Estimate',
-                    text: plainText
-                });
-                console.log('Shared to print app successfully.');
-            } catch (error) {
-                // This error just means the user closed the share menu
-                console.log('Share was cancelled.', error);
-            }
-        } else {
-            alert('Web Share is not supported on this browser. Please use Chrome on Android.');
-        }
-    });
     generateBillBtn.addEventListener('click', handleGenerateBill);
     resetBtn.addEventListener('click', () => {
         if (items.length > 0 || silverItems.length > 0 || customerNameInput.value) {
@@ -1362,8 +1331,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resetFormLogic();
         }
     });
-
-    connectButton.addEventListener('click', connectToPrinter);
 
     customerNameInput.addEventListener('input', saveState);
     customerPhoneInput.addEventListener('input', saveState);
