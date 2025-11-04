@@ -1120,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
                     encoder.text(`${item.name} (${item.karat}K)`);
                     row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
-                    row(` Making Charge:`, formatCVurrency(makingCharge));
+                    row(` Making Charge:`, formatCurrency(makingCharge));
                 });
                 encoder.text('-'.repeat(48)).lineFeed(1);
             }
