@@ -1366,7 +1366,6 @@ document.addEventListener('DOMContentLoaded', () => {
     previewEstimateBtn.addEventListener('click', openThermalPreview);
     closeThermalPreviewBtn.addEventListener('click', closeThermalPreview);
 
-m
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
