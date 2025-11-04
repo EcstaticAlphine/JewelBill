@@ -964,8 +964,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let text = center(source.shopDetails.name || 'JewelBill');
         // --- ADDED Shop Details ---
-        if(source.shopDetails.phone) text += center(source.shopDetails.phone);
-        if(source.shopDetails.address) text += center(source.shopDetails.address);
+        //if(source.shopDetails.phone) text += center(source.shopDetails.phone);
+        //if(source.shopDetails.address) text += center(source.shopDetails.address);
         // --- END ADDED ---
         text += hr;
         text += center(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
