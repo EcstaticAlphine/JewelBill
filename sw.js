@@ -1,5 +1,5 @@
 // A simple list of files to cache for offline use
-const CACHE_NAME = 'my-printer-app-v2';
+const CACHE_NAME = 'my-printer-app-v3';
 const urlsToCache = [
   '/',
   'index.html',

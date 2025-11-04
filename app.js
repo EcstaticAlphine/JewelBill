@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowerSearchTerm = searchTerm.toLowerCase();
         const filteredCustomers = customers.filter(c =>
             (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
-            (c.phone && c.phone.includes(searchTerm))
+            (c.phone && c.phone.includes(searchTerm)) ||
             (c.address && c.address.toLowerCase().includes(lowerSearchTerm))
         );
 
