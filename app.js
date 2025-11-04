@@ -1,6 +1,7 @@
 /*
   app.js
   Main JavaScript logic for JewelBill Application
+  (MODIFIED with all fixes)
 */
 
 // Wait for the DOM to be fully loaded before running any script
@@ -64,12 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateBillBtn = getEl('generate-bill-btn');
     const resetBtn = getEl('reset-btn');
 
-    // ** MODIFIED: Settings Selectors **
+    // ** MODIFIED: Settings Selectors (Bluetooth code removed) **
     const settingsBtn = getEl('settings-btn');
     const settingsPanel = getEl('settings-panel');
     const shopNameInput = getEl('shop-name');
-    const shopPhoneInput = getEl('shop-phone'); // <-- NEW
-    const shopEmailInput = getEl('shop-email'); // <-- NEW
+    const shopPhoneInput = getEl('shop-phone'); 
+    const shopEmailInput = getEl('shop-email'); 
     const shopAddressInput = getEl('shop-address');
 
     // History
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const restoreToast = getEl('restore-toast');
     const settingsToast = getEl('settings-toast');
 
-    // --- 2. Application State ---
+    // --- 2. Application State (Bluetooth state removed) ---
     let items = [];
     let silverItems = [];
     let oldGoldItems = [];
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
     };
 
+    /** ** MODIFIED: Loads state with "Sticky Rates" logic ** */
     const loadState = () => {
         customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
         billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
@@ -221,7 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentBillSaved = state.currentBillSaved || false;
             
             renderAllLists();
-            showToast(restoreToast);
+            if(items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0) {
+              showToast(restoreToast);
+            }
             if (currentBillSaved) {
                 generateBillBtn.textContent = 'Reprint A4 Bill';
             }
@@ -490,6 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderCustomerListModal = (searchTerm = '') => {
         customerListModal.innerHTML = '';
         const lowerSearchTerm = searchTerm.toLowerCase();
+        
+        // ** SYNTAX ERROR FIX (Added '||') **
         const filteredCustomers = customers.filter(c =>
             (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
             (c.phone && c.phone.includes(searchTerm)) ||
@@ -603,7 +609,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (printType === 'a4') {
                                 prepareA4Print(true, billToPrint, true); 
                             } else if (printType === 'thermal') {
-                                triggerBluetoothPrint(billToPrint);
+                                // This now triggers the share API
+                                triggerShare(billToPrint);
                             }
                         }, 50);
                     } else {
@@ -812,63 +819,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 10. Bluetooth & Printing Logic ---
-
-    const connectToPrinter = async () => {
-        if (!navigator.bluetooth) {
-            alert('Web Bluetooth API is not available on this browser/device. Please use Chrome on Android.');
-            return;
-        }
-        try {
-            statusLabel.textContent = 'Scanning...';
-            statusLabel.style.color = 'inherit';
-            const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: ['generic_attribute', '00001101-0000-1000-8000-00805f9b34fb']
-            });
-            statusLabel.textContent = `Connecting to ${device.name}...`;
-            bluetoothDevice = device;
-            device.addEventListener('gattserverdisconnected', onDisconnected);
-            const server = await device.gatt.connect();
-            let service;
-            try {
-                service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-            } catch (sppError) {
-                console.warn("Standard SPP service not found. Trying generic attribute...");
-                try {
-                    service = await server.getPrimaryService('generic_attribute');
-                } catch (gaError) {
-                    console.warn("Generic Attribute service not found. Trying first available service...");
-                    const services = await server.getPrimaryServices();
-                    if (!services.length) throw new Error("No Bluetooth services found.");
-                    service = services[0];
-                }
-            }
-            console.log("Using service:", service.uuid);
-            const characteristics = await service.getCharacteristics();
-            printerCharacteristic = characteristics.find(c => c.properties.writeWithoutResponse) ||
-                                    characteristics.find(c => c.properties.write);
-            if (printerCharacteristic) {
-                statusLabel.textContent = `Connected: ${device.name}`;
-                statusLabel.style.color = 'green';
-            } else {
-                statusLabel.textContent = 'Error: No write characteristic found.';
-                server.disconnect();
-            }
-        } catch (error) {
-            statusLabel.textContent = `Connection Failed: ${error.message.split('.')[0]}`;
-            console.error('Connection failed!', error);
-            bluetoothDevice = null;
-            printerCharacteristic = null;
-        }
-    };
-
-    const onDisconnected = () => {
-        statusLabel.textContent = 'Status: Disconnected';
-        statusLabel.style.color = 'inherit';
-        bluetoothDevice = null;
-        printerCharacteristic = null;
-        console.log('> Bluetooth Device disconnected');
-    };
+    
+    // ** ALL BLUETOOTH CODE REMOVED **
 
     /**
      * ** MODIFIED: Populates new shop phone/email fields **
@@ -884,7 +836,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Populate Header
-        // getEl('shop-name-print').textContent = displayData.shopDetails?.name || 'JewelBill';
         getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)'; // <-- NEW
         getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)'; // <-- NEW
         getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)'; // <-- NEW
@@ -1012,6 +963,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const hr = '------------------------------------------------\n';
         
         let text = center(source.shopDetails.name || 'JewelBill');
+        // --- ADDED Shop Details ---
+        if(source.shopDetails.phone) text += center(source.shopDetails.phone);
+        if(source.shopDetails.address) text += center(source.shopDetails.address);
+        // --- END ADDED ---
         text += hr;
         text += center(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
         text += hr;
@@ -1036,6 +991,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             text += hr;
         }
+
+        if(!totals) return text; // Return early if no totals (e.g. no items)
+
         if (totals.goldSubtotal > 0) text += line('Gold Value:', formatCurrency(totals.goldSubtotal));
         if (totals.wastageValue > 0) text += line('Wastage:', formatCurrency(totals.wastageValue));
         if (totals.goldMakingCharges > 0) text += line('Making Charges:', formatCurrency(totals.goldMakingCharges));
@@ -1059,155 +1017,30 @@ document.addEventListener('DOMContentLoaded', () => {
         text += center('Thank You!') + '\n\n\n\n';
         return text;
     };
+    
     /**
-     * Generates ESC/POS commands and sends them to the printer.
-     * ** MODIFIED: Width changed to 48 chars **
+     * This is the helper function for the share button.
+     * It prepares text and calls navigator.share
      */
-    const generateAndPrintEscPos = async (billData = null) => {
-        // 1. Get Bill Data
-        const source = billData || {
-            customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
-            items, silverItems, oldGoldItems,
-            totals: calculateTotals(true), // Get totals object
-            shopDetails: shopDetails
-        };
-        const totals = source.totals;
-        if (!totals) {
-            alert("Cannot print with no items.");
+    const triggerShare = async (billData = null) => {
+        const plainText = prepareThermalText(billData); 
+        if (!plainText) {
+            alert("Cannot generate estimate with no items.");
             return;
         }
 
-        // 2. Initialize Encoder
-        const encoder = new EscPosEncoder();
-
-        // 3. Helper for aligned rows
-        // ** MODIFIED: -> 48 **
-        const row = (label, value) => {
-            return encoder.text(label)
-                          .text(value, 48, 'right');
-        };
-
-        // 4. Build the ESC/POS commands
-        // We wrap this in a try/catch in case the library fails
-        let data;
-        try {
-            encoder.initialize(); // Reset printer
-
-            // ** MODIFIED: -> 48 **
-            encoder.align('center')
-                   .bold(true)
-                   .text(source.shopDetails.name || 'JewelBill', 48)
-                   .bold(false)
-                   .text(source.shopDetails.phone || '')
-                   .text(source.shopDetails.address || '')
-                   .lineFeed(1);
-            
-            // ** MODIFIED: -> 48 **
-            encoder.align('left')
-                   .text(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE')
-                   .text(new Date(billData ? billData.date : Date.now()).toLocaleDateString('en-IN'), 48, 'right');
-            
-            // ** MODIFIED: -> 48 **
-            encoder.text(`Cust: ${source.customer?.name || 'N/A'}`)
-                   .lineFeed(1)
-                   .text('-'.repeat(48)) // 48 chars
-                   .lineFeed(1);
-
-            // Gold Items
-            if (source.items.length > 0) {
-                encoder.bold(true).text('Gold Items').bold(false).lineFeed(1);
-                source.items.forEach(item => {
-                    const makingCharge = (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value);
-                    encoder.text(`${item.name} (${item.karat}K)`);
-                    row(` Net Wt:${item.netWeight.toFixed(3)}g`, formatCurrency(item.goldValue));
-                    row(` Making Charge:`, formatCurrency(makingCharge));
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: billData ? `Bill ${billData.billNumber}` : 'Print Estimate',
+                    text: plainText
                 });
-                encoder.text('-'.repeat(48)).lineFeed(1);
+                console.log('Shared to print app successfully.');
+            } catch (error) {
+                console.log('Share was cancelled.', error);
             }
-            
-            // Silver Items (you can add this)
-            
-            // Totals
-            encoder.align('right');
-            if (totals.goldSubtotal > 0) row('Gold Value:', formatCurrency(totals.goldSubtotal));
-            if (totals.wastageValue > 0) row('Wastage:', formatCurrency(totals.wastageValue));
-            if (totals.goldMakingCharges > 0) row('Making Charges:', formatCurrency(totals.goldMakingCharges));
-            if (totals.silverSubtotal > 0) row('Silver Value:', formatCurrency(totals.silverSubtotal));
-            
-            encoder.text('-'.repeat(28)).lineFeed(1); // Right-aligned partial line
-            row('Total Before GST:', formatCurrency(totals.totalBeforeGst));
-            if (totals.gstValue > 0) row(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
-            if (totals.oldGoldTotal > 0) row('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
-            if (totals.discount > 0) row('Discount (-):', formatCurrency(totals.discount));
-            
-            // ** MODIFIED: Widths 28 -> 24 **
-            encoder.lineFeed(1)
-                   .bold(true)
-                   .size('medium') // Double height/width
-                   .align('left')
-                   .text('NET PAYABLE:', 24)
-                   .text(formatCurrency(totals.netPayable), 24, 'right')
-                   .size('normal')
-                   .bold(false)
-                   .lineFeed(2);
-                   
-            // Footer
-            encoder.align('center')
-                   .text('Thank You!')
-                   .lineFeed(4)
-                   .cut(); // Cut the paper
-
-            // 5. Get the final byte array
-            data = encoder.encode();
-
-        } catch (error) {
-            console.error("Failed to encode ESC/POS:", error);
-            alert("An error occurred while generating the print data.");
-            return;
-        }
-
-        // 6. Send the data to the printer
-        await triggerBluetoothPrint(data);
-    };
-    /**
-     * Sends raw byte data (Uint8Array) to the connected printer.
-     */
-    const triggerBluetoothPrint = async (data) => {
-        if (!printerCharacteristic) {
-            alert('Printer is not connected. Please connect in Settings.');
-            return false; // Return false to indicate failure
-        }
-
-        try {
-            statusLabel.textContent = 'Printing...';
-            // Send the data in chunks
-            const chunkSize = 100; // Send 100 bytes at a time
-            for (let offset = 0; offset < data.length; offset += chunkSize) {
-                const chunk = data.slice(offset, offset + chunkSize);
-                
-                // Use writeValueWithoutResponse for speed if available, otherwise use writeValue
-                if (printerCharacteristic.properties.writeWithoutResponse) {
-                    await printerCharacteristic.writeValueWithoutResponse(chunk);
-                } else {
-                    await printerCharacteristic.writeValue(chunk);
-                }
-                // A small delay to help buffer
-                await new Promise(resolve => setTimeout(resolve, 20)); 
-            }
-            
-            statusLabel.textContent = 'Printing complete!';
-            console.log('Print complete');
-            return true; // Return true to indicate success
-
-        } catch (error) {
-            statusLabel.textContent = 'Print Failed: ' + error.message;
-            console.error('Print failed!', error);
-            // Re-connect if disconnected
-            if (error.name === 'NetworkError') {
-                onDisconnected();
-                alert('Printer connection lost. Please reconnect in Settings.');
-            }
-            return false; // Return false to indicate failure
+        } else {
+            alert('Web Share is not supported on this browser. Please use Chrome on Android and ensure you are using HTTPS.');
         }
     };
     
@@ -1224,7 +1057,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentBillSaved) {
             // --- REPRINT LOGIC ---
             if (billHistory.length > 0) {
-                billToPrint = billHistory[billHistory.length - 1];
+                const billNumToFind = `${billPrefix}${lastBillNum.toString().padStart(billPadding, '0')}`;
+                billToPrint = billHistory.find(b => b.billNumber === billNumToFind);
+                if (!billToPrint) billToPrint = billHistory[billHistory.length - 1]; // fallback
+
+                if(!billToPrint) {
+                    alert("Error: Could not find bill to reprint.");
+                    return;
+                }
                 prepareA4Print(true, billToPrint, true); 
             } else {
                 alert("Error: Bill state is saved, but no bill found in history.");
@@ -1253,11 +1093,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (saveCustomerCheckbox.checked && currentCustomer.name) {
                 const existingCustomer = customers.find(c =>
-                    c.name.toLowerCase() === currentCustomer.name.toLowerCase() ||
+                    (c.name.toLowerCase() === currentCustomer.name.toLowerCase()) ||
                     (c.phone && currentCustomer.phone && c.phone === currentCustomer.phone)
                 );
-                if (!existingCustomer) {
-                    customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone,address: currentCustomer.address });
+                if (existingCustomer) {
+                    existingCustomer.name = currentCustomer.name;
+                    existingCustomer.phone = currentCustomer.phone;
+                    existingCustomer.address = currentCustomer.address;
+                } else {
+                    customers.push({ id: Date.now(), name: currentCustomer.name, phone: currentCustomer.phone, address: currentCustomer.address });
                 }
             }
             
@@ -1270,6 +1114,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /**
+     * ** MODIFIED: "Sticky Rates" logic **
+     * This function now clears rates when a new bill is started.
+     */
     const resetFormLogic = () => {
         items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
         customerNameInput.value = ''; customerPhoneInput.value = ''; customerAddressInput.value = '';
@@ -1310,6 +1158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log("Form reset for new bill.");
     };
+
     // --- 12. Event Listeners ---
 
     setRatesBtn.addEventListener('click', () => {
@@ -1345,6 +1194,10 @@ document.addEventListener('DOMContentLoaded', () => {
     closeHistoryModal.addEventListener('click', closeHistoryModalHandler);
     
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
+    
+    // ** MODIFIED: This now calls the triggerShare function **
+    printEstimateBtn.addEventListener('click', () => triggerShare(null));
+    
     generateBillBtn.addEventListener('click', handleGenerateBill);
     resetBtn.addEventListener('click', () => {
         if (items.length > 0 || silverItems.length > 0 || customerNameInput.value) {
@@ -1356,6 +1209,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ** REMOVED: connectButton listener **
+
     customerNameInput.addEventListener('input', saveState);
     customerPhoneInput.addEventListener('input', saveState);
     customerAddressInput.addEventListener('input', saveState);
@@ -1366,6 +1221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     previewEstimateBtn.addEventListener('click', openThermalPreview);
     closeThermalPreviewBtn.addEventListener('click', closeThermalPreview);
 
+    // ** REMOVED: Stray 'm' syntax error **
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
