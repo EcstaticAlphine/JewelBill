@@ -335,18 +335,28 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="overflow-x-auto"><table class="w-full text-sm text-left">
                 <thead class="bg-gray-50"><tr>
                     <th class="p-2">Item</th><th class="p-2 text-right">Weight</th>
-                    <th class="p-2 text-right">Value</th><th class="p-2 no-print"></th>
+                    <th class="p-2 text-right">Value</th>
+                    <th class="p-2 text-right">Making</th> <th class="p-2 no-print"></th>
                 </tr></thead><tbody>`;
-        const tableRows = silverItems.map((item) => `
+        const tableRows = silverItems.map((item) => {
+            // --- NEW CALCULATION ---
+            const makingChargeValue = (item.makingCharge && item.makingCharge.type)
+                ? (item.makingCharge.type === 'perGram' 
+                    ? item.weight * item.makingCharge.value 
+                    : item.makingCharge.value)
+                : 0;
+            // --- END NEW CALCULATION ---
+            return `
             <tr class="border-b">
                 <td class="p-2 font-medium">${item.name}</td>
                 <td class="p-2 text-right">${item.weight.toFixed(2)}g</td>
                 <td class="p-2 text-right">${formatCurrency(item.value)}</td>
-                <td class="p-2 text-right no-print flex justify-end gap-2">
+                <td class="p-2 text-right">${formatCurrency(makingChargeValue)}</td> <td class="p-2 text-right no-print flex justify-end gap-2">
                     <button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="silver" data-action="edit" aria-label="Edit Silver Item">&#9998;</button>
                     <button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="silver" data-action="delete" aria-label="Delete Silver Item">&#128465;</button>
                 </td>
-            </tr>`).join('');
+            </tr>`;
+        }).join('');
         silverItemsList.innerHTML = tableHeader + tableRows + `</tbody></table></div>`;
     };
 
@@ -420,8 +430,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const goldSubtotal = items.reduce((sum, item) => sum + item.goldValue, 0);
         const wastageValue = (goldSubtotal * wastagePercent) / 100;
         const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0);
+        
+        // --- NEW ---
+        const silverMakingCharges = silverItems.reduce((sum, item) => {
+            if (!item.makingCharge) return sum; // For old items without this property
+            const charge = (item.makingCharge.type === 'perGram' ? item.weight * item.makingCharge.value : item.makingCharge.value);
+            return sum + charge;
+        }, 0);
+        // --- END NEW ---
+
         const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0);
-        const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal;
+        
+        // --- MODIFIED ---
+        const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal + silverMakingCharges;
+        // --- END MODIFIED ---
+
         const gstValue = (totalBeforeGst * gstPercent) / 100;
         const grandTotal = totalBeforeGst + gstValue;
         const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
@@ -445,9 +468,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex justify-between"><span class="text-gray-600">Wastage (${wastagePercent}%)</span><span class="font-semibold">${formatCurrency(wastageValue)}</span></div>
                 <div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`;
         }
-        if (silverSubtotal > 0) {
+        
+        // --- MODIFIED ---
+        if (silverSubtotal > 0 || silverMakingCharges > 0) {
             summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`;
+            if (silverMakingCharges > 0) {
+                summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Silver Making</span><span class="font-semibold">${formatCurrency(silverMakingCharges)}</span></div>`;
+            }
         }
+        // --- END MODIFIED ---
+
         summaryHTML += `
             <div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div>
             <div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div>
@@ -476,7 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
         getEl('discount-input').addEventListener('input', () => calculateTotals(false));
 
         if (returnObject) {
-            return { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+            // --- MODIFIED ---
+            return { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, silverMakingCharges, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+            // --- END MODIFIED ---
         } else {
             saveState();
         }
@@ -688,8 +720,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const weight = parseFloat(getEl('silver-item-weight').value);
         const editingId = getEl('editing-silver-item-id').value;
         if (isNaN(weight) || weight <= 0) { alert('Please enter a valid weight.'); return; }
+
+        // --- NEW CODE ---
+        const makingChargeType = getEl('silver-making-charge-type').value;
+        const makingChargeValue = parseFloat(getEl('silver-making-charge-value').value) || 0;
+        if (isNaN(makingChargeValue) || makingChargeValue < 0) { alert('Please enter a valid making charge (0 or more).'); return; }
+        // --- END NEW CODE ---
+
         const value = weight * silverRate;
-        const itemData = { name, weight, value };
+        const itemData = { 
+            name, 
+            weight, 
+            value, 
+            makingCharge: { type: makingChargeType, value: makingChargeValue } // <-- ADDED
+        };
+
         if (editingId) {
             const index = silverItems.findIndex(item => item.id == editingId);
             if (index > -1) silverItems[index] = { ...silverItems[index], ...itemData };
@@ -698,6 +743,8 @@ document.addEventListener('DOMContentLoaded', () => {
             silverItems.push(itemData);
         }
         silverItemForm.reset();
+        getEl('silver-making-charge-type').value = 'perGram'; // <-- Reset new fields
+        getEl('silver-making-charge-value').value = '0'; // <-- Reset new fields
         getEl('editing-silver-item-id').value = '';
         addSilverItemBtn.textContent = 'Add Silver Item';
         getEl('silver-item-name').focus();
@@ -801,6 +848,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!item) return;
                 getEl('silver-item-name').value = item.name;
                 getEl('silver-item-weight').value = item.weight;
+                
+                // --- NEW CODE ---
+                // Handle items saved before this feature was added
+                if (!item.makingCharge) {
+                    item.makingCharge = { type: 'perGram', value: 0 };
+                }
+                getEl('silver-making-charge-type').value = item.makingCharge.type;
+                getEl('silver-making-charge-value').value = item.makingCharge.value;
+                // --- END NEW CODE ---
+
                 getEl('editing-silver-item-id').value = item.id;
                 addSilverItemBtn.textContent = 'Update Silver Item';
                 getEl('silver-item-name').focus();
@@ -817,14 +874,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
     };
-
     // --- 10. Bluetooth & Printing Logic ---
     
     // ** ALL BLUETOOTH CODE REMOVED **
 
-    /**
-     * ** MODIFIED: Populates new shop phone/email fields **
-     */
     const prepareA4Print = (isFinalBill, billData = null, isReprint = false) => {
         const displayData = billData || {
             billNumber: `EST-${Date.now().toString().slice(-6)}`,
@@ -836,9 +889,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Populate Header
-        getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)'; // <-- NEW
-        getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)'; // <-- NEW
-        getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)'; // <-- NEW
+        getEl('shop-phone-print').textContent = displayData.shopDetails?.phone || '(Not Set)'; 
+        getEl('shop-email-print').textContent = displayData.shopDetails?.email || '(Not Set)'; 
+        getEl('shop-address-print').textContent = displayData.shopDetails?.address || '(Not Set)'; 
         
         let title = 'ESTIMATE';
         if (isFinalBill) {
@@ -867,16 +920,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 makingCharge = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value;
                 subtotal = value + makingCharge;
             } else {
+                // --- MODIFIED ---
                 netWeight = item.weight?.toFixed(2);
                 rate = totals?.silverRate || silverRate;
                 value = item.weight * rate;
-                subtotal = value;
+                if (item.makingCharge) { // Check if makingCharge exists
+                    makingCharge = item.makingCharge.type === 'perGram' 
+                        ? item.weight * item.makingCharge.value 
+                        : item.makingCharge.value;
+                }
+                subtotal = value + makingCharge;
+                // --- END MODIFIED ---
             }
             itemRowsHTML += `
                 <tr>
                     <td>${itemName}</td><td>${netWeight || '-'}g</td><td>${formatCurrency(rate)}</td>
-                    <td>${formatCurrency(value)}</td><td>${isGold ? formatCurrency(makingCharge) : '-'}</td>
-                    <td>${formatCurrency(subtotal)}</td>
+                    <td>${formatCurrency(value)}</td>
+                    <td>${formatCurrency(makingCharge)}</td> <td>${formatCurrency(subtotal)}</td>
                 </tr>`;
         });
         itemsListPrint.innerHTML = itemRowsHTML;
@@ -904,8 +964,10 @@ document.addEventListener('DOMContentLoaded', () => {
         summarySectionPrint.innerHTML = '';
         if (totals) {
             let summaryHTML = ``;
-            const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0);
+            // --- MODIFIED ---
+            const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0) + (totals.silverMakingCharges || 0);
             summaryHTML += `<div class="flex"><span>Subtotal</span><span class="font-semibold">${formatCurrency(combinedItemSubtotal)}</span></div>`;
+            // --- END MODIFIED ---
             if ((totals.wastageValue || 0) > 0) summaryHTML += `<div class="flex"><span>Wastage (${totals.wastagePercent || 0}%)</span><span>${formatCurrency(totals.wastageValue || 0)}</span></div>`;
             summaryHTML += `<div class="flex"><span>Tax/GST (${totals.gstPercent || 0}%)</span><span>${formatCurrency(totals.gstValue || 0)}</span></div>`;
             if ((totals.oldGoldTotal || 0) > 0) summaryHTML += `<div class="flex"><span>Less: Old Gold</span><span>- ${formatCurrency(totals.oldGoldTotal || 0)}</span></div>`;
@@ -934,10 +996,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('printing-a4');
     };
 
-    /**
-     * ** MODIFIED: Populates new shop phone/email fields **
-     * ** MODIFIED: Width changed to 48 chars **
-     */
     const prepareThermalText = (billData = null) => {
         const source = billData || {
             customer: { name: customerNameInput.value, phone: customerPhoneInput.value, address: customerAddressInput.value },
@@ -947,26 +1005,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const totals = source.totals;
         
-        // ** MODIFIED: Default width -> 48 **
         const line = (label, value, width = 48) => {
             const labelStr = label.toString(); const valueStr = value.toString();
             const spaces = Math.max(0, width - labelStr.length - valueStr.length);
             return `${labelStr}${' '.repeat(spaces)}${valueStr}\n`;
         };
-        // ** MODIFIED: Default width -> 48 **
         const center = (text, width = 48) => {
             if (!text) return '\n';
             const spaces = Math.max(0, Math.floor((width - text.length) / 2));
             return `${' '.repeat(spaces)}${text}\n`;
         };
-        // ** MODIFIED: -> 48 dashes **
         const hr = '------------------------------------------------\n';
         
         let text = center(source.shopDetails.name || 'JewelBill');
-        // --- ADDED Shop Details ---
-        //if(source.shopDetails.phone) text += center(source.shopDetails.phone);
-        //if(source.shopDetails.address) text += center(source.shopDetails.address);
-        // --- END ADDED ---
+        if(source.shopDetails.phone) text += center(source.shopDetails.phone);
         text += hr;
         text += center(billData ? `DUPLICATE BILL (${billData.billNumber})` : 'ESTIMATE');
         text += hr;
@@ -983,21 +1035,38 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             text += hr;
         }
+        
+        // --- MODIFIED ---
         if (source.silverItems.length > 0) {
             text += `Silver Items\n`;
             source.silverItems.forEach(item => {
+                const makingChargeValue = (item.makingCharge && item.makingCharge.type)
+                    ? (item.makingCharge.type === 'perGram' 
+                        ? item.weight * item.makingCharge.value 
+                        : item.makingCharge.value)
+                    : 0;
+                
                 text += `${item.name}\n`;
                 text += line(` Weight:${item.weight.toFixed(2)}g`, formatCurrency(item.value));
+                if (makingChargeValue > 0) {
+                    text += line(` Making Charge:`, formatCurrency(makingChargeValue));
+                }
             });
             text += hr;
         }
+        // --- END MODIFIED ---
 
-        if(!totals) return text; // Return early if no totals (e.g. no items)
+        if(!totals) return text;
 
         if (totals.goldSubtotal > 0) text += line('Gold Value:', formatCurrency(totals.goldSubtotal));
         if (totals.wastageValue > 0) text += line('Wastage:', formatCurrency(totals.wastageValue));
         if (totals.goldMakingCharges > 0) text += line('Making Charges:', formatCurrency(totals.goldMakingCharges));
+        
+        // --- MODIFIED ---
         if (totals.silverSubtotal > 0) text += line('Silver Value:', formatCurrency(totals.silverSubtotal));
+        if (totals.silverMakingCharges > 0) text += line('Silver Making:', formatCurrency(totals.silverMakingCharges));
+        // --- END MODIFIED ---
+        
         text += line('Total Before GST:', formatCurrency(totals.totalBeforeGst));
         if (totals.gstValue > 0) text += line(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
         text += line('Bill Total:', formatCurrency(totals.grandTotal));
@@ -1114,10 +1183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * ** MODIFIED: "Sticky Rates" logic **
-     * This function now clears rates when a new bill is started.
-     */
     const resetFormLogic = () => {
         items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
         customerNameInput.value = ''; customerPhoneInput.value = ''; customerAddressInput.value = '';
@@ -1126,13 +1191,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentBillSaved = false;
         generateBillBtn.textContent = 'Generate & Print A4 Bill';
 
-        // --- ADDED: Clear rates from state and localStorage ---
         goldRate22k = 0;
         silverRate = 0;
         goldRateInput.value = '';
         silverRateInput.value = '';
         localStorage.removeItem('jewelBillRates'); 
-        // --- END ADDED ---
 
         const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
         currentState.customerName = ''; currentState.customerPhone = '';
@@ -1140,21 +1203,24 @@ document.addEventListener('DOMContentLoaded', () => {
         currentState.paymentDetails = []; currentState.discount = 0;
         currentState.currentBillSaved = false;
 
-        // --- ADDED: Also clear rates from the bill state ---
         currentState.ratesSet = false; 
         currentState.goldRate22k = 0;
         currentState.silverRate = 0;
-        // --- END ADDED ---
 
         localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
 
         renderAllLists();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // --- MODIFIED: Force rate input to show ---
         updateRateDisplay(true); 
         goldRateInput.focus();
-        // --- END MODIFIED ---
+        
+        // --- ADDED ---
+        // Also reset the silver form (which is now more complex)
+        silverItemForm.reset();
+        getEl('silver-making-charge-type').value = 'perGram';
+        getEl('silver-making-charge-value').value = '0';
+        // --- END ADDED ---
         
         console.log("Form reset for new bill.");
     };

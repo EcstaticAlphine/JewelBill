@@ -152,10 +152,28 @@
 
             <section class="content-card no-print">
                 <h2 class="section-title">Add New Silver Item</h2>
-                <form id="silver-item-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                    <div class="md:col-span-1"><label for="silver-item-name" class="form-label">Item Name</label><input type="text" id="silver-item-name" class="form-input" placeholder="Anklet"></div>
-                    <div><label for="silver-item-weight" class="form-label">Weight (g)</label><input type="number" id="silver-item-weight" step="0.01" class="form-input" placeholder="50.00"></div>
-                    <div class="md:col-span-1"><input type="hidden" id="editing-silver-item-id"><button type="submit" id="add-silver-item-btn" class="button-secondary w-full">Add Silver Item</button></div>
+                <form id="silver-item-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label for="silver-item-name" class="form-label">Item Name</label><input type="text" id="silver-item-name" class="form-input" placeholder="Anklet"></div>
+                        <div><label for="silver-item-weight" class="form-label">Weight (g)</label><input type="number" id="silver-item-weight" step="0.01" class="form-input" placeholder="50.00"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 items-end bg-gray-50 p-3 rounded-md">
+                        <div>
+                            <label for="silver-making-charge-type" class="form-label">Making Charge</label>
+                            <select id="silver-making-charge-type" class="form-select">
+                                <option value="perGram">Per Gram</option>
+                                <option value="fixed">Fixed Amount</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="silver-making-charge-value" class="form-label">Value</label>
+                            <input type="number" id="silver-making-charge-value" step="0.01" class="form-input" placeholder="e.g., 10" value="0">
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <input type="hidden" id="editing-silver-item-id">
+                        <button type="submit" id="add-silver-item-btn" class="button-secondary w-full">Add Silver Item</button>
+                    </div>
                 </form>
             </section>
 
