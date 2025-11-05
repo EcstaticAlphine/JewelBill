@@ -1,7 +1,7 @@
 /*
   app.js
   Main JavaScript logic for JewelBill Application
-  (MODIFIED with all fixes)
+  (MODIFIED with Silver Making Charge AND Old Silver Exchange)
 */
 
 // Wait for the DOM to be fully loaded before running any script
@@ -38,17 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldGoldForm = getEl('old-gold-form');
     const paymentForm = getEl('payment-form');
     const shopDetailsForm = getEl('shop-details-form');
+    const oldSilverForm = getEl('old-silver-form'); // <-- NEW
     
     // Form Buttons
     const addGoldItemBtn = getEl('add-gold-item-btn');
     const addSilverItemBtn = getEl('add-silver-item-btn');
     const addOldGoldBtn = getEl('add-old-gold-btn');
+    const addOldSilverBtn = getEl('add-old-silver-btn'); // <-- NEW
 
     // Item Lists
     const itemsList = getEl('items-list');
     const silverItemsList = getEl('silver-items-list');
     const oldGoldList = getEl('old-gold-list');
     const paymentList = getEl('payment-list');
+    const oldSilverList = getEl('old-silver-list'); // <-- NEW
 
     // Billing & Summary
     const billingContainer = getEl('billing-container');
@@ -88,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentListPrint = getEl('payment-list-print');
     const oldGoldSectionPrint = getEl('old-gold-section-print');
     const paymentSectionPrint = getEl('payment-section-print');
+    const oldSilverListPrint = getEl('old-silver-list-print'); // <-- NEW
+    const oldSilverSectionPrint = getEl('old-silver-section-print'); // <-- NEW
 
     // ** ADDED: Thermal Preview Selectors **
     const previewEstimateBtn = getEl('preview-estimate-btn');
@@ -103,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let items = [];
     let silverItems = [];
     let oldGoldItems = [];
+    let oldSilverItems = []; // <-- NEW
     let paymentDetails = [];
     let customers = [];
     let billHistory = [];
@@ -149,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             items,
             silverItems,
             oldGoldItems,
+            oldSilverItems, // <-- NEW
             paymentDetails,
             wastage: wastageInput.value,
             gst: gstInput.value,
@@ -217,13 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
             items = state.items || [];
             silverItems = state.silverItems || [];
             oldGoldItems = state.oldGoldItems || [];
+            oldSilverItems = state.oldSilverItems || []; // <-- NEW
             paymentDetails = state.paymentDetails || [];
             wastageInput.value = state.wastage || '12';
             gstInput.value = state.gst || '3';
             currentBillSaved = state.currentBillSaved || false;
             
             renderAllLists();
-            if(items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0) {
+            if(items.length > 0 || silverItems.length > 0 || oldGoldItems.length > 0 || oldSilverItems.length > 0) { // <-- MODIFIED
               showToast(restoreToast);
             }
             if (currentBillSaved) {
@@ -249,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGoldItems();
         renderSilverItems();
         renderOldGoldItems();
+        renderOldSilverItems(); // <-- NEW
         renderPayments();
         
         if (currentBillSaved) {
@@ -294,6 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const purityAdjustedWeight = item.netWeight * (item.purityPercent / 91.6);
             item.purityAdjustedWeight = purityAdjustedWeight;
             item.goldValue = purityAdjustedWeight * goldRate22k;
+        });
+        // <-- NEW -->
+        oldSilverItems.forEach(item => {
+            item.value = item.netWeight * silverRate;
         });
     };
 
@@ -365,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
             oldGoldList.innerHTML = ''; return;
         }
         const tableHeader = `
-            <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items</h3>
+            <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items (Gold)</h3>
             <div class="overflow-x-auto"><table class="w-full text-sm text-left">
                 <thead class="bg-gray-50"><tr>
                     <th class="p-2">Item</th><th class="p-2 text-right">Net Wt. / Purity</th>
@@ -382,6 +395,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             </tr>`).join('');
         oldGoldList.innerHTML = tableHeader + tableRows + `</tbody></table></div>`;
+    };
+
+    // <-- NEW FUNCTION -->
+    const renderOldSilverItems = () => {
+        if (oldSilverItems.length === 0) {
+            oldSilverList.innerHTML = ''; return;
+        }
+        const tableHeader = `
+            <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items (Silver)</h3>
+            <div class="overflow-x-auto"><table class="w-full text-sm text-left">
+                <thead class="bg-gray-50"><tr>
+                    <th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th>
+                    <th class="p-2 text-right">Value (-)</th><th class="p-2 no-print"></th>
+                </tr></thead><tbody>`;
+        const tableRows = oldSilverItems.map((item) => `
+            <tr class="border-b">
+                <td class="p-2 font-medium">${item.name}</td>
+                <td class="p-2 text-right">${item.netWeight.toFixed(2)}g</td>
+                <td class="p-2 text-right">${formatCurrency(item.value)}</td>
+                <td class="p-2 text-right no-print flex justify-end gap-2">
+                    <button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="oldSilver" data-action="edit" aria-label="Edit Old Silver Item">&#9998;</button>
+                    <button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="oldSilver" data-action="delete" aria-label="Delete Old Silver Item">&#128465;</button>
+                </td>
+            </tr>`).join('');
+        oldSilverList.innerHTML = tableHeader + tableRows + `</tbody></table></div>`;
     };
 
     const renderPayments = () => {
@@ -410,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calculateTotals = (returnObject = false) => {
         const savedState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
-        const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length;
+        const totalItemsInBill = items.length + silverItems.length + oldGoldItems.length + oldSilverItems.length; // <-- MODIFIED
 
         if (totalItemsInBill === 0) {
             summarySection.classList.add('hidden');
@@ -431,23 +469,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const wastageValue = (goldSubtotal * wastagePercent) / 100;
         const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0);
         
-        // --- NEW ---
         const silverMakingCharges = silverItems.reduce((sum, item) => {
             if (!item.makingCharge) return sum; // For old items without this property
             const charge = (item.makingCharge.type === 'perGram' ? item.weight * item.makingCharge.value : item.makingCharge.value);
             return sum + charge;
         }, 0);
-        // --- END NEW ---
 
         const silverSubtotal = silverItems.reduce((sum, item) => sum + item.value, 0);
         
-        // --- MODIFIED ---
         const totalBeforeGst = goldSubtotal + wastageValue + goldMakingCharges + silverSubtotal + silverMakingCharges;
-        // --- END MODIFIED ---
 
         const gstValue = (totalBeforeGst * gstPercent) / 100;
         const grandTotal = totalBeforeGst + gstValue;
         const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
+        const oldSilverTotal = oldSilverItems.reduce((sum, item) => sum + item.value, 0); // <-- NEW
         
         let discount = 0;
         const discountInput = getEl('discount-input');
@@ -457,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             discount = parseFloat(savedState.discount) || 0;
         }
 
-        const netPayable = grandTotal - oldGoldTotal - discount;
+        const netPayable = grandTotal - oldGoldTotal - oldSilverTotal - discount; // <-- MODIFIED
         const totalPaid = paymentDetails.reduce((sum, p) => sum + p.amount, 0);
         const balanceDue = netPayable - totalPaid;
 
@@ -469,22 +504,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex justify-between"><span class="text-gray-600">Total Making Charges</span><span class="font-semibold">${formatCurrency(goldMakingCharges)}</span></div>`;
         }
         
-        // --- MODIFIED ---
         if (silverSubtotal > 0 || silverMakingCharges > 0) {
             summaryHTML += `<div class="flex justify-between ${goldSubtotal > 0 ? 'border-t mt-2 pt-2' : ''}"><span class="text-gray-600">Total Silver Value</span><span class="font-semibold">${formatCurrency(silverSubtotal)}</span></div>`;
             if (silverMakingCharges > 0) {
                 summaryHTML += `<div class="flex justify-between"><span class="text-gray-600">Total Silver Making</span><span class="font-semibold">${formatCurrency(silverMakingCharges)}</span></div>`;
             }
         }
-        // --- END MODIFIED ---
 
         summaryHTML += `
             <div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total before GST</span><span>${formatCurrency(totalBeforeGst)}</span></div>
             <div class="flex justify-between"><span class="text-gray-600">GST (${gstPercent}%)</span><span class="font-semibold">${formatCurrency(gstValue)}</span></div>
             <div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Bill Total</span><span>${formatCurrency(grandTotal)}</span></div>`;
+        
         if (oldGoldTotal > 0) {
             summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Gold Exchange</span><span class="font-semibold">- ${formatCurrency(oldGoldTotal)}</span></div>`;
         }
+        // <-- NEW -->
+        if (oldSilverTotal > 0) {
+            summaryHTML += `<div class="flex justify-between text-blue-600"><span class="font-semibold">Less: Old Silver Exchange</span><span class="font-semibold">- ${formatCurrency(oldSilverTotal)}</span></div>`;
+        }
+        // <-- END NEW -->
+
         summaryHTML += `
             <div class="grid grid-cols-1 gap-4 pt-4 no-print">
                 <div>
@@ -507,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (returnObject) {
             // --- MODIFIED ---
-            return { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, silverMakingCharges, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
+            return { goldRate22k, silverRate, goldSubtotal, wastageValue, goldMakingCharges, silverSubtotal, silverMakingCharges, totalBeforeGst, gstValue, grandTotal, oldGoldTotal, oldSilverTotal, discount, netPayable, totalPaid, balanceDue, wastagePercent, gstPercent };
             // --- END MODIFIED ---
         } else {
             saveState();
@@ -527,10 +567,9 @@ document.addEventListener('DOMContentLoaded', () => {
         customerListModal.innerHTML = '';
         const lowerSearchTerm = searchTerm.toLowerCase();
         
-        // ** SYNTAX ERROR FIX (Added '||') **
         const filteredCustomers = customers.filter(c =>
             (c.name && c.name.toLowerCase().includes(lowerSearchTerm)) ||
-            (c.phone && c.phone.includes(searchTerm)) ||
+            (c.phone && c.phone.includes(searchTerm)) || 
             (c.address && c.address.toLowerCase().includes(lowerSearchTerm))
         );
 
@@ -776,6 +815,32 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAllLists();
     };
 
+    // <-- NEW FUNCTION -->
+    const handleOldSilverFormSubmit = (e) => {
+        e.preventDefault();
+        const name = getEl('old-silver-item-name').value;
+        if (!name) { alert('Please enter old silver item name.'); return; }
+        const netWeight = parseFloat(getEl('old-silver-item-weight').value);
+        const editingId = getEl('editing-old-silver-item-id').value;
+        if (isNaN(netWeight) || netWeight <= 0) { alert('Please enter a valid weight.'); return; }
+        
+        const value = netWeight * silverRate;
+        const itemData = { name, netWeight, value };
+
+        if (editingId) {
+            const index = oldSilverItems.findIndex(item => item.id == editingId);
+            if (index > -1) oldSilverItems[index] = { ...oldSilverItems[index], ...itemData };
+        } else {
+            itemData.id = Date.now();
+            oldSilverItems.push(itemData);
+        }
+        oldSilverForm.reset();
+        getEl('editing-old-silver-item-id').value = '';
+        addOldSilverBtn.textContent = 'Add Old Silver';
+        getEl('old-silver-item-name').focus();
+        renderAllLists();
+    };
+
     const handlePaymentFormSubmit = (e) => {
         e.preventDefault();
         const mode = getEl('payment-mode').value;
@@ -822,6 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'gold': items = items.filter(item => item.id != id); break;
             case 'silver': silverItems = silverItems.filter(item => item.id != id); break;
             case 'oldGold': oldGoldItems = oldGoldItems.filter(item => item.id != id); break;
+            case 'oldSilver': oldSilverItems = oldSilverItems.filter(item => item.id != id); break; // <-- NEW
             case 'payment': paymentDetails = paymentDetails.filter(p => p.id != id); break;
         }
         renderAllLists();
@@ -849,14 +915,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 getEl('silver-item-name').value = item.name;
                 getEl('silver-item-weight').value = item.weight;
                 
-                // --- NEW CODE ---
-                // Handle items saved before this feature was added
                 if (!item.makingCharge) {
                     item.makingCharge = { type: 'perGram', value: 0 };
                 }
                 getEl('silver-making-charge-type').value = item.makingCharge.type;
                 getEl('silver-making-charge-value').value = item.makingCharge.value;
-                // --- END NEW CODE ---
 
                 getEl('editing-silver-item-id').value = item.id;
                 addSilverItemBtn.textContent = 'Update Silver Item';
@@ -872,8 +935,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 addOldGoldBtn.textContent = 'Update Old Gold';
                 getEl('old-item-name').focus();
                 break;
+            // <-- NEW -->
+            case 'oldSilver':
+                item = oldSilverItems.find(item => item.id == id);
+                if (!item) return;
+                getEl('old-silver-item-name').value = item.name;
+                getEl('old-silver-item-weight').value = item.netWeight;
+                getEl('editing-old-silver-item-id').value = item.id;
+                addOldSilverBtn.textContent = 'Update Old Silver';
+                getEl('old-silver-item-name').focus();
+                break;
         }
     };
+
     // --- 10. Bluetooth & Printing Logic ---
     
     // ** ALL BLUETOOTH CODE REMOVED **
@@ -883,7 +957,11 @@ document.addEventListener('DOMContentLoaded', () => {
             billNumber: `EST-${Date.now().toString().slice(-6)}`,
             date: new Date().toISOString(),
             customer: { name: customerNameInput.value, phone: customerPhoneInput.value },
-            items: items, silverItems: silverItems, oldGoldItems: oldGoldItems, paymentDetails: paymentDetails,
+            items: items, 
+            silverItems: silverItems, 
+            oldGoldItems: oldGoldItems, 
+            oldSilverItems: oldSilverItems, // <-- NEW
+            paymentDetails: paymentDetails,
             totals: calculateTotals(true),
             shopDetails: shopDetails
         };
@@ -920,7 +998,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 makingCharge = item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value;
                 subtotal = value + makingCharge;
             } else {
-                // --- MODIFIED ---
                 netWeight = item.weight?.toFixed(2);
                 rate = totals?.silverRate || silverRate;
                 value = item.weight * rate;
@@ -930,13 +1007,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         : item.makingCharge.value;
                 }
                 subtotal = value + makingCharge;
-                // --- END MODIFIED ---
             }
             itemRowsHTML += `
                 <tr>
                     <td>${itemName}</td><td>${netWeight || '-'}g</td><td>${formatCurrency(rate)}</td>
                     <td>${formatCurrency(value)}</td>
-                    <td>${formatCurrency(makingCharge)}</td> <td>${formatCurrency(subtotal)}</td>
+                    <td>${formatCurrency(makingCharge)}</td>
+                    <td>${formatCurrency(subtotal)}</td>
                 </tr>`;
         });
         itemsListPrint.innerHTML = itemRowsHTML;
@@ -961,16 +1038,36 @@ document.addEventListener('DOMContentLoaded', () => {
             oldGoldListPrint.innerHTML = '';
         }
 
+        // <-- NEW -->
+        if (displayData.oldSilverItems?.length > 0) {
+            oldSilverListPrint.innerHTML = '';
+            let oldSilverRowsHTML = '';
+            const rateUsed = totals?.silverRate || silverRate;
+            displayData.oldSilverItems.forEach(item => {
+                oldSilverRowsHTML += `
+                    <tr>
+                        <td>${item.name}</td><td>${item.netWeight.toFixed(2)}g</td>
+                        <td>${formatCurrency(rateUsed)}</td>
+                        <td>${formatCurrency(item.value)}</td>
+                    </tr>`;
+            });
+            oldSilverListPrint.innerHTML = oldSilverRowsHTML;
+            oldSilverSectionPrint.classList.remove('hidden');
+        } else {
+            oldSilverSectionPrint.classList.add('hidden');
+            oldSilverListPrint.innerHTML = '';
+        }
+        // <-- END NEW -->
+
         summarySectionPrint.innerHTML = '';
         if (totals) {
             let summaryHTML = ``;
-            // --- MODIFIED ---
             const combinedItemSubtotal = (totals.goldSubtotal || 0) + (totals.silverSubtotal || 0) + (totals.goldMakingCharges || 0) + (totals.silverMakingCharges || 0);
             summaryHTML += `<div class="flex"><span>Subtotal</span><span class="font-semibold">${formatCurrency(combinedItemSubtotal)}</span></div>`;
-            // --- END MODIFIED ---
             if ((totals.wastageValue || 0) > 0) summaryHTML += `<div class="flex"><span>Wastage (${totals.wastagePercent || 0}%)</span><span>${formatCurrency(totals.wastageValue || 0)}</span></div>`;
             summaryHTML += `<div class="flex"><span>Tax/GST (${totals.gstPercent || 0}%)</span><span>${formatCurrency(totals.gstValue || 0)}</span></div>`;
             if ((totals.oldGoldTotal || 0) > 0) summaryHTML += `<div class="flex"><span>Less: Old Gold</span><span>- ${formatCurrency(totals.oldGoldTotal || 0)}</span></div>`;
+            if ((totals.oldSilverTotal || 0) > 0) summaryHTML += `<div class="flex"><span>Less: Old Silver</span><span>- ${formatCurrency(totals.oldSilverTotal || 0)}</span></div>`; // <-- NEW
             if ((totals.discount || 0) > 0) summaryHTML += `<div class="flex"><span>Discount</span><span>- ${formatCurrency(totals.discount || 0)}</span></div>`;
             summaryHTML += `<div class="flex border-t border-b-2 border-pink-500 py-1 my-1 text-sm"><span class="font-bold">TOTAL</span><span class="font-bold">${formatCurrency(totals.netPayable || 0)}</span></div>`;
             if (isFinalBill) {
@@ -999,7 +1096,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const prepareThermalText = (billData = null) => {
         const source = billData || {
             customer: { name: customerNameInput.value, phone: customerPhoneInput.value, address: customerAddressInput.value },
-            items, silverItems, oldGoldItems,
+            items, 
+            silverItems, 
+            oldGoldItems,
+            oldSilverItems, // <-- NEW
             totals: calculateTotals(true),
             shopDetails: shopDetails
         };
@@ -1036,7 +1136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             text += hr;
         }
         
-        // --- MODIFIED ---
         if (source.silverItems.length > 0) {
             text += `Silver Items\n`;
             source.silverItems.forEach(item => {
@@ -1054,7 +1153,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             text += hr;
         }
-        // --- END MODIFIED ---
+
+        if (source.oldGoldItems.length > 0) {
+            text += `Old Gold Exchange\n`;
+            source.oldGoldItems.forEach(item => {
+                text += `${item.name} (${item.purityPercent}%)\n`;
+                text += line(` Weight:${item.netWeight.toFixed(2)}g`, `- ${formatCurrency(item.goldValue)}`);
+            });
+            text += hr;
+        }
+
+        // <-- NEW -->
+        if (source.oldSilverItems.length > 0) {
+            text += `Old Silver Exchange\n`;
+            source.oldSilverItems.forEach(item => {
+                text += `${item.name}\n`;
+                text += line(` Weight:${item.netWeight.toFixed(2)}g`, `- ${formatCurrency(item.value)}`);
+            });
+            text += hr;
+        }
+        // <-- END NEW -->
 
         if(!totals) return text;
 
@@ -1062,15 +1180,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totals.wastageValue > 0) text += line('Wastage:', formatCurrency(totals.wastageValue));
         if (totals.goldMakingCharges > 0) text += line('Making Charges:', formatCurrency(totals.goldMakingCharges));
         
-        // --- MODIFIED ---
         if (totals.silverSubtotal > 0) text += line('Silver Value:', formatCurrency(totals.silverSubtotal));
         if (totals.silverMakingCharges > 0) text += line('Silver Making:', formatCurrency(totals.silverMakingCharges));
-        // --- END MODIFIED ---
         
         text += line('Total Before GST:', formatCurrency(totals.totalBeforeGst));
         if (totals.gstValue > 0) text += line(`GST (${totals.gstPercent}%):`, formatCurrency(totals.gstValue));
         text += line('Bill Total:', formatCurrency(totals.grandTotal));
         if (totals.oldGoldTotal > 0) text += line('Old Gold (-):', formatCurrency(totals.oldGoldTotal));
+        if (totals.oldSilverTotal > 0) text += line('Old Silver (-):', formatCurrency(totals.oldSilverTotal)); // <-- NEW
         if (totals.discount > 0) text += line('Discount (-):', formatCurrency(totals.discount));
         text += '================================================\n';
         text += line('NET PAYABLE:', formatCurrency(totals.netPayable));
@@ -1152,6 +1269,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 items: JSON.parse(JSON.stringify(items)),
                 silverItems: JSON.parse(JSON.stringify(silverItems)),
                 oldGoldItems: JSON.parse(JSON.stringify(oldGoldItems)),
+                oldSilverItems: JSON.parse(JSON.stringify(oldSilverItems)), // <-- NEW
                 paymentDetails: JSON.parse(JSON.stringify(paymentDetails)),
                 totals: billTotals,
                 shopDetails: JSON.parse(JSON.stringify(shopDetails))
@@ -1183,8 +1301,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /**
+     * ** MODIFIED: "Sticky Rates" logic **
+     * This function now clears rates when a new bill is started.
+     */
     const resetFormLogic = () => {
-        items = []; silverItems = []; oldGoldItems = []; paymentDetails = [];
+        items = []; 
+        silverItems = []; 
+        oldGoldItems = []; 
+        oldSilverItems = []; // <-- NEW
+        paymentDetails = [];
         customerNameInput.value = ''; customerPhoneInput.value = ''; customerAddressInput.value = '';
         saveCustomerCheckbox.checked = false;
         
@@ -1199,8 +1325,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentState = JSON.parse(localStorage.getItem('jewelBillCurrentState')) || {};
         currentState.customerName = ''; currentState.customerPhone = '';
-        currentState.items = []; currentState.silverItems = []; currentState.oldGoldItems = [];
-        currentState.paymentDetails = []; currentState.discount = 0;
+        currentState.items = []; 
+        currentState.silverItems = []; 
+        currentState.oldGoldItems = [];
+        currentState.oldSilverItems = []; // <-- NEW
+        currentState.paymentDetails = []; 
+        currentState.discount = 0;
         currentState.currentBillSaved = false;
 
         currentState.ratesSet = false; 
@@ -1215,12 +1345,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateRateDisplay(true); 
         goldRateInput.focus();
         
-        // --- ADDED ---
-        // Also reset the silver form (which is now more complex)
         silverItemForm.reset();
         getEl('silver-making-charge-type').value = 'perGram';
         getEl('silver-making-charge-value').value = '0';
-        // --- END ADDED ---
+        
+        oldGoldForm.reset(); // <-- NEW
+        oldSilverForm.reset(); // <-- NEW
         
         console.log("Form reset for new bill.");
     };
@@ -1246,6 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     goldItemForm.addEventListener('submit', handleGoldFormSubmit);
     silverItemForm.addEventListener('submit', handleSilverFormSubmit);
     oldGoldForm.addEventListener('submit', handleOldGoldFormSubmit);
+    oldSilverForm.addEventListener('submit', handleOldSilverFormSubmit); // <-- NEW
     paymentForm.addEventListener('submit', handlePaymentFormSubmit);
     shopDetailsForm.addEventListener('submit', handleShopDetailsSubmit);
 
@@ -1261,7 +1392,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     recalculateBtn.addEventListener('click', () => calculateTotals(false));
     
-    // ** MODIFIED: This now calls the triggerShare function **
     printEstimateBtn.addEventListener('click', () => triggerShare(null));
     
     generateBillBtn.addEventListener('click', handleGenerateBill);
@@ -1275,19 +1405,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ** REMOVED: connectButton listener **
-
     customerNameInput.addEventListener('input', saveState);
     customerPhoneInput.addEventListener('input', saveState);
     customerAddressInput.addEventListener('input', saveState);
     wastageInput.addEventListener('input', () => calculateTotals(false));
     gstInput.addEventListener('input', () => calculateTotals(false));
 
-    // ** ADDED: Thermal Preview Listeners **
     previewEstimateBtn.addEventListener('click', openThermalPreview);
     closeThermalPreviewBtn.addEventListener('click', closeThermalPreview);
 
-    // ** REMOVED: Stray 'm' syntax error **
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')

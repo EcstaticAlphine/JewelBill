@@ -186,12 +186,22 @@
                     <div class="col-span-2 md:col-span-1 mt-4 md:mt-0"><input type="hidden" id="editing-old-gold-item-id"><button type="submit" id="add-old-gold-btn" class="button-info w-full">Add Old Gold</button></div>
                 </form>
             </section>
+
+            <section class="content-card no-print">
+                <h2 class="section-title">Old Silver Exchange</h2>
+                <form id="old-silver-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div class="md:col-span-1"><label for="old-silver-item-name" class="form-label">Item Name</label><input type="text" id="old-silver-item-name" class="form-input" placeholder="Old Anklet"></div>
+                    <div><label for="old-silver-item-weight" class="form-label">Net Wt. (g)</label><input type="number" id="old-silver-item-weight" step="0.01" class="form-input" placeholder="55.00"></div>
+                    <div class="md:col-span-1"><input type="hidden" id="editing-old-silver-item-id"><button type="submit" id="add-old-silver-btn" class="button-info w-full">Add Old Silver</button></div>
+                </form>
+            </section>
             
             <section id="billing-container" class="content-card">
                 <h2 class="section-title">Estimation Details</h2>
                 <div id="items-list" class="mb-4"></div>
                 <div id="silver-items-list" class="mb-4"></div>
                 <div id="old-gold-list" class="mb-4"></div>
+                <div id="old-silver-list" class="mb-4"></div>
                 <div id="charges-config" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end no-print hidden">
                     <div><label for="wastage" class="form-label">Gold Wastage (%)</label><input type="number" id="wastage" step="0.1" value="12" class="form-input"></div>
                     <div><label for="gst" class="form-label">GST (%)</label><input type="number" id="gst" value="3" step="0.1" class="form-input"></div>
@@ -275,6 +285,15 @@
                  <tbody id="old-gold-list-print"></tbody>
              </table>
         </div>
+
+        <div id="old-silver-section-print" class="hidden">
+             <h3>Old Silver Exchange Details:</h3>
+             <table class="items-table-print">
+                 <thead><tr><th>ITEM</th><th>WEIGHT (Net)</th><th>RATE</th><th>VALUE (-)</th></tr></thead>
+                 <tbody id="old-silver-list-print"></tbody>
+             </table>
+        </div>
+        
         <div class="summary-payments-container-print">
             <div id="summary-section-print"></div>
         </div>
