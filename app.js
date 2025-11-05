@@ -1,7 +1,7 @@
 /*
   app.js
   Main JavaScript logic for JewelBill Application
-  (MODIFIED with Silver Making Charge AND Old Silver Exchange)
+  (MODIFIED with Old Silver Purity)
 */
 
 // Wait for the DOM to be fully loaded before running any script
@@ -38,20 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const oldGoldForm = getEl('old-gold-form');
     const paymentForm = getEl('payment-form');
     const shopDetailsForm = getEl('shop-details-form');
-    const oldSilverForm = getEl('old-silver-form'); // <-- NEW
+    const oldSilverForm = getEl('old-silver-form'); 
     
     // Form Buttons
     const addGoldItemBtn = getEl('add-gold-item-btn');
     const addSilverItemBtn = getEl('add-silver-item-btn');
     const addOldGoldBtn = getEl('add-old-gold-btn');
-    const addOldSilverBtn = getEl('add-old-silver-btn'); // <-- NEW
+    const addOldSilverBtn = getEl('add-old-silver-btn'); 
 
     // Item Lists
     const itemsList = getEl('items-list');
     const silverItemsList = getEl('silver-items-list');
     const oldGoldList = getEl('old-gold-list');
     const paymentList = getEl('payment-list');
-    const oldSilverList = getEl('old-silver-list'); // <-- NEW
+    const oldSilverList = getEl('old-silver-list'); 
 
     // Billing & Summary
     const billingContainer = getEl('billing-container');
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateBillBtn = getEl('generate-bill-btn');
     const resetBtn = getEl('reset-btn');
 
-    // ** MODIFIED: Settings Selectors (Bluetooth code removed) **
     const settingsBtn = getEl('settings-btn');
     const settingsPanel = getEl('settings-panel');
     const shopNameInput = getEl('shop-name');
@@ -91,10 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentListPrint = getEl('payment-list-print');
     const oldGoldSectionPrint = getEl('old-gold-section-print');
     const paymentSectionPrint = getEl('payment-section-print');
-    const oldSilverListPrint = getEl('old-silver-list-print'); // <-- NEW
-    const oldSilverSectionPrint = getEl('old-silver-section-print'); // <-- NEW
+    const oldSilverListPrint = getEl('old-silver-list-print'); 
+    const oldSilverSectionPrint = getEl('old-silver-section-print'); 
 
-    // ** ADDED: Thermal Preview Selectors **
     const previewEstimateBtn = getEl('preview-estimate-btn');
     const thermalReceiptModal = getEl('thermal-receipt-modal');
     const thermalReceiptContent = getEl('thermal-receipt-content');
@@ -104,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const restoreToast = getEl('restore-toast');
     const settingsToast = getEl('settings-toast');
 
-    // --- 2. Application State (Bluetooth state removed) ---
+    // --- 2. Application State ---
     let items = [];
     let silverItems = [];
     let oldGoldItems = [];
@@ -144,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. State Management (LocalStorage) ---
 
-    /** Saves the entire app state to localStorage. */
     const saveState = () => {
         const currentBillState = {
             goldRate22k,
@@ -178,12 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('jewelBillCurrentState', JSON.stringify(currentState));
     };
 
-    /** ** MODIFIED: Saves new shop details ** */
     const saveShopDetails = () => {
         localStorage.setItem('jewelBillShopDetails', JSON.stringify(shopDetails));
     };
 
-    /** ** MODIFIED: Loads state with "Sticky Rates" logic ** */
     const loadState = () => {
         customers = JSON.parse(localStorage.getItem('jewelBillCustomers')) || [];
         billHistory = JSON.parse(localStorage.getItem('jewelBillHistory')) || [];
@@ -196,8 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         shopEmailInput.value = shopDetails.email || ''; 
         shopAddressInput.value = shopDetails.address || '';
 
-        // --- MODIFIED LOGIC ---
-        // 1. Load rates from their dedicated storage
         const savedRates = JSON.parse(localStorage.getItem('jewelBillRates'));
         if (savedRates) {
             goldRate22k = savedRates.goldRate22k || 0;
@@ -209,12 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
             silverRate = 0;
         }
 
-        // 2. Load the rest of the bill state
         const savedCurrentState = localStorage.getItem('jewelBillCurrentState');
         if (savedCurrentState) {
             const state = JSON.parse(savedCurrentState);
             
-            // Respect rates from current state if they exist, otherwise use savedRates
             goldRate22k = state.goldRate22k || goldRate22k;
             silverRate = state.silverRate || silverRate;
             
@@ -239,20 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 3. Decide whether to show rate inputs based *only* on loaded rates.
         if (goldRate22k > 0 && silverRate > 0) {
-            // Rates are set, hide the input form.
             updateRateDisplay(false);
         } else {
-            // No rates are set, show the input form.
             updateRateDisplay(true);
         }
-        // --- END MODIFIED LOGIC ---
     };
 
     // --- 5. UI Rendering Functions ---
 
-    /** Renders all item lists and recalculates totals. */
     const renderAllLists = () => {
         renderGoldItems();
         renderSilverItems();
@@ -304,9 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
             item.purityAdjustedWeight = purityAdjustedWeight;
             item.goldValue = purityAdjustedWeight * goldRate22k;
         });
-        // <-- NEW -->
+        // <-- MODIFIED -->
         oldSilverItems.forEach(item => {
-            item.value = item.netWeight * silverRate;
+            // Assumes silverRate is for 100% pure silver
+            item.value = item.netWeight * (item.purityPercent / 100) * silverRate;
         });
     };
 
@@ -349,22 +336,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <thead class="bg-gray-50"><tr>
                     <th class="p-2">Item</th><th class="p-2 text-right">Weight</th>
                     <th class="p-2 text-right">Value</th>
-                    <th class="p-2 text-right">Making</th> <th class="p-2 no-print"></th>
+                    <th class="p-2 text-right">Making</th>
+                    <th class="p-2 no-print"></th>
                 </tr></thead><tbody>`;
         const tableRows = silverItems.map((item) => {
-            // --- NEW CALCULATION ---
             const makingChargeValue = (item.makingCharge && item.makingCharge.type)
                 ? (item.makingCharge.type === 'perGram' 
                     ? item.weight * item.makingCharge.value 
                     : item.makingCharge.value)
                 : 0;
-            // --- END NEW CALCULATION ---
             return `
             <tr class="border-b">
                 <td class="p-2 font-medium">${item.name}</td>
                 <td class="p-2 text-right">${item.weight.toFixed(2)}g</td>
                 <td class="p-2 text-right">${formatCurrency(item.value)}</td>
-                <td class="p-2 text-right">${formatCurrency(makingChargeValue)}</td> <td class="p-2 text-right no-print flex justify-end gap-2">
+                <td class="p-2 text-right">${formatCurrency(makingChargeValue)}</td>
+                <td class="p-2 text-right no-print flex justify-end gap-2">
                     <button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="silver" data-action="edit" aria-label="Edit Silver Item">&#9998;</button>
                     <button class="icon-btn text-red-500 hover:text-red-700" data-id="${item.id}" data-type="silver" data-action="delete" aria-label="Delete Silver Item">&#128465;</button>
                 </td>
@@ -397,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         oldGoldList.innerHTML = tableHeader + tableRows + `</tbody></table></div>`;
     };
 
-    // <-- NEW FUNCTION -->
+    // <-- MODIFIED FUNCTION -->
     const renderOldSilverItems = () => {
         if (oldSilverItems.length === 0) {
             oldSilverList.innerHTML = ''; return;
@@ -406,13 +393,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Exchanged Items (Silver)</h3>
             <div class="overflow-x-auto"><table class="w-full text-sm text-left">
                 <thead class="bg-gray-50"><tr>
-                    <th class="p-2">Item</th><th class="p-2 text-right">Net Wt.</th>
+                    <th class="p-2">Item</th><th class="p-2 text-right">Net Wt. / Purity</th>
                     <th class="p-2 text-right">Value (-)</th><th class="p-2 no-print"></th>
                 </tr></thead><tbody>`;
         const tableRows = oldSilverItems.map((item) => `
             <tr class="border-b">
                 <td class="p-2 font-medium">${item.name}</td>
-                <td class="p-2 text-right">${item.netWeight.toFixed(2)}g</td>
+                <td class="p-2 text-right">${item.netWeight.toFixed(2)}g (${item.purityPercent}%)</td>
                 <td class="p-2 text-right">${formatCurrency(item.value)}</td>
                 <td class="p-2 text-right no-print flex justify-end gap-2">
                     <button class="icon-btn text-blue-500 hover:text-blue-700" data-id="${item.id}" data-type="oldSilver" data-action="edit" aria-label="Edit Old Silver Item">&#9998;</button>
@@ -470,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const goldMakingCharges = items.reduce((sum, item) => (sum + (item.makingCharge.type === 'perGram' ? item.grossWeight * item.makingCharge.value : item.makingCharge.value)), 0);
         
         const silverMakingCharges = silverItems.reduce((sum, item) => {
-            if (!item.makingCharge) return sum; // For old items without this property
+            if (!item.makingCharge) return sum;
             const charge = (item.makingCharge.type === 'perGram' ? item.weight * item.makingCharge.value : item.makingCharge.value);
             return sum + charge;
         }, 0);
@@ -482,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gstValue = (totalBeforeGst * gstPercent) / 100;
         const grandTotal = totalBeforeGst + gstValue;
         const oldGoldTotal = oldGoldItems.reduce((sum, item) => sum + item.goldValue, 0);
-        const oldSilverTotal = oldSilverItems.reduce((sum, item) => sum + item.value, 0); // <-- NEW
+        const oldSilverTotal = oldSilverItems.reduce((sum, item) => sum + item.value, 0); // <-- MODIFIED
         
         let discount = 0;
         const discountInput = getEl('discount-input');
@@ -702,7 +689,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // ** NEW: Thermal Preview Modal Logic **
     const openThermalPreview = () => {
         const plainText = prepareThermalText(null); // Get current estimate text
         if (plainText) {
@@ -760,18 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const editingId = getEl('editing-silver-item-id').value;
         if (isNaN(weight) || weight <= 0) { alert('Please enter a valid weight.'); return; }
 
-        // --- NEW CODE ---
         const makingChargeType = getEl('silver-making-charge-type').value;
         const makingChargeValue = parseFloat(getEl('silver-making-charge-value').value) || 0;
         if (isNaN(makingChargeValue) || makingChargeValue < 0) { alert('Please enter a valid making charge (0 or more).'); return; }
-        // --- END NEW CODE ---
 
         const value = weight * silverRate;
         const itemData = { 
             name, 
             weight, 
             value, 
-            makingCharge: { type: makingChargeType, value: makingChargeValue } // <-- ADDED
+            makingCharge: { type: makingChargeType, value: makingChargeValue } 
         };
 
         if (editingId) {
@@ -782,8 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
             silverItems.push(itemData);
         }
         silverItemForm.reset();
-        getEl('silver-making-charge-type').value = 'perGram'; // <-- Reset new fields
-        getEl('silver-making-charge-value').value = '0'; // <-- Reset new fields
+        getEl('silver-making-charge-type').value = 'perGram'; 
+        getEl('silver-making-charge-value').value = '0'; 
         getEl('editing-silver-item-id').value = '';
         addSilverItemBtn.textContent = 'Add Silver Item';
         getEl('silver-item-name').focus();
@@ -815,17 +799,25 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAllLists();
     };
 
-    // <-- NEW FUNCTION -->
+    // <-- MODIFIED FUNCTION -->
     const handleOldSilverFormSubmit = (e) => {
         e.preventDefault();
         const name = getEl('old-silver-item-name').value;
         if (!name) { alert('Please enter old silver item name.'); return; }
         const netWeight = parseFloat(getEl('old-silver-item-weight').value);
+        const purityPercent = parseFloat(getEl('old-silver-item-purity').value); // <-- NEW
         const editingId = getEl('editing-old-silver-item-id').value;
-        if (isNaN(netWeight) || netWeight <= 0) { alert('Please enter a valid weight.'); return; }
         
-        const value = netWeight * silverRate;
-        const itemData = { name, netWeight, value };
+        // <-- MODIFIED VALIDATION -->
+        if (isNaN(netWeight) || netWeight <= 0 || isNaN(purityPercent) || purityPercent <= 0 || purityPercent > 100) { 
+            alert('Please enter a valid weight and purity (1-100%).'); 
+            return; 
+        }
+        
+        // <-- MODIFIED CALCULATION -->
+        // Assumes silverRate is for 100% pure silver
+        const value = netWeight * (purityPercent / 100) * silverRate;
+        const itemData = { name, netWeight, purityPercent, value }; // <-- MODIFIED
 
         if (editingId) {
             const index = oldSilverItems.findIndex(item => item.id == editingId);
@@ -854,12 +846,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAllLists();
     };
 
-    /** ** MODIFIED: Saves new shop detail fields ** */
     const handleShopDetailsSubmit = (e) => {
         e.preventDefault();
         shopDetails.name = shopNameInput.value.trim();
-        shopDetails.phone = shopPhoneInput.value.trim(); // <-- NEW
-        shopDetails.email = shopEmailInput.value.trim(); // <-- NEW
+        shopDetails.phone = shopPhoneInput.value.trim(); 
+        shopDetails.email = shopEmailInput.value.trim(); 
         shopDetails.address = shopAddressInput.value.trim();
         
         saveShopDetails();
@@ -935,12 +926,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 addOldGoldBtn.textContent = 'Update Old Gold';
                 getEl('old-item-name').focus();
                 break;
-            // <-- NEW -->
+            // <-- MODIFIED -->
             case 'oldSilver':
                 item = oldSilverItems.find(item => item.id == id);
                 if (!item) return;
                 getEl('old-silver-item-name').value = item.name;
                 getEl('old-silver-item-weight').value = item.netWeight;
+                getEl('old-silver-item-purity').value = item.purityPercent; // <-- NEW
                 getEl('editing-old-silver-item-id').value = item.id;
                 addOldSilverBtn.textContent = 'Update Old Silver';
                 getEl('old-silver-item-name').focus();
@@ -949,8 +941,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- 10. Bluetooth & Printing Logic ---
-    
-    // ** ALL BLUETOOTH CODE REMOVED **
 
     const prepareA4Print = (isFinalBill, billData = null, isReprint = false) => {
         const displayData = billData || {
@@ -1001,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 netWeight = item.weight?.toFixed(2);
                 rate = totals?.silverRate || silverRate;
                 value = item.weight * rate;
-                if (item.makingCharge) { // Check if makingCharge exists
+                if (item.makingCharge) {
                     makingCharge = item.makingCharge.type === 'perGram' 
                         ? item.weight * item.makingCharge.value 
                         : item.makingCharge.value;
@@ -1038,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
             oldGoldListPrint.innerHTML = '';
         }
 
-        // <-- NEW -->
+        // <-- MODIFIED -->
         if (displayData.oldSilverItems?.length > 0) {
             oldSilverListPrint.innerHTML = '';
             let oldSilverRowsHTML = '';
@@ -1047,6 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 oldSilverRowsHTML += `
                     <tr>
                         <td>${item.name}</td><td>${item.netWeight.toFixed(2)}g</td>
+                        <td>${item.purityPercent}%</td> 
                         <td>${formatCurrency(rateUsed)}</td>
                         <td>${formatCurrency(item.value)}</td>
                     </tr>`;
@@ -1057,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
             oldSilverSectionPrint.classList.add('hidden');
             oldSilverListPrint.innerHTML = '';
         }
-        // <-- END NEW -->
+        // <-- END MODIFIED -->
 
         summarySectionPrint.innerHTML = '';
         if (totals) {
@@ -1163,16 +1154,16 @@ document.addEventListener('DOMContentLoaded', () => {
             text += hr;
         }
 
-        // <-- NEW -->
+        // <-- MODIFIED -->
         if (source.oldSilverItems.length > 0) {
             text += `Old Silver Exchange\n`;
             source.oldSilverItems.forEach(item => {
-                text += `${item.name}\n`;
+                text += `${item.name} (${item.purityPercent}%)\n`;
                 text += line(` Weight:${item.netWeight.toFixed(2)}g`, `- ${formatCurrency(item.value)}`);
             });
             text += hr;
         }
-        // <-- END NEW -->
+        // <-- END MODIFIED -->
 
         if(!totals) return text;
 
@@ -1204,10 +1195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     };
     
-    /**
-     * This is the helper function for the share button.
-     * It prepares text and calls navigator.share
-     */
     const triggerShare = async (billData = null) => {
         const plainText = prepareThermalText(billData); 
         if (!plainText) {
@@ -1233,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 11. Main Action Button Handlers ---
 
     const handleGenerateBill = () => {
-        if (items.length === 0 && silverItems.length === 0) {
+        if (items.length === 0 && silverItems.length === 0 && oldGoldItems.length === 0 && oldSilverItems.length === 0) {
             alert("Cannot generate bill with no items.");
             return;
         }
@@ -1241,7 +1228,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let billToPrint;
 
         if (currentBillSaved) {
-            // --- REPRINT LOGIC ---
             if (billHistory.length > 0) {
                 const billNumToFind = `${billPrefix}${lastBillNum.toString().padStart(billPadding, '0')}`;
                 billToPrint = billHistory.find(b => b.billNumber === billNumToFind);
@@ -1258,7 +1244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } else {
-            // --- NEW BILL LOGIC ---
             const billNumber = generateNextBillNumber();
             const billDate = new Date().toISOString();
             const currentCustomer = { name: customerNameInput.value.trim(), phone: customerPhoneInput.value.trim(), address: customerAddressInput.value.trim() };
@@ -1301,10 +1286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * ** MODIFIED: "Sticky Rates" logic **
-     * This function now clears rates when a new bill is started.
-     */
     const resetFormLogic = () => {
         items = []; 
         silverItems = []; 
