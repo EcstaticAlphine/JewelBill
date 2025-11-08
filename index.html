@@ -153,10 +153,32 @@
             <section class="content-card no-print">
                 <h2 class="section-title">Add New Silver Item</h2>
                 <form id="silver-item-form" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label for="silver-item-name" class="form-label">Item Name</label><input type="text" id="silver-item-name" class="form-input" placeholder="Anklet"></div>
-                        <div><label for="silver-item-weight" class="form-label">Weight (g)</label><input type="number" id="silver-item-weight" step="0.01" class="form-input" placeholder="50.00"></div>
+                    
+                    <div>
+                        <label for="silver-item-name" class="form-label">Item Name</label>
+                        <input type="text" id="silver-item-name" class="form-input" placeholder="Anklet, Coin, etc.">
                     </div>
+
+                    <div class="grid grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label for="silver-calc-type" class="form-label">Calculation Type</label>
+                            <select id="silver-calc-type" class="form-select">
+                                <option value="byWeight">By Weight</option>
+                                <option value="fixed">Fixed Value</option>
+                            </select>
+                        </div>
+                        
+                        <div id="silver-weight-container">
+                            <label for="silver-item-weight" class="form-label">Weight (g)</label>
+                            <input type="number" id="silver-item-weight" step="0.01" class="form-input" placeholder="50.00">
+                        </div>
+                        
+                        <div id="silver-fixed-value-container" class="hidden">
+                            <label for="silver-fixed-value" class="form-label">Fixed Value (₹)</label>
+                            <input type="number" id="silver-fixed-value" step="0.01" class="form-input" placeholder="e.g., 2500">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4 items-end bg-gray-50 p-3 rounded-md">
                         <div>
                             <label for="silver-making-charge-type" class="form-label">Making Charge</label>
@@ -170,6 +192,7 @@
                             <input type="number" id="silver-making-charge-value" step="0.01" class="form-input" placeholder="e.g., 10" value="0">
                         </div>
                     </div>
+
                     <div class="pt-2">
                         <input type="hidden" id="editing-silver-item-id">
                         <button type="submit" id="add-silver-item-btn" class="button-secondary w-full">Add Silver Item</button>
